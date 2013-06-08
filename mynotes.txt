@@ -1,0 +1,4 @@
+1. install heroku toolbelt
+2. install ssh
+3. add ssh keys
+4. add username and email in git config
