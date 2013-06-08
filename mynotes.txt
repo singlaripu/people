@@ -2,3 +2,12 @@
 2. install ssh
 3. add ssh keys
 4. add username and email in git config
+5. https://devcenter.heroku.com/articles/python#prerequisites
+6. install python setuptools, pip, virtualenv
+7. create virtual environment
+8. activate virtual env
+9. pip install flash gunicorn
+10. pip install -r requirements.txt
+11. create a local.env file
+12 foreman start --env local.env
+
