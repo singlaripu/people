@@ -11,4 +11,6 @@
 10. pip install -r requirements.txt
 11. create a local.env file
 12. foreman start --env local.env
+13. sudo apt-get install postgresql libpq-dev
+14. pip install flask-sqlalchemy psycopg2
 
