@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=2.0, user-scalable=yes" />
 
     <!-- We get the name of the app out of the information fetched -->
-    <title>{{ name }}</title>
+    <title>People</title>
     <link rel="stylesheet" href="static/screen.css" media="Screen" type="text/css" />
     <link rel="stylesheet" href="static/mobile.css" media="handheld, only screen and (max-width: 480px), only screen and (max-device-width: 480px)" type="text/css" />
 
@@ -111,7 +111,8 @@
           // window.location.reload() because if this is in a canvas there was a
           // post made to this page and a reload will trigger a message to the
           // user asking if they want to send data again.
-          window.location = window.location;
+          //window.location = window.location;
+	       window.top.location.href = "http://127.0.0.1:5000/"
         });
 
         FB.Canvas.setAutoGrow();
@@ -132,35 +133,20 @@
 
       {% endblock %}
     </header>
+<!--
     <section id="get-started">
-      <!--<p>Welcome to your Facebook app, running on<span>heroku</span>!</p>-->
+      <p>Welcome to your Facebook app, running on<span>heroku</span>!</p>
 	<p> This is my app, I can edit it all I want.</p>
       <a class="button" href="https://devcenter.heroku.com/articles/facebook">Learn How to Edit This App</a>
     </section>
+-->
     {% block content%}
     {% endblock %}
+<!--
     <section class="clearfix" id="guides">
-      <h1>Learn More About Heroku &amp; Facebook Apps</h1>
-      <ul>
-        <li>
-          <a class="icon heroku" href="https://www.heroku.com/" target="_top">Heroku</a>
-          <p>Learn more about
-          <a href="https://www.heroku.com/" target="_top">Heroku</a>, or read developer docs in the Heroku
-          <a href="https://devcenter.heroku.com/" target="_top">Dev Center</a>.</p>
-        </li>
-        <li>
-          <a class="icon websites" href="https://developers.facebook.com/docs/guides/web/" target="_top">Websites</a>
-          <p>Drive growth and engagement on your site with Facebook Login and Social Plugins.</p>
-        </li>
-        <li>
-          <a class="icon mobile-apps" href="https://developers.facebook.com/docs/guides/mobile/" target="_top">Mobile Apps</a>
-          <p>Integrate with our core experience by building apps that operate within Facebook.</p>
-        </li>
-        <li>
-          <a class="icon apps-on-facebook" href="https://developers.facebook.com/docs/guides/canvas/" target="_top">Apps on Facebook</a>
-          <p>Let users find and connect to their friends in mobile apps and games.</p>
-        </li>
-      </ul>
+
     </section>
+-->
+
   </body>
 </html>

@@ -120,6 +120,8 @@ def get_home():
 
 def get_token():
 
+    #print 'hello'
+
     if request.args.get('code', None):
         return fbapi_auth(request.args.get('code'))[0]
 
@@ -166,47 +168,132 @@ def index():
 
 
     access_token = get_token()
+    print access_token
     channel_url = url_for('get_channel', _external=True)
     channel_url = channel_url.replace('http:', '').replace('https:', '')
 
     if access_token:
 
-        me = fb_call('me', args={'access_token': access_token})
+        me = fb_call('me/?fields=name,gender,work,hometown,education,birthday,interested_in,location', args={'access_token': access_token})
         fb_app = fb_call(FB_APP_ID, args={'access_token': access_token})
-        likes = fb_call('me/likes',
-                        args={'access_token': access_token, 'limit': 4})
-        friends = fb_call('me/friends',
-                          args={'access_token': access_token, 'limit': 4})
-        photos = fb_call('me/photos',
-                         args={'access_token': access_token, 'limit': 16})
+
+        #likes = fb_call('me/likes', args={'access_token': access_token})
+
+        likes = fql(
+            "select type, page_id, name from page where page_id in (select page_id from page_fan where uid=me()) limit 1000",
+            access_token
+            )
+
+        likes_dict = {}
+        for like in likes:
+            try:
+                likes_dict[like['type']].append({'name':like['name'], 'id':like['page_id']})
+            except KeyError:
+                likes_dict[like['type']] = []
+                likes_dict[like['type']].append({'name':like['name'], 'id':like['page_id']})
+        likes_dict = [(key, value) for key, value in likes_dict.iteritems()]
+        likes_dict = sorted(likes_dict, key =lambda x: len(x[1]), reverse=True)
+        #likes_dict_sortd = {}
+
+        #likes = {"keys":likes_dict.keys(), 'data':likes_dict}
+
+        # = fb_call('me/friends', args={'access_token': access_token, 'limit': 4})
+        #photos = fb_call('me/photos',args={'access_token': access_token, 'limit': 16})
+
+        profile_pic = fb_call('me/picture/?type=large&redirect=false',args={'access_token': access_token})
+
+        #profile_pic_album = fb_call('me/albums?fields=type',args={'access_token': access_token})
+        #profile_pic_album_id = filter(lambda x: x['type'] == 'profile', profile_pic_album['data'])[0]['id']
+        #profile_pic_album_photos = fb_call('{0}/photos?fields=picture,name'.format(profile_pic_album_id),args={'access_token': access_token})
+
+        profile_pic_album_photos = fql(
+            "select src, src_big from photo where album_object_id in (select object_id from album where owner=me() and type='profile')",
+            access_token
+            )
+
+        video_watched_dict = {'TV Shows':[], 'Movies':[]}
+        video_watched = fb_call('me/video.watches/?fields=data',args={'access_token': access_token})
+        for vid in video_watched['data']:
+            if 'tv_show' in vid['data'].keys():
+                video_watched_dict['TV Shows'].append({'url':vid['data']['tv_show']['url'], 'title':vid['data']['tv_show']['title'], 'id':vid['data']['tv_show']['id']})
+            elif 'movie' in vid['data'].keys():
+                video_watched_dict['Movies'].append({'url':vid['data']['movie']['url'], 'title':vid['data']['movie']['title'], 'id':vid['data']['movie']['id']})
+
+        video_want_to_watch_dict = {'TV Shows':[], 'Movies':[]}
+        video_want_to_watch = fb_call('me/video.wants_to_watch/?fields=data',args={'access_token': access_token})
+        for vid in video_want_to_watch['data']:
+            if 'tv_show' in vid['data'].keys():
+                video_want_to_watch_dict['TV Shows'].append({'url':vid['data']['tv_show']['url'], 'title':vid['data']['tv_show']['title'], 'id':vid['data']['tv_show']['id']})
+            elif 'movie' in vid['data'].keys():
+                video_want_to_watch_dict['Movies'].append({'url':vid['data']['movie']['url'], 'title':vid['data']['movie']['title'], 'id':vid['data']['movie']['id']})
+
+        video_watched_dict['Books'] = []
+        books_read = fb_call('me/books.reads/?fields=data',args={'access_token': access_token})
+        for vid in books_read['data']:
+            if 'book' in vid['data'].keys():
+                video_watched_dict['Books'].append({'url':vid['data']['book']['url'], 'title':vid['data']['book']['title'], 'id':vid['data']['book']['id']})
+
+        video_watched_dict = [(key, value) for key, value in video_watched_dict.iteritems()]
+        video_watched_dict = sorted(video_watched_dict, key =lambda x: len(x[1]), reverse=True)
+ 
+
+        video_want_to_watch_dict['Books'] = []
+        books_wants_to_read = fb_call('me/books.wants_to_read/?fields=data',args={'access_token': access_token})
+        for vid in books_wants_to_read['data']:
+            if 'book' in vid['data'].keys():
+                video_want_to_watch_dict['Books'].append({'url':vid['data']['book']['url'], 'title':vid['data']['book']['title'], 'id':vid['data']['book']['id']})
+
+        video_want_to_watch_dict = [(key, value) for key, value in video_want_to_watch_dict.iteritems()]
+        video_want_to_watch_dict = sorted(video_want_to_watch_dict, key =lambda x: len(x[1]), reverse=True)
+ 
+
+        #print photos
 
         redir = get_home() + 'close/'
-        POST_TO_WALL = ("https://www.facebook.com/dialog/feed?redirect_uri=%s&"
-                        "display=popup&app_id=%s" % (redir, FB_APP_ID))
+        #POST_TO_WALL = ("https://www.facebook.com/dialog/feed?redirect_uri=%s&"
+        #                "display=popup&app_id=%s" % (redir, FB_APP_ID))
 
-        app_friends = fql(
-            "SELECT uid, name, is_app_user, pic_square "
-            "FROM user "
-            "WHERE uid IN (SELECT uid2 FROM friend WHERE uid1 = me()) AND "
-            "  is_app_user = 1", access_token)
+        #app_friends = fql(
+        #    "SELECT uid, name, is_app_user, pic_square "
+        #    "FROM user "
+        #    "WHERE uid IN (SELECT uid2 FROM friend WHERE uid1 = me()) AND "
+        #    "  is_app_user = 1", access_token)
 
-        SEND_TO = ('https://www.facebook.com/dialog/send?'
-                   'redirect_uri=%s&display=popup&app_id=%s&link=%s'
-                   % (redir, FB_APP_ID, get_home()))
+        #SEND_TO = ('https://www.facebook.com/dialog/send?'
+        #           'redirect_uri=%s&display=popup&app_id=%s&link=%s'
+        #           % (redir, FB_APP_ID, get_home()))
 
         url = request.url
 
         return render_template(
-            'index.html', app_id=FB_APP_ID, token=access_token, likes=likes,
-            friends=friends, photos=photos, app_friends=app_friends, app=fb_app,
-            me=me, POST_TO_WALL=POST_TO_WALL, SEND_TO=SEND_TO, url=url,
-            channel_url=channel_url, name=FB_APP_NAME)
+            'index.html', 
+            app_id=FB_APP_ID, 
+            token=access_token, 
+            likes=likes_dict,
+            #friends=friends, 
+            #photos=photos, 
+            #app_friends=app_friends, 
+            app=fb_app,
+            me=me, 
+            #POST_TO_WALL=POST_TO_WALL, 
+            #SEND_TO=SEND_TO, url=url,
+            channel_url=channel_url, 
+            name=FB_APP_NAME, 
+            profile_pic=profile_pic,
+            profile_pic_album_photos=profile_pic_album_photos,
+            video_watched_dict=video_watched_dict,
+            video_want_to_watch_dict=video_want_to_watch_dict
+            )
     else:
         return render_template('login.html', app_id=FB_APP_ID, token=access_token, url=request.url, channel_url=channel_url, name=FB_APP_NAME)
 
 @app.route('/channel.html', methods=['GET', 'POST'])
 def get_channel():
     return render_template('channel.html')
+
+@app.route('/about')
+def about():
+  return render_template('about.html')
 
 
 @app.route('/close/', methods=['GET', 'POST'])
@@ -216,6 +303,7 @@ def close():
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
     if app.config.get('FB_APP_ID') and app.config.get('FB_APP_SECRET'):
+        app.debug = True
         app.run(host='0.0.0.0', port=port)
     else:
         print 'Cannot start application without Facebook App Id and Secret set'

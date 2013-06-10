@@ -8,14 +8,10 @@
   <p id="picture" style="background-image: url(https://graph.facebook.com/me/picture?type=normal&access_token={{token}})"></p>
 
   <div>
-    <h1>Welcome, <strong>{{me.name}}</strong></h1>
-    <p class="tagline">
-      This is your app
-      <a href="{{app.link}}">{{app.name}}</a>
-    </p>
     <div id="share-app">
-      <p>Share your app:</p>
+      <p>Share this app:</p>
       <ul>
+      <!--  
         <li>
           <a href="#" class="facebook-button" id="postToWall" data-url="{{ url }}">
             <span class="plus">Post to Wall</span>
@@ -26,65 +22,124 @@
             <span class="speech-bubble">Send Message</span>
           </a>
         </li>
+      -->  
         <li>
           <a href="#" class="facebook-button apprequests" id="sendRequest" data-message="Test this awesome app">
-            <span class="apprequests">Send Requests</span>
+            <span class="apprequests">Invite Friends</span>
           </a>
         </li>
       </ul>
+    </div>    
+    <h1><strong>{{me.name}}</strong></h1>
+    <img src="{{ profile_pic['data']['url'] }}" alt="{{me.name}}">
+
+    <div ><br>
+      <h1>Profile Pictures</h1>
+      
+        {% for photo in profile_pic_album_photos %}
+        <img src="{{ photo.src }}" alt="{{me.name}}" onclick="window.open('{{photo.src_big}}')">
+       
+        {% endfor %}
+      
     </div>
+
+
+    <div><br>
+      <h1> About </h1>
+      <ul>
+        <li>Gender : 
+            {% if 'gender' in me %} {{ me.gender }} {% endif %}
+        </li>
+        <li>Work :
+          {% if 'work' in me %} 
+            {{ me.work.0.position.name}} at {{ me.work.0.employer.name}} - {{ me.work.0.start_date}} to present  
+          {% endif %}          
+        </li>
+        <li>Lives in :
+          {% if 'location' in me %} {{ me.location.name }} {% endif %}
+        </li>
+        <li>From : 
+          {% if 'hometown' in me %} {{ me.hometown.name}} {% endif %}         
+        </li>
+        <li>Born on : 
+          {% if 'birthday' in me %} {{ me.birthday }} {% endif %}
+        </li> 
+        <li>Interested in : 
+          {% if 'interested_in' in me %} {{ ' and '.join(me.interested_in) }}  {% endif %}
+        </li> 
+      </ul>
+
+
+    </div>
+
+    <div><br>
+      <h1> Education </h1>
+        <ul>
+          {% for edu in me.education %}
+            <li> {{ edu.type }} : {{ edu.school.name }}, {% if 'year' in edu %} class of {{ edu.year.name }} {% endif %} <li>
+          {% endfor %}
+        </ul>
+    </div>    
+
+    <div><br>
+      <h1>Watched/Read</h1>
+      
+        {% for key,value in video_watched_dict %}
+          {% if value %}
+          <p><strong>{{ key }}</strong></p>
+          {% endif %}
+          <p>
+          {% for like in value %}
+                <img src="https://graph.facebook.com/{{like.id}}/picture?type=square" alt="{{like.title}}" 
+                onclick="window.open('{{ like.url }}')" title="{{like.title}}">    
+          {% endfor %}
+          </p>
+        {% endfor %}
+    
+    </div> 
+
+    <div><br>
+      <h1>Wants to Watch/Read</h1>
+      
+        {% for key,value in video_want_to_watch_dict %}
+          {% if value %}
+          <p><strong>{{ key }}</strong></p>
+          {% endif %}
+          <p>
+          {% for like in value %}
+                <img src="https://graph.facebook.com/{{like.id}}/picture?type=square" alt="{{like.title}}" 
+                onclick="window.open('{{ like.url }}')" title="{{like.title}}">    
+          {% endfor %}
+          </p>
+        {% endfor %}
+    
+    </div>      
+
+    <div><br>
+      <h1>Likes</h1>
+      
+        {% for key,value in likes %}
+          
+          <p><strong>{{ key }}</strong></p>
+          <p>
+          {% for like in value %}
+                <img src="https://graph.facebook.com/{{like.id}}/picture?type=square" alt="{{like.name}}" 
+                onclick="window.open('http://www.facebook.com/{{like.id}}')" title="{{like.name}}">    
+          {% endfor %}
+          </p>
+        {% endfor %}
+    
+    </div>
+
+ 
+    <!--
+    <p class="tagline">
+      This is your app
+      <a href="{{app.link}}">{{app.name}}</a>
+    </p>
+-->
+
   </div>
 
 {% endblock %}
 
-{% block content %}
-<section class="clearfix" id="samples">
-      <h1>Examples of the Facebook Graph API</h1>
-      <div class="list">
-        <h3>A few of your friends</h3>
-        <ul class="friends">{% for friend in friends.data %}
-        <li>
-          <a href="#" onclick="window.open('http://www.facebook.com/{{friend.id}}')">
-            <img src="https://graph.facebook.com/{{friend.id}}/picture" alt="{{friend.name}}">
-            {{friend.name}}
-          </a>
-        </li>{% endfor %}</ul>
-      </div>
-      <div class="list inline">
-        <h3>Recent photos</h3>
-        <ul class="photos">
-          {% for photo in photos.data %}
-            {% if loop.index0%4 == 0 %}
-          <li class="first-column" style="background-image: url({{photo.picture}})">
-            {% else %}
-          <li style="background-image: url({{photo.picture}})">
-            {% endif %}
-            <a href="#" onclick="window.open('http://www.facebook.com/{{photo.id}}')">
-              {{photo.name}}
-            </a>
-          </li>
-          {% endfor %}
-        </ul>
-      </div>
-      <div class="list">
-        <h3>Things you like</h3>
-        <ul class="things">{% for like in likes.data %}
-        <li>
-          <a href="#" onclick="window.open('http://www.facebook.com/{{like.id}}')">
-            <img src="https://graph.facebook.com/{{like.id}}/picture?type=square" alt="{{like.name}}">
-            {{like.name}}
-          </a>
-        </li>{% endfor %}</ul>
-      </div>
-      <div class="list">
-        <h3>Friends using this app</h3>
-        <ul class="friends">{% for friend in app_friends %}
-        <li>
-          <a href="#" onclick="window.open('http://www.facebook.com/{{friend.uid}}')">
-            <img src="https://graph.facebook.com/{{friend.uid}}/picture?type=square" alt="{{friend.name}}">
-            {{friend.name}}
-            </a>
-        </li>{% endfor %}</ul>
-      </div>
-    </section>
-{% endblock%}
