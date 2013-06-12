@@ -1,4 +1,5 @@
-from flask.ext.sqlalchemy import SQLAlchemy
+#from flask.ext.sqlalchemy import SQLAlchemy
+import sqlalchemy
 import os
 from flask import Flask
 
