@@ -12,6 +12,8 @@
 11. create a local.env file
 12. foreman start --env local.env
 13. sudo apt-get install postgresql libpq-dev
+13. install build-essential python-dev
 14. pip install flask-sqlalchemy psycopg2
 15. postgresql config : http://blog.y3xz.com/blog/2012/08/16/flask-and-postgresql-on-heroku/
+16. 
 
