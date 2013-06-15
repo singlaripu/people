@@ -12,6 +12,8 @@ from base64 import urlsafe_b64decode, urlsafe_b64encode
 import requests
 from flask import Flask, request, redirect, render_template, url_for
 
+from dbconnection import db
+
 FB_APP_ID = os.environ.get('FACEBOOK_APP_ID')
 requests = requests.session()
 
@@ -174,7 +176,15 @@ def index():
 
     if access_token:
 
-        me = fb_call('me/?fields=name,gender,work,hometown,education,birthday,interested_in,location', args={'access_token': access_token})
+        # user_fb_uid = fb_call('me/?fields=id', args={'access_token': access_token})
+        # my_user = db.session.query(User).filter_by(fb_uid=user_fb_uid['id']).first() 
+        # if my_user:
+        #     resp_dict = {}
+        #     resp_dict['name'] = my_user.name
+        #     user_data = db.session.query(Profile_data).filter_by(fb_uid=user_fb_uid['id']).first() 
+        #     resp_dict['profile_pic_url'] = my_user.
+
+        me = fb_call('me/?fields=name,gender,work,hometown,education,birthday,interested_in,location,email', args={'access_token': access_token})
         fb_app = fb_call(FB_APP_ID, args={'access_token': access_token})
 
         #likes = fb_call('me/likes', args={'access_token': access_token})
