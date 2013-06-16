@@ -1,18 +1,33 @@
-1. install heroku toolbelt
-2. install ssh
-3. add ssh keys
-4. add username and email in git config
-4. git clone repo : https://devcenter.heroku.com/articles/facebook
-5. https://devcenter.heroku.com/articles/python#prerequisites
-6. install python setuptools, pip, virtualenv
-7. create virtual environment
-8. activate virtual env
-9. pip install flask gunicorn
-10. pip install -r requirements.txt
-11. create a local.env file
-12. foreman start --env local.env
-13. sudo apt-get install postgresql libpq-dev
-13. install build-essential python-dev
-14. pip install flask-sqlalchemy psycopg2
+sudo apt-get install build-essential python-dev python-setuptools
+sudo easy_install pip 
+sudo pip install virtualenv
+
+install postgres
+	sudo apt-get install postgresql-common -t raring
+	sudo apt-get install postgresql-9.1
+	sudo apt-get install postgresql-contrib-9.1 libpq-dev postgresql-server-dev-9.1 pgadmin3
+	sudo -u postgres psql template1
+	ALTER USER postgres with encrypted password 'your_password';
+	sudo nano /etc/postgresql/9.1/main/pg_hba.conf
+	local all postgres > local all postgres md5
+	sudo nano /etc/postgresql/9.1/main/postgresql.conf 
+	#listen_addresses = 'localhost' > listen_addresses = 'localhost'
+	sudo service postgresql restart
+
+install heroku toolbelt : wget -qO- https://toolbelt.heroku.com/install-ubuntu.sh | sh
+git config --global user.email "singlaripu@gmail.com"
+git config --global user.name "ripu singla"
+heroku login
+heroku keys:add
+git clone git@heroku.com:warm-chamber-9908.git -o heroku
+virtualenv --distribute venv
+source venv/bin/activate
+pip install -r requirements.txt
+psql -U postgres -h localhost -p 5432 >> create database fbapp_people
+from models import db
+db.create_all()
+
+foreman start --env local.env
+
 15. postgresql config : http://blog.y3xz.com/blog/2012/08/16/flask-and-postgresql-on-heroku/
 16. 

@@ -31,12 +31,12 @@
       </ul>
     </div>    
     <h1><strong>{{me.name}}</strong></h1>
-    <img src="{{ profile_pic['data']['url'] }}" alt="{{me.name}}">
+    <img src="{{ resp.profile_pic_url }}" alt="{{me.name}}">
 
     <div ><br>
       <h1>Profile Pictures</h1>
       
-        {% for photo in profile_pic_album_photos %}
+        {% for photo in resp.profile_album %}
         <img src="{{ photo.src }}" alt="{{me.name}}" onclick="window.open('{{photo.src_big}}')">
        
         {% endfor %}
@@ -47,26 +47,17 @@
     <div><br>
       <h1> About </h1>
       <ul>
-        <li>Gender : 
-            {% if 'gender' in me %} {{ me.gender }} {% endif %}
-        </li>
+        <li>Gender : {{ resp.gender }} </li>
+        <li>Age : {{ age }} </li>
         <li>Work :
-          {% if 'work' in me %} 
-            {{ me.work.0.position.name}} at {{ me.work.0.employer.name}} - {{ me.work.0.start_date}} to present  
+          {% if resp.work %} 
+            {{ resp.work.0.position.name}} at {{ resp.work.0.employer.name}} - {{ resp.work.0.start_date}} to present  
           {% endif %}          
         </li>
-        <li>Lives in :
-          {% if 'location' in me %} {{ me.location.name }} {% endif %}
-        </li>
-        <li>From : 
-          {% if 'hometown' in me %} {{ me.hometown.name}} {% endif %}         
-        </li>
-        <li>Born on : 
-          {% if 'birthday' in me %} {{ me.birthday }} {% endif %}
-        </li> 
-        <li>Interested in : 
-          {% if 'interested_in' in me %} {{ ' and '.join(me.interested_in) }}  {% endif %}
-        </li> 
+        <li>Lives in : {{ resp.current_location_name }} </li>
+        <li>From : {{ resp.hometown_location_name}} </li>
+        <li>Born on : {% if resp.birthday %}  {{ resp.birthday.strftime('%b %d, %Y') }}  {% endif %}  </li> 
+        <li>Interested in : {{ resp.interested_in }}  </li> 
       </ul>
 
 
@@ -75,7 +66,7 @@
     <div><br>
       <h1> Education </h1>
         <ul>
-          {% for edu in me.education %}
+          {% for edu in resp.education %}
             <li> {{ edu.type }} : {{ edu.school.name }}, {% if 'year' in edu %} class of {{ edu.year.name }} {% endif %} <li>
           {% endfor %}
         </ul>
@@ -84,7 +75,7 @@
     <div><br>
       <h1>Watched/Read</h1>
       
-        {% for key,value in video_watched_dict %}
+        {% for key,value in resp.watched %}
           {% if value %}
           <p><strong>{{ key }}</strong></p>
           {% endif %}
@@ -101,7 +92,7 @@
     <div><br>
       <h1>Wants to Watch/Read</h1>
       
-        {% for key,value in video_want_to_watch_dict %}
+        {% for key,value in resp.wants_to %}
           {% if value %}
           <p><strong>{{ key }}</strong></p>
           {% endif %}
@@ -118,7 +109,7 @@
     <div><br>
       <h1>Likes</h1>
       
-        {% for key,value in likes %}
+        {% for key,value in resp.likes %}
           
           <p><strong>{{ key }}</strong></p>
           <p>
@@ -131,13 +122,7 @@
     
     </div>
 
- 
-    <!--
-    <p class="tagline">
-      This is your app
-      <a href="{{app.link}}">{{app.name}}</a>
-    </p>
--->
+
 
   </div>
 
