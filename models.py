@@ -58,6 +58,7 @@ class ProfileData(db.Model):
     watched = db.Column(db.PickleType)
     wants_to = db.Column(db.PickleType)
     likes = db.Column(db.PickleType)
+    votes = db.Column(db.Integer)
 
     last_updated = db.Column(db.DateTime, default=sqlalchemy.func.now())
 
@@ -66,5 +67,4 @@ class ProfileData(db.Model):
             setattr(self, k, v)
 
     def __repr__(self):
-        return '<Name %r>' % self.user_id
-
+        return '<user_id %r>' % self.user_id

@@ -2,6 +2,8 @@ from models import db, User, ProfileData
 import requests, json
 from dateutil import parser
 from datetime import datetime as dt
+from indextank.client import ApiClient as itc
+import os
 
 
 def fql(fql, token, args=None):
@@ -35,7 +37,39 @@ def get_user(uid):
 	return User.query.filter_by(fb_uid=uid).first() 
 
 def get_data(my_user):
-	return ProfileData.query.filter_by(user_id=my_user.id).first() 
+	return ProfileData.query.filter_by(user_id=my_user.id).first()
+
+
+def convert_sqlobj_to_dict(obj, restrict_to_keys):
+	return [(c.name, getattr(obj, c.name)) for c in obj.__table__.columns if c.name in restrict_to_keys]
+
+
+def get_index_handle():
+	url_str = os.environ.get('INDEXDEN_API_URL')
+	api_client = itc(url_str)
+	people_index = api_client.get_index('people')
+	return people_index
+
+
+def push_to_index(user):
+	
+	handle = get_index_handle()
+	data = get_data(user)
+
+	keys = ['name', 'fb_uid', 'gender', 'work_dummy', 'current_location_name', 'current_location_city', 'current_location_state',
+	'current_location_country', 'hometown_location_name', 'hometown_location_city', 'hometown_location_state', 
+	'hometown_location_country', 'education_dummy', 'likes_dummy']
+
+	doc = dict(convert_sqlobj_to_dict(user, keys) + convert_sqlobj_to_dict(data, keys))
+
+	latitude = data.current_location_latlong.get('latitude')
+	longitude = data.current_location_latlong.get('longitude')
+	birthyear = data.birthday.year
+	
+	variables = {0: data.votes, 1:birthyear, 2:latitude, 3:longitude}
+
+	handle.add_document(user.id, doc, variables)
+
 
 
 def push_data(access_token, only_data=False):
@@ -47,7 +81,8 @@ def push_data(access_token, only_data=False):
 		db.session.add(user)
 		db.session.commit()	
 
-	user = User.query.filter_by(fb_uid=me.get('id')).first()
+
+	user = get_user(me.get('id'))
 	user_id = user.id
 	profile_pic_url = fb_call('me/picture/?type=large&redirect=false',args={'access_token': access_token})
 	try:
@@ -73,6 +108,11 @@ def push_data(access_token, only_data=False):
 	    work_dummy = ''
 
 	work = me.get('work')
+	try:
+		work[0]['start_date'] = parser.parse(work[0]['start_date']).strftime('%b %Y')
+	except Exception, e:
+		print "FACEBOOK_DATAPULL: work.start_date ::", e
+
 
 	loc = fql('select current_location, hometown_location from user where uid=me()', access_token)
 
@@ -215,6 +255,8 @@ def push_data(access_token, only_data=False):
 	db.session.add(pd)
 	db.session.commit()
 
+	push_to_index(user)
+
 	return user
 
 
@@ -242,3 +284,43 @@ def get_age(b):
 		print "FACEBOOK_DATAPULL: get_age ::", b, e
 		age = ''
 	return str(age)
+
+
+
+def search_index(**kwargs):
+	handle = get_index_handle()
+	#kwargs.keys() = ['user', 'query', 'filters', 'fetch_fields']
+	#query = {'name':'ripu',  'current_location_city':'bangalore', 'likes_dummy':'sachin'}
+	#filters = {'age':[20, 24], 'distance':10}
+	#fetch_fields=['fb_uid', 'name']
+
+	function_filters = {}
+	docvar_filters = {}
+	variables = {}
+	fetch_fields = ['docid']
+
+	if 'filters' in kwargs:
+
+		if 'distance' in kwargs['filters']:
+			function_filters[1] = [[ None, kwargs['filters']['distance'] ]]
+			data = get_data(kwargs['user'])
+			variables[0] = data.current_location_latlong.get('latitude')
+			variables[1] = data.current_location_latlong.get('longitude')
+
+
+		if 'age' in kwargs['filters']:
+			year = dt.now().year
+			docvar_filters[1] = [[year-i  for i in reversed(kwargs['filters']['age'])]]
+			
+	if 'fetch_fields' in kwargs:
+		fetch_fields+=kwargs['fetch_fields']
+
+	q = ' AND '.join([key+":"+value for key, value in kwargs['query'].iteritems()])
+
+	res = handle.search(q, 
+			scoring_function=0, 
+			function_filters=function_filters, 
+			docvar_filters=docvar_filters,
+			fetch_fields=fetch_fields, 
+			variables=variables)['results']
+	return res

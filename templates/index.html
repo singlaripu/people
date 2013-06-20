@@ -51,7 +51,7 @@
         <li>Age : {{ age }} </li>
         <li>Work :
           {% if resp.work %} 
-            {{ resp.work.0.position.name}} at {{ resp.work.0.employer.name}} - {{ resp.work.0.start_date}} to present  
+            {{ resp.work.0.position.name}} at {{ resp.work.0.employer.name}} - {{ resp.work.0.start_date }} to present  
           {% endif %}          
         </li>
         <li>Lives in : {{ resp.current_location_name }} </li>
