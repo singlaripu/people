@@ -2,7 +2,7 @@ from models import db, User, ProfileData
 import requests, json
 from dateutil import parser
 from datetime import datetime as dt
-from indextank.client import ApiClient as itc
+from indextank1.client import ApiClient as itc
 import os
 
 
@@ -315,7 +315,7 @@ def search_index(**kwargs):
 	if 'fetch_fields' in kwargs:
 		fetch_fields+=kwargs['fetch_fields']
 
-	q = ' AND '.join([key+":"+value for key, value in kwargs['query'].iteritems()])
+	q = ' AND '.join([key+":("+' AND '.join(value.split())+")" for key, value in kwargs['query'].iteritems()])
 
 	res = handle.search(q, 
 			scoring_function=0, 

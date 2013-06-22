@@ -9,7 +9,7 @@ body {
   color: #999;
   font: 14px/1.5em "Lucida Grande", Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
-  width: 720px;
+  width: 97%;
   margin: 20px;
 }
 
@@ -357,3 +357,15 @@ header .tagline {
 .clearfix {
   zoom: 1;
 }
+
+#left_area, #right_area {
+   float: left;
+   width: 46.5%;
+   margin: 1% 0 1% 1%;
+   padding: 1%;
+   background-color: #9cf;
+   color: #000;
+}
+#right_area {
+   float: right;
+   margin: 1% 1% 1% 0;

@@ -111,8 +111,10 @@
           // window.location.reload() because if this is in a canvas there was a
           // post made to this page and a reload will trigger a message to the
           // user asking if they want to send data again.
-          //window.location = window.location;
+          //window.top.location = window.top.location;
 	       window.top.location.href = "https://warm-chamber-9908.herokuapp.com/"
+         //window.top.location.href = "http://apps.facebook.com/app-people"
+        // <script type="text/javascript"> ntop.location.href="'http://127.0.0.1:5000/'"
         });
 
         FB.Canvas.setAutoGrow();
@@ -139,14 +141,22 @@
 	<p> This is my app, I can edit it all I want.</p>
       <a class="button" href="https://devcenter.heroku.com/articles/facebook">Learn How to Edit This App</a>
     </section>
--->
+--><div>
     {% block content%}
     {% endblock %}
+  </div>
 <!--
     <section class="clearfix" id="guides">
 
     </section>
 -->
+
+<div id="right_area">
+  <form action="demo_form.asp">
+  Search People: <input type="search" name="googlesearch"><br>
+  <input type="submit">
+</form>
+  </div>
 
   </body>
 </html>
