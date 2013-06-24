@@ -7,31 +7,8 @@
   <!-- the user's images without having to download or prepare -->
   <!-- them ahead of time -->
  
-
-  <div id="left_area">
-     <p id="picture" style="background-image: url(https://graph.facebook.com/me/picture?type=normal&access_token={{token}})"></p>
-    <div id="share-app">
-      <p>Share this app:</p>
-      <ul>
-      <!--  
-        <li>
-          <a href="#" class="facebook-button" id="postToWall" data-url="{{ url }}">
-            <span class="plus">Post to Wall</span>
-          </a>
-        </li>
-        <li>
-          <a href="#" class="facebook-button speech-bubble" id="sendToFriends" data-url="{{ url }}">
-            <span class="speech-bubble">Send Message</span>
-          </a>
-        </li>
-      -->  
-        <li>
-          <a href="#" class="facebook-button apprequests" id="sendRequest" data-message="Test this awesome app">
-            <span class="apprequests">Invite Friends</span>
-          </a>
-        </li>
-      </ul>
-    </div>    
+ 
+ 
     <h1><strong>{{me.name}}</strong></h1>
     <img src="{{ resp.profile_pic_url }}" alt="{{me.name}}">
 
@@ -126,7 +103,7 @@
 
 
 
-  </div>
+
 
 {% endblock %}
 

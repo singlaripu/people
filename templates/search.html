@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block topbar %}
+
+
+ 	{% for item in search_results %}
+
+ 		<div id="left_area"><a href="/user/{{ item.uid }}/{{item.id*1347}}"><img src="{{ item.profile_pic_url }}" alt="{{item.name}}"></a></div>
+ 		<div id="right_area">
+ 			<h1><strong><a href="/user/{{ item.uid }}/{{item.id*1347}}">{{ item.name }}</a></strong></h1>
+ 			<li>Gender : {{item.gender}}</li>
+ 			<li>Age : {{item.age}}</li>
+ 			<li>Relationship Status : {{item.relationship_status}}</li>
+ 			<li>Lives in : {{item.current_location_name}}</li>
+ 			<li><a href="https://www.facebook.com/{{ item.fb_uid }}">Facebook Profile</a></li>
+
+ 			
+    	</div>
+    	<div style="clear:both"/>
+
+    {% endfor %}
+
+
+{% endblock %}
+

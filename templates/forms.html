@@ -1,0 +1,36 @@
+
+{% macro forms(values={
+		'education_dummy':'',
+		'distance':'',
+		'current_location_dummy': '',
+		'name': '',
+		'gender': '',
+		'work_dummy': '',
+		'text': '',
+		'age_high': '',
+		'likes_dummy': '',
+		'age_low': '',
+		'hometown_location_dummy': ''
+	} ) -%}
+    
+    <form name="input" action="/search" method="post" id="search_form">
+    	<h1>Quick Search</h1>
+    	<input id="text" type="text" name="text" value="{{ values.text.0 }}"><br>
+
+    	<br> <h1>Advanced Search</h1>  
+	    Name: <input id="name" type="text" name="name" value="{{ values.name.0 }}"><br>
+	    Gender: <input id="gender" type="text" name="gender" value="{{ values.gender.0 }}"><br>
+	    Lives in: <input id="current_location_dummy" type="text" name="current_location_dummy" value="{{ values.current_location_dummy.0 }}"><br>
+	    Hometown: <input id="hometown_location_dummy" type="text" name="hometown_location_dummy" value="{{ values.hometown_location_dummy.0 }}"><br>
+	    Work: <input id="work_dummy" type="text" name="work_dummy" value="{{ values.work_dummy.0 }}"><br>
+	    Education: <input id="education_dummy" type="text" name="education_dummy" value="{{ values.education_dummy.0 }}"> <br>
+	    Likes: <input id="likes_dummy" type="text" name="likes_dummy" value="{{ values.likes_dummy.0 }}"> <br>
+	    
+	    <br><h1>Filters</h1>
+	    Age: <input type="text" name="age_low" value="{{ values.age_low.0 }}">  to <input type="text" name="age_high" value="{{ values.age_high.0 }}"><br>
+	    Distance : <input type="text" name="distance" value="{{ values.distance.0 }}"> <br>
+   	 	<input type="submit" value="Submit"><br>
+ 	</form>
+
+{%- endmacro %}
+

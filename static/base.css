@@ -344,7 +344,7 @@ header .tagline {
 
 /* =clearfix
 --------------------------------------------- */
-.clearfix:after {
+/*.clearfix:after {
   clear: both;
   content: ".";
   display: block;
@@ -356,14 +356,14 @@ header .tagline {
 
 .clearfix {
   zoom: 1;
-}
+}*/
 
 #left_area, #right_area {
    float: left;
    width: 46.5%;
    margin: 1% 0 1% 1%;
    padding: 1%;
-   background-color: #9cf;
+   
    color: #000;
 }
 #right_area {

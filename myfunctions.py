@@ -56,11 +56,13 @@ def push_to_index(user):
 	handle = get_index_handle()
 	data = get_data(user)
 
-	keys = ['name', 'fb_uid', 'gender', 'work_dummy', 'current_location_name', 'current_location_city', 'current_location_state',
-	'current_location_country', 'hometown_location_name', 'hometown_location_city', 'hometown_location_state', 
-	'hometown_location_country', 'education_dummy', 'likes_dummy']
+	keys = ['name', 'gender', 'work_dummy', 'education_dummy', 'likes_dummy']
 
 	doc = dict(convert_sqlobj_to_dict(user, keys) + convert_sqlobj_to_dict(data, keys))
+	doc['current_location_dummy'] = ' '.join((data.current_location_name, data.current_location_city, data.current_location_state, data.current_location_country))
+	doc['hometown_location_dummy'] = ' '.join((data.hometown_location_name, data.hometown_location_city, data.hometown_location_state, data.hometown_location_country))
+	doc['text'] = ','.join([value for key,value in doc.iteritems()])
+	doc['shauniqueid'] = 'DBaMlk3TGxHRW91SWhTYUlLVktZTk'
 
 	latitude = data.current_location_latlong.get('latitude')
 	longitude = data.current_location_latlong.get('longitude')
@@ -74,7 +76,7 @@ def push_to_index(user):
 
 def push_data(access_token, only_data=False):
 
-	me = fb_call('me/?fields=name,gender,work,education,birthday,interested_in,email', args={'access_token': access_token})
+	me = fb_call('me/?fields=name,gender,work,education,birthday,interested_in,email,relationship_status', args={'access_token': access_token})
 
 	if not only_data:
 		user = User(name=me.get('name'), email=me.get('email'), fb_uid=me.get('id'))
@@ -100,6 +102,8 @@ def push_data(access_token, only_data=False):
 	gender = me.get('gender')
 	if gender:
 		gender = gender.title()
+
+	relationship_status = me.get('relationship_status')
 
 	try:
 	    work_dummy = ','.join([i.get('employer').get('name') for i in me.get('work')])
@@ -127,6 +131,9 @@ def push_data(access_token, only_data=False):
 	hometown_location_state = get_location_for_dump(loc, 'hometown_location', 'state')
 	hometown_location_country = get_location_for_dump(loc, 'hometown_location', 'country')
 	hometown_location_latlong = dict((k, get_location_for_dump(loc, 'hometown_location', k)) for k in ('latitude', 'longitude'))            
+
+	#current_location_dummy = ' '.join([get_location_for_dump(loc, 'current_location', key) for key in ('name', 'city', 'state', 'country')])
+	#hometown_location_dummy = ' '.join([get_location_for_dump(loc, 'hometown_location', key) for key in ['name', 'city', 'state', 'country')])
 
 	birthday = me.get('birthday')
 	if birthday:
@@ -249,7 +256,9 @@ def push_data(access_token, only_data=False):
 	    likes_dummy = likes_dummy,
 	    watched = watched,
 	    wants_to = wants_to,
-	    likes = likes 
+	    likes = likes,
+	    relationship_status=relationship_status,
+	    votes = 1
 	    )
 
 	db.session.add(pd)
@@ -257,22 +266,17 @@ def push_data(access_token, only_data=False):
 
 	push_to_index(user)
 
-	return user
 
 
 def get_or_create(access_token):
     uid = fb_call('me/?fields=id', args={'access_token': access_token}).get('id')
     my_user = get_user(uid)
-    
+
     if my_user:
-        user_data = get_data(my_user)
-        if not user_data:
-        	my_user = push_data(access_token, only_data=True)
-        	user_data = get_data(my_user)
+    	return my_user
     else:
-        my_user = push_data(access_token)
-        user_data = get_data(my_user)
-    return my_user, user_data
+    	push_data(access_token)
+    	return get_or_create(access_token)
 
 
 def get_age(b):
@@ -287,40 +291,76 @@ def get_age(b):
 
 
 
-def search_index(**kwargs):
+def search_index(token, form, fetch_fields=['docid']):
 	handle = get_index_handle()
 	#kwargs.keys() = ['user', 'query', 'filters', 'fetch_fields']
 	#query = {'name':'ripu',  'current_location_city':'bangalore', 'likes_dummy':'sachin'}
 	#filters = {'age':[20, 24], 'distance':10}
 	#fetch_fields=['fb_uid', 'name']
+	#global_query = 'hathi'
+
+	form = {key:value for key,value in form.iteritems() if value}
 
 	function_filters = {}
-	docvar_filters = {}
+	docvar_filters = {1:[[None, None]]}
 	variables = {}
-	fetch_fields = ['docid']
+	# match_any_field=None
+	# global_query = ''
 
-	if 'filters' in kwargs:
+	if 'distance' in form:
+		function_filters[1] = [[ None, int(form['distance']) ]]
+		user = get_or_create(token)
+		data = get_data(user)
+		#latitude = data.current_location_latlong.get('latitude')
+		#longitude = data.current_location_latlong.get('longitude')
+		#if latitude and longitude:
+		variables[0] = data.current_location_latlong.get('latitude')
+		variables[1] = data.current_location_latlong.get('longitude')
 
-		if 'distance' in kwargs['filters']:
-			function_filters[1] = [[ None, kwargs['filters']['distance'] ]]
-			data = get_data(kwargs['user'])
-			variables[0] = data.current_location_latlong.get('latitude')
-			variables[1] = data.current_location_latlong.get('longitude')
+	if 'age_high' in form:
+		docvar_filters[1][0][0] = dt.now().year-int(form['age_high'])
+
+	if 'age_low' in form:
+		docvar_filters[1][0][1] = dt.now().year-int(form['age_low'])
+
+	keys = ['name', 'gender', 'current_location_dummy', 'hometown_location_dummy', 'work_dummy', 'education_dummy', 'likes_dummy', 'text']
 
 
-		if 'age' in kwargs['filters']:
-			year = dt.now().year
-			docvar_filters[1] = [[year-i  for i in reversed(kwargs['filters']['age'])]]
-			
-	if 'fetch_fields' in kwargs:
-		fetch_fields+=kwargs['fetch_fields']
+	q = ' AND '.join([key+":("+' AND '.join(value.split())+")" for key, value in form.iteritems() if key in keys] )
 
-	q = ' AND '.join([key+":("+' AND '.join(value.split())+")" for key, value in kwargs['query'].iteritems()])
+	# if 'global_query' in form:
+	# 	q1 = "(" + form['global_query'] + ')'
+	# 	if q:
+	# 		q = ' AND '.join((q1, q))
+	# 	else:
+	# 		q = q1
+	# 	match_any_field = 'true'
+
+	# print q
+
+	if not q:
+		return []
 
 	res = handle.search(q, 
 			scoring_function=0, 
 			function_filters=function_filters, 
 			docvar_filters=docvar_filters,
-			fetch_fields=fetch_fields, 
+			fetch_fields=fetch_fields,
+			# match_any_field=match_any_field,
 			variables=variables)['results']
-	return res
+
+	search_results = []
+	for i in res:
+		d = {}
+		user = get_user_by_id(i['docid'])
+		if user:
+			data = get_data(user)
+			d = dict( convert_sqlobj_to_dict(user, ('name','fb_uid', 'id')) + convert_sqlobj_to_dict(data, ('relationship_status', 'profile_pic_url', 'gender', 'current_location_name') ) )
+			d['age'] = get_age(data.birthday)
+			d['uid'] = '.'.join(user.name.split()).lower()
+			search_results.append(d)
+
+	return search_results
+
+def get_user_by_id(user_id):
+	return User.query.get(int(user_id))

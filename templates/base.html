@@ -9,6 +9,9 @@
     <link rel="stylesheet" href="static/screen.css" media="Screen" type="text/css" />
     <link rel="stylesheet" href="static/mobile.css" media="handheld, only screen and (max-width: 480px), only screen and (max-device-width: 480px)" type="text/css" />
 
+    {% import 'autocomplete.html' as autocomplete %}
+    {{ autocomplete.autocomplete() }}
+
     <!--[if IEMobile]>
       <link rel="stylesheet" href="static/mobile.css" media="screen" type="text/css"  />
     <![endif]-->
@@ -26,7 +29,7 @@
     <meta property="og:description" content="My First App" />
     <meta content="{{app_id}}" property="fb:app_id" />
 
-    <script type="text/javascript" src="/static/jquery-1.7.1.min.js"></script>
+
        <script type="text/javascript">
       function logResponse(response) {
         if (console && console.log) {
@@ -83,17 +86,11 @@
       });
     </script>
 
-    <!--[if IE]>
-      <script type="text/javascript">
-        var tags = ['header', 'section'];
-        while(tags.length)
-          document.createElement(tags.pop());
-      </script>
-    <![endif]-->
 
   </head>
   <body>
-      <script type="text/javascript">
+
+     <script type="text/javascript">
       window.fbAsyncInit = function() {
         FB.init({
           appId      : '{{ app_id }}', // App ID
@@ -112,9 +109,10 @@
           // post made to this page and a reload will trigger a message to the
           // user asking if they want to send data again.
           //window.top.location = window.top.location;
-	       window.top.location.href = "https://warm-chamber-9908.herokuapp.com/"
+         window.top.location.href = "https://warm-chamber-9908.herokuapp.com/"
          //window.top.location.href = "http://apps.facebook.com/app-people"
         // <script type="text/javascript"> ntop.location.href="'http://127.0.0.1:5000/'"
+        //window.top.location.reload()
         });
 
         FB.Canvas.setAutoGrow();
@@ -130,33 +128,42 @@
       }(document, 'script', 'facebook-jssdk'));
     </script>
 
-    <header class="clearfix">
-      {% block topbar %}
+ 
 
-      {% endblock %}
+
+   <header class="clearfix">
+      <div id="left_area">   
+        <div id="share-app">
+          <!--<p id="picture" style="background-image: url(https://graph.facebook.com/me/picture?type=normal&access_token={{token}})"></p>-->
+          <p>Share this app:</p>
+          <ul>
+            <li>
+              <a href="#" class="facebook-button apprequests" id="sendRequest" data-message="Test this awesome app">
+                <span class="apprequests">Invite Friends</span>
+              </a>
+            </li>
+          </ul>
+        </div>
+
+        {% block topbar %}
+
+        {% endblock %}
+      </div>
     </header>
-<!--
-    <section id="get-started">
-      <p>Welcome to your Facebook app, running on<span>heroku</span>!</p>
-	<p> This is my app, I can edit it all I want.</p>
-      <a class="button" href="https://devcenter.heroku.com/articles/facebook">Learn How to Edit This App</a>
-    </section>
---><div>
-    {% block content%}
-    {% endblock %}
-  </div>
-<!--
-    <section class="clearfix" id="guides">
 
-    </section>
--->
 
 <div id="right_area">
-  <form action="demo_form.asp">
-  Search People: <input type="search" name="googlesearch"><br>
-  <input type="submit">
-</form>
-  </div>
+
+  {% import 'forms.html' as forms %}
+
+    {% if form_values is defined %}
+      {{ forms.forms(form_values) }}
+    {% else %}
+      {{ forms.forms() }}
+    {% endif %}
+
+</div>   
+ 
 
   </body>
 </html>
