@@ -242,7 +242,7 @@ def event_stream():
     #     yield 'data: %s\n\n' % message['data']
     #   msgs = queue.get(max=10, timeout=None)#ironmq.getMessage(queue_name="chat")
     # try:
-    for msg in queue.get()['messages']:
+    for msg in queue.peek()['messages']:
         print msg['body']
         yield 'data: %s\n\n' % msg['body']
         #queue.delete(msg['id'])
