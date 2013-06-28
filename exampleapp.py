@@ -245,7 +245,7 @@ def event_stream():
     for msg in queue.get()['messages']:
         print msg['body']
         yield 'data: %s\n\n' % msg['body']
-        queue.delete(msg['id'])
+        #queue.delete(msg['id'])
         # msg = msgs['messages'][0]
         # ironmq.deleteMessage(queue_name="chat", message_id=msg["id"])
     # except Exception, e:
@@ -266,7 +266,13 @@ def post():
     user = flask.session.get('user', 'anonymous')
     now = dt.now().replace(microsecond=0).time()
     # red.publish('chat', u'[%s] %s: %s' % (now.isoformat(), user, message))
-    queue.post(u'[%s] %s: %s' % (now.isoformat(), user, message))
+    message = {
+        "body" : u'[%s] %s: %s' % (now.isoformat(), user, message),
+        "timeout" : 1*24*3600, # Timeout, in seconds. After timeout, item will be placed back on queue. Defaults to 60.
+        "delay" : 0, # The item will not be available on the queue until this many seconds have passed. Defaults to 0.
+        "expires_in" : 1*24*3600 # How long, in seconds, to keep the item on the queue before it is deleted.
+    }
+    queue.post(message)
 
     return flask.Response(status=204)
 
