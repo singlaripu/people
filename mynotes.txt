@@ -31,3 +31,11 @@ foreman start --env local.env
 
 15. postgresql config : http://blog.y3xz.com/blog/2012/08/16/flask-and-postgresql-on-heroku/
 16. 
+
+
+TODO
+
+1. correct education None problem: probably initialize everything to empty list/dict
+2. correct autocomplete indexes so as to make it fuzzy/secure
+3. correct the login flow
+4. ofcourse the website design

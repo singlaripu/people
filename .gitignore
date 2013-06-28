@@ -2,4 +2,4 @@
 *.pyc
 venv/*
 .DS_Store
-local.env
+.env

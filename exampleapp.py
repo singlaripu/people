@@ -13,7 +13,10 @@ import requests
 from flask import Flask, request, redirect, render_template, url_for
 
 from myfunctions import get_or_create, get_age, get_data, search_index, get_user, get_user_by_id
-
+#!/usr/bin/env python
+from datetime import datetime as dt
+#import redis
+import flask
 
 
 FB_APP_ID = os.environ.get('FACEBOOK_APP_ID')
@@ -98,6 +101,7 @@ def fbapi_get_application_access_token(id):
 app = Flask(__name__)
 app.config.from_object(__name__)
 app.config.from_object('conf.Config')
+app.secret_key = 'asdf'
 
 
 def get_home():
@@ -155,7 +159,7 @@ def get_token():
 
 def get_channel_token():
     access_token = get_token()  
-    # print access_token
+    print access_token
     channel_url = url_for('get_channel', _external=True)
     channel_url = channel_url.replace('http:', '').replace('https:', '')
     return access_token, channel_url    
@@ -195,7 +199,7 @@ def close():
 
 @app.route('/about')
 def about():
-    return render_template('test.html') 
+    return render_template('about.html') 
 
 
 
@@ -222,6 +226,62 @@ def get_profile(username, user_id):
 
     return render_template('index.html', app_id=FB_APP_ID, me = my_user, resp = user_data, age = age )
 
+
+#red = redis.StrictRedis()
+from iron_mq import *
+# ironmq = IronMQ()
+ironmq = IronMQ(token = "SNgyfan1diaLo0Yur6W_ENhGz30",project_id = "51cbc34e5de9381142002344")
+queue = ironmq.queue("chat")
+
+def event_stream():
+    # pubsub = red.pubsub()
+    # pubsub.subscribe('chat')
+    # # TODO: handle client disconnection.
+    # for message in pubsub.listen():
+    #     print message
+    #     yield 'data: %s\n\n' % message['data']
+    #   msgs = queue.get(max=10, timeout=None)#ironmq.getMessage(queue_name="chat")
+    # try:
+    for msg in queue.get()['messages']:
+        print msg['body']
+        yield 'data: %s\n\n' % msg['body']
+        queue.delete(msg['id'])
+        # msg = msgs['messages'][0]
+        # ironmq.deleteMessage(queue_name="chat", message_id=msg["id"])
+    # except Exception, e:
+    #     print e
+
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if flask.request.method == 'POST':
+        flask.session['user'] = flask.request.form['user']
+        return flask.redirect('/chat')
+    return '<form action="" method="post">user: <input name="user">'
+
+
+@app.route('/post', methods=['POST'])
+def post():
+    message = flask.request.form['message']
+    user = flask.session.get('user', 'anonymous')
+    now = dt.now().replace(microsecond=0).time()
+    # red.publish('chat', u'[%s] %s: %s' % (now.isoformat(), user, message))
+    queue.post(u'[%s] %s: %s' % (now.isoformat(), user, message))
+
+    return flask.Response(status=204)
+
+
+@app.route('/stream')
+def stream():
+    return flask.Response(event_stream(),
+                          mimetype="text/event-stream")
+
+
+@app.route('/chat')
+def chat():
+    if 'user' not in flask.session:
+        return flask.redirect('/login')
+    return render_template('chat.html', user=flask.session['user'])
 
 
 if __name__ == '__main__':
