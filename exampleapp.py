@@ -10,14 +10,32 @@ import hashlib
 from base64 import urlsafe_b64decode, urlsafe_b64encode
 
 import requests
-from flask import Flask, request, redirect, render_template, url_for
-
+from flask import Flask, request, redirect, render_template, url_for, Response
+import flask
 from myfunctions import get_or_create, get_age, get_data, search_index, get_user, get_user_by_id
 #!/usr/bin/env python
 from datetime import datetime as dt
 #import redis
-import flask
+# import flask
 
+from socketio import socketio_manage
+
+
+#!/usr/bin/env python
+import sys
+
+# Python versions before 3.0 do not use UTF-8 encoding
+# by default. To ensure that Unicode is handled properly
+# throughout SleekXMPP, we will set the default encoding
+# ourselves to UTF-8.
+if sys.version_info < (3, 0):
+    reload(sys)
+    sys.setdefaultencoding('utf8')
+else:
+    raw_input = input
+
+from socketio_chat import ChatNamespace
+from socketio_chat import EchoBot
 
 FB_APP_ID = os.environ.get('FACEBOOK_APP_ID')
 requests = requests.session()
@@ -102,6 +120,8 @@ app = Flask(__name__)
 app.config.from_object(__name__)
 app.config.from_object('conf.Config')
 app.secret_key = 'asdf'
+
+
 
 
 def get_home():
@@ -227,67 +247,42 @@ def get_profile(username, user_id):
     return render_template('index.html', app_id=FB_APP_ID, me = my_user, resp = user_data, age = age )
 
 
-#red = redis.StrictRedis()
-from iron_mq import *
-# ironmq = IronMQ()
-ironmq = IronMQ(token = "SNgyfan1diaLo0Yur6W_ENhGz30",project_id = "51cbc34e5de9381142002344")
-queue = ironmq.queue("chat")
 
-def event_stream():
-    # pubsub = red.pubsub()
-    # pubsub.subscribe('chat')
-    # # TODO: handle client disconnection.
-    # for message in pubsub.listen():
-    #     print message
-    #     yield 'data: %s\n\n' % message['data']
-    #   msgs = queue.get(max=10, timeout=None)#ironmq.getMessage(queue_name="chat")
-    # try:
-    for msg in queue.peek()['messages']:
-        print msg['body']
-        yield 'data: %s\n\n' % msg['body']
-        #queue.delete(msg['id'])
-        # msg = msgs['messages'][0]
-        # ironmq.deleteMessage(queue_name="chat", message_id=msg["id"])
-    # except Exception, e:
-    #     print e
+@app.route('/online/<recipient>', methods=['GET', 'POST'])
+def online(recipient):
+    recipient = request.form['recipient']
+    return render_template('room.html', recipient=recipient)
+
+
+
+@app.route('/socket.io/<path:remaining>')
+def socketio(remaining):
+    try:
+        # jid = flask.session['jid']
+        # password = flask.session['jidpass']
+        # xmpp, ans = xmpp_connect(jid, password)
+        # if ans: 
+        #     print "xmpp connection successfull"
+        # else:
+        #     print "xmpp connection Failed"
+        data = {'jid': flask.session['jid'], 'jidpass':flask.session['jidpass']}
+        socketio_manage(request.environ, {'/chat': ChatNamespace}, data)
+    except:
+        app.logger.error("Exception while handling socketio connection",
+                         exc_info=True)
+    return Response()
 
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if flask.request.method == 'POST':
-        flask.session['user'] = flask.request.form['user']
-        return flask.redirect('/chat')
-    return '<form action="" method="post">user: <input name="user">'
+        flask.session['jid'] = flask.request.form['user'] + '@jabber.fbpeople.com'
+        flask.session['jidpass'] = flask.request.form['password']
+        recipient = flask.request.form['to'] + '@jabber.fbpeople.com'
+        return render_template('room.html', recipient=recipient)
+    return '<form action="/login" method="post">user: <input name="user"><br>password:<input name="password"><br>chat with:<input name="to"><br><input type="submit" value="Submit"><br>'
 
 
-@app.route('/post', methods=['POST'])
-def post():
-    message = flask.request.form['message']
-    user = flask.session.get('user', 'anonymous')
-    now = dt.now().replace(microsecond=0).time()
-    # red.publish('chat', u'[%s] %s: %s' % (now.isoformat(), user, message))
-    message = {
-        "body" : u'[%s] %s: %s' % (now.isoformat(), user, message),
-        "timeout" : 1*24*3600, # Timeout, in seconds. After timeout, item will be placed back on queue. Defaults to 60.
-        "delay" : 0, # The item will not be available on the queue until this many seconds have passed. Defaults to 0.
-        "expires_in" : 1*24*3600 # How long, in seconds, to keep the item on the queue before it is deleted.
-    }
-    queue.post(message)
-
-    return flask.Response(status=204)
-
-
-@app.route('/stream')
-def stream():
-    return flask.Response(event_stream(),
-                          mimetype="text/event-stream")
-
-
-@app.route('/chat')
-def chat():
-    if 'user' not in flask.session:
-        return flask.redirect('/login')
-    return render_template('chat.html', user=flask.session['user'])
 
 
 if __name__ == '__main__':
