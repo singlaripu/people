@@ -68,12 +68,13 @@ function DispCtrl($scope, myService, $http, $compile, $timeout) {
 //            $scope.page = length;
         }
 
-        $scope.nextPage();
+        $scope.newhtml();
 
     });
 
 
     $scope.loadimages = function(){
+        $('#loaderCircle').show();
         console.log('timeout over');
         var options = {
             autoResize: true,
@@ -90,7 +91,7 @@ function DispCtrl($scope, myService, $http, $compile, $timeout) {
     }
 
     $scope.nextPage = function() {
-        $('#loaderCircle').show();
+
         $scope.newhtml();
         $scope.$apply();
 
