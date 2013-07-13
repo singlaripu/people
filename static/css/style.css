@@ -115,10 +115,10 @@ margin: 0 auto;
 .polaroid:hover .options {
     opacity: 1;
 }
-/*body.iPad .polaroid.optionsActive .options,*/
-/*body.iPad .polaroid:hover .options {*/
-    /*opacity: 0;*/
-/*}*/
+body.iPad .polaroid.optionsActive .options,
+body.iPad .polaroid:hover .options {
+    opacity: 0;
+}
 
 html.no-opacity .polaroid .options {
     display: none;
@@ -242,32 +242,32 @@ html.no-opacity .polaroid:hover .options {
 #lightbox #tagOptions .shareButton.active em { background-position: -72px -18px; }
 
 
-/*@media screen and (max-width: 570px) {*/
-    /*.polaroid .options, .polaroid .options .save, .polaroid .options .comment, .polaroid .options .like, .polaroid .options .magnify {*/
-        /*opacity: 1;*/
-    /*}*/
-    /*.polaroid .options .magnify {*/
-        /*display: none;*/
-    /*}*/
-    /*.polaroid {*/
-        /*padding-top: 50px;*/
-    /*}*/
-/*}*/
+@media screen and (max-width: 570px) {
+    .polaroid .options, .polaroid .options .save, .polaroid .options .comment, .polaroid .options .like, .polaroid .options .magnify {
+        opacity: 1;
+    }
+    .polaroid .options .magnify {
+        display: none;
+    }
+    .polaroid {
+        padding-top: 50px;
+    }
+}
 
-/*@media only screen and (-Webkit-min-device-pixel-ratio: 1.5),*/
-/*only screen and (-moz-min-device-pixel-ratio: 1.5),*/
-/*only screen and (-o-min-device-pixel-ratio: 3/2),*/
-/*only screen and (min-device-pixel-ratio: 1.5) {*/
-    /*#header .logo a {*/
+@media only screen and (-Webkit-min-device-pixel-ratio: 1.5),
+only screen and (-moz-min-device-pixel-ratio: 1.5),
+only screen and (-o-min-device-pixel-ratio: 3/2),
+only screen and (min-device-pixel-ratio: 1.5) {
+    #header .logo a {
         /*background-image: url('/assets/icons/icons-hd.png');*/
-        /*background-size: 108px 189px;*/
-        /*margin-top: 11px;*/
-    /*}*/
+        background-size: 108px 189px;
+        margin-top: 11px;
+    }
 
-    /*.polaroid .options em,*/
-    /*.polaroid .stats em {*/
+    .polaroid .options em,
+    .polaroid .stats em {
         /*background-image: url('/assets/icons/icons-hd.png');*/
-        /*background-size: 108px 189px;*/
-    /*}*/
-/*}*/
+        background-size: 108px 189px;
+    }
+}
 
