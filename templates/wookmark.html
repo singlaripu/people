@@ -6,8 +6,17 @@
 <html class="no-js" lang="en" ng-app="myApp"> <!--<![endif]-->
 <head>
 
-  <script src="/static/js/angular.min.js"></script>
-  <script src="/static/js/display.js"></script>
+
+    <!--<script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>-->
+    <script src="/static/js/jquery.min.js"></script>
+    <!--<script src="/static/js/scale.fix.js"></script>-->
+    <!--<script src="/static/js/prettify.js"></script>-->
+    <script src="/static/js/bootstrap.min.js"></script>
+    <script src="/static/js/bootstrap-lightbox.min.js"></script>
+
+    <script src="/static/js/angular.min.js"></script>
+    <script src="/static/js/display.js"></script>
+
 
 
   <meta charset="utf-8">
@@ -19,6 +28,8 @@
   <!-- CSS Reset -->
 
   <link rel="stylesheet" href="/static/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/static/css/bootstrap-lightbox.min.css">
+    <!--<link rel="stylesheet" href="/static/css/prettify.css">-->
     <link rel="stylesheet" href="/static/css/reset.css">
   <!-- Styling for your grid blocks -->
   <link rel="stylesheet" href="/static/css/style.css">
@@ -47,15 +58,34 @@
 
 
     <div id="main" role="main" ng-controller="DispCtrl" style="padding-top: 75px;">
+
+        <!--<a data-toggle="lightbox" href="#demoLightbox"><img  src="https://fbcdn-profile-a.akamaihd.net/hprofile-ak-ash2/186466_220900067_1761400224_n.jpg"></a>-->
+        <!--<form >-->
+            <!--First: <input name="first" value="will" />-->
+            <!--Last: <input name="last" value = "kriski" />-->
+            <!--<input id="123" type="submit" name="submit" ng-click="ShowLightBox($event)"/>-->
+        <!--</form>-->
         <!--<div id="images"></div>-->
+
+        <div id="demoLightbox" class="lightbox hide fade"  tabindex="-1" role="dialog" aria-hidden="true">
+            <div class='lightbox-content'>
+                <div class="light_content_unique"></div>
+                <img ng-src="{{light_url}}">
+                <div class="lightbox-caption"><p>{{light_caption}}</p></div>
+            </div>
+        </div>
         <ul id="tiles"></ul>
         <div id="loader">
             <div id="loaderCircle"></div>
         </div>
+
     </div>
   </div>
 
-  <script src="/static/js/jquery.min.wookmark.js"></script>
+
+
+
+  <!--<script src="/static/js/jquery.min.wookmark.js"></script>-->
   <script src="/static/js/jquery.wookmark.js"></script>
   <!--<script src="/static/js/grid.min.js"></script>-->
   <!--<script src="/static/js/modernizr-2.6.1.min.js"></script>-->
