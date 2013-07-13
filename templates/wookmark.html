@@ -1,0 +1,64 @@
+<!doctype html>
+<!--[if lt IE 7]> <html class="no-js ie6 oldie" lang="en"> <![endif]-->
+<!--[if IE 7]>    <html class="no-js ie7 oldie" lang="en"> <![endif]-->
+<!--[if IE 8]>    <html class="no-js ie8 oldie" lang="en"> <![endif]-->
+<!--[if gt IE 8]><!--> 
+<html class="no-js" lang="en" ng-app="myApp"> <!--<![endif]-->
+<head>
+
+  <script src="/static/js/angular.min.js"></script>
+  <script src="/static/js/display.js"></script>
+
+
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+
+  <title>[People]</title>
+
+
+  <!-- CSS Reset -->
+
+  <link rel="stylesheet" href="/static/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/static/css/reset.css">
+  <!-- Styling for your grid blocks -->
+  <link rel="stylesheet" href="/static/css/style.css">
+
+</head>
+
+<body>
+
+<div class="navbar navbar-fixed-top">
+    <div class="navbar-inner" style="padding-left: 75px;">
+        <a class="brand" href="#"><strong>[People]</strong></a>
+        <ul class="nav">
+            <li class="active"><a href="#">Home</a></li>
+            <li><a href="#">Link</a></li>
+            <li><a href="#">Link</a></li>
+        </ul>
+    </div>
+</div>
+
+  <div id="container" >
+    <!--<header>-->
+      <!--<h1><strong>Welcome to People!</strong></h1>-->
+      <!--<p>People helps you find people who wants to be found, lets start a conversation...</p>-->
+    <!--</header>-->
+
+
+    <div id="main" role="main" ng-controller="DispCtrl" style="padding-top: 75px;">
+        <!--<div id="images"></div>-->
+        <ul id="tiles"></ul>
+        <div id="loader">
+            <div id="loaderCircle"></div>
+        </div>
+    </div>
+  </div>
+
+  <script src="/static/js/jquery.min.wookmark.js"></script>
+  <script src="/static/js/jquery.wookmark.js"></script>
+  <!--<script src="/static/js/grid.min.js"></script>-->
+  <!--<script src="/static/js/modernizr-2.6.1.min.js"></script>-->
+
+
+</body>
+</html>

@@ -8,18 +8,19 @@ import hmac
 import json
 import hashlib
 from base64 import urlsafe_b64decode, urlsafe_b64encode
+from models import User, ProfileData, UserComplete
 
 import requests
-from flask import Flask, request, redirect, render_template, url_for, Response
+from flask import Flask, request, redirect, render_template, url_for, Response, session, jsonify, send_file, make_response
 import flask
-from myfunctions import get_or_create, get_age, get_data, search_index, get_user, get_user_by_id
+from myfunctions import *
 #!/usr/bin/env python
 from datetime import datetime as dt
 #import redis
 # import flask
 
 from socketio import socketio_manage
-
+import facebook
 
 #!/usr/bin/env python
 import sys
@@ -38,81 +39,15 @@ from socketio_chat import ChatNamespace
 from socketio_chat import EchoBot
 
 FB_APP_ID = os.environ.get('FACEBOOK_APP_ID')
+FB_APP_SECRET = os.environ.get('FACEBOOK_SECRET')
 requests = requests.session()
 
 app_url = 'https://graph.facebook.com/{0}'.format(FB_APP_ID)
 FB_APP_NAME = json.loads(requests.get(app_url).content).get('name')
-FB_APP_SECRET = os.environ.get('FACEBOOK_SECRET')
 
 
-def oauth_login_url(preserve_path=True, next_url=None):
-    fb_login_uri = ("https://www.facebook.com/dialog/oauth"
-                    "?client_id=%s&redirect_uri=%s" %
-                    (app.config['FB_APP_ID'], get_home()))
-
-    if app.config['FBAPI_SCOPE']:
-        fb_login_uri += "&scope=%s" % ",".join(app.config['FBAPI_SCOPE'])
-    return fb_login_uri
 
 
-def simple_dict_serialisation(params):
-    return "&".join(map(lambda k: "%s=%s" % (k, params[k]), params.keys()))
-
-
-def base64_url_encode(data):
-    return base64.urlsafe_b64encode(data).rstrip('=')
-
-
-def fbapi_get_string(path,
-    domain=u'graph', params=None, access_token=None,
-    encode_func=urllib.urlencode):
-    """Make an API call"""
-
-    if not params:
-        params = {}
-    params[u'method'] = u'GET'
-    if access_token:
-        params[u'access_token'] = access_token
-
-    for k, v in params.iteritems():
-        if hasattr(v, 'encode'):
-            params[k] = v.encode('utf-8')
-
-    url = u'https://' + domain + u'.facebook.com' + path
-    params_encoded = encode_func(params)
-    url = url + params_encoded
-    result = requests.get(url).content
-
-    return result
-
-
-def fbapi_auth(code):
-    params = {'client_id': app.config['FB_APP_ID'],
-              'redirect_uri': get_home(),
-              'client_secret': app.config['FB_APP_SECRET'],
-              'code': code}
-
-    result = fbapi_get_string(path=u"/oauth/access_token?", params=params,
-                              encode_func=simple_dict_serialisation)
-    pairs = result.split("&", 1)
-    result_dict = {}
-    for pair in pairs:
-        (key, value) = pair.split("=")
-        result_dict[key] = value
-    return (result_dict["access_token"], result_dict["expires"])
-
-
-def fbapi_get_application_access_token(id):
-    token = fbapi_get_string(
-        path=u"/oauth/access_token",
-        params=dict(grant_type=u'client_credentials', client_id=id,
-                    client_secret=app.config['FB_APP_SECRET']),
-        domain=u'graph')
-
-    token = token.split('=')[-1]
-    if not str(id) in token:
-        print 'Token mismatch: %s not in %s' % (id, token)
-    return token
 
 
 
@@ -124,89 +59,125 @@ app.secret_key = 'asdf'
 
 
 
-def get_home():
-    return 'https://' + request.host + '/'
 
 
-def get_token():
+def current_user():
+    if session.get("user"):
+        # User is logged in
+        # print session.get("user")
+        # print '\ni will go from here\n'
+        return session.get("user")
+    else:
+        # Either used just logged in or just saw the first page
+        # We'll see here
+        cookie = facebook.get_user_from_cookie(request.cookies,
+                                               FB_APP_ID,
+                                               FB_APP_SECRET)
+        if cookie:
+            # Okay so user logged in.
+            # Now, check to see if existing user
+            user = get_user(cookie["uid"])
+            if not user:
+                # Not an existing user so get user info
+                # graph = facebook.GraphAPI(cookie["access_token"])
+                # profile = graph.get_object("me")
+                # user = User(
+                #     key_name=str(profile["id"]),
+                #     id=str(profile["id"]),
+                #     name=profile["name"],
+                #     profile_url=profile["link"],
+                #     access_token=cookie["access_token"]
+                # )
+                
+                # user.put()
+                user = get_or_create(cookie["access_token"])
 
-    #print 'hello'
-    # print request.args
-    # print request.args.get('code', None)
-
-    if request.args.get('code', None):
-        return fbapi_auth(request.args.get('code'))[0]
-
-    cookie_key = 'fbsr_{0}'.format(FB_APP_ID)
-    # print request.cookies
-    # print "i am before if"
-
-    if cookie_key in request.cookies:
-
-        # print "ohh i entred if"
-
-        c = request.cookies.get(cookie_key)
-        encoded_data = c.split('.', 2)
-
-        sig = encoded_data[0]
-        data = json.loads(urlsafe_b64decode(str(encoded_data[1]) +
-            (64-len(encoded_data[1])%64)*"="))
-
-        if not data['algorithm'].upper() == 'HMAC-SHA256':
-            raise ValueError('unknown algorithm {0}'.format(data['algorithm']))
-
-        h = hmac.new(FB_APP_SECRET, digestmod=hashlib.sha256)
-        h.update(encoded_data[1])
-        expected_sig = urlsafe_b64encode(h.digest()).replace('=', '')
-
-        if sig != expected_sig:
-            raise ValueError('bad signature')
-
-        code =  data['code']
-
-        params = {
-            'client_id': FB_APP_ID,
-            'client_secret': FB_APP_SECRET,
-            'redirect_uri': '',
-            'code': data['code']
-        }
-
-        from urlparse import parse_qs
-        r = requests.get('https://graph.facebook.com/oauth/access_token', params=params)
-        token = parse_qs(r.content).get('access_token')
-
-        return token
-
-def get_channel_token():
-    access_token = get_token()  
-    print access_token
-    channel_url = url_for('get_channel', _external=True)
-    channel_url = channel_url.replace('http:', '').replace('https:', '')
-    return access_token, channel_url    
+            # elif user.access_token != cookie["access_token"]:
+            #     user.access_token = cookie["access_token"]
+            #     user.put()
+            # User is now logged in
+            session["user"] = dict(
+                name=user.name,
+                fb_uid=user.fb_uid,
+                id=user.id,
+                access_token=cookie["access_token"]
+            )
+            return session.get("user")
+        else:
+            # print request.args.get('code')
+            # access_token = get_token() #fbapi_auth(request.args.get('code'))[0] #facebook.get_access_token_from_code(request.args.get('code'), get_home(), FB_APP_ID, FB_APP_SECRET)[0]
+            # print '\ni am stuck here\n'
+            # print access_token
+            return None
+    return None
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
-    # print get_home()
 
-    access_token, channel_url = get_channel_token()
+    return "hello world"
 
-    if access_token:
-        my_user = get_or_create(access_token)
-        user_data = get_data(my_user)
-        redir = get_home() + 'close/'
-        url = request.url
-        age = get_age(user_data.birthday)
+    # channel_url = url_for('get_channel', _external=True)
+    # channel_url = channel_url.replace('http:', '').replace('https:', '')
+    # return render_template('index.html', app_id=FB_APP_ID, name=FB_APP_NAME, channel_url=channel_url, current_user=None)
+    # # print get_home()
 
-        return render_template(
-            'index.html', 
-            app_id=FB_APP_ID, 
-            token=access_token,
-            me = my_user,
-            resp = user_data,
-            age = age
-            )
-    else:
-        return render_template('login.html', app_id=FB_APP_ID, token=access_token, url=request.url, channel_url=channel_url, name=FB_APP_NAME)
+    # access_token, channel_url = get_channel_token()
+
+    # if access_token:
+    channel_url = url_for('get_channel', _external=True)
+    channel_url = channel_url.replace('http:', '').replace('https:', '')
+    # logout_url = url_for('logout', _external=True)
+    # logout_url = logout_url.replace('http:', '').replace('https:', '')
+    my_user = current_user()
+    if not my_user:
+        return render_template('base.html', app_id=FB_APP_ID, name=FB_APP_NAME, channel_url=channel_url, current_user=my_user)
+    my_user = get_user_by_id(my_user['id'])
+    user_data = get_data(my_user)
+    # redir = get_home() + 'close/'
+    # url = request.url
+    age = get_age(user_data.birthday)
+    return render_template('index.html', app_id=FB_APP_ID, me = my_user, resp = user_data, age = age, channel_url=channel_url, current_user=my_user)
+    # else:
+        # return render_template('base.html', app_id=FB_APP_ID, token=access_token, name=FB_APP_NAME, current_user = 'singla')
+
+@app.route('/wookmark', methods=['GET', 'POST'])
+def wookmark():
+    # return send_file('templates/wookmark.html')
+    return make_response(open('templates/wookmark.html').read())
+    # remove the username from the session if it's there
+    print "i came to logout function"
+    if session.get("user") is not None:
+        session['user'] = None
+    return redirect('/')
+
+@app.route('/wookmark1', methods=['GET', 'POST'])
+def wookmark1():
+    return send_file('templates/wookmark1.html')
+    # remove the username from the session if it's there
+    print "i came to logout function"
+    if session.get("user") is not None:
+        session['user'] = None
+    return redirect('/')
+
+@app.route('/wookmark2', methods=['GET', 'POST'])
+def wookmark2():
+    return make_response(open('templates/wookmark_div.html').read())
+    # remove the username from the session if it's there
+    print "i came to logout function"
+    if session.get("user") is not None:
+        session['user'] = None
+    return redirect('/')
+
+
+
+@app.route('/logout', methods=['GET', 'POST'])
+def logout():
+    # remove the username from the session if it's there
+    print "i came to logout function"
+    if session.get("user") is not None:
+        session['user'] = None
+    return redirect('/')
+
 
 @app.route('/channel.html', methods=['GET', 'POST'])
 def get_channel():
@@ -234,7 +205,7 @@ def search():
         else:
             return redirect(url_for('index'))
     else:
-       return render_template('login.html', app_id=FB_APP_ID, token=access_token, url=request.url, channel_url=channel_url, name=FB_APP_NAME) 
+       return render_template('base.html', app_id=FB_APP_ID, token=access_token, name=FB_APP_NAME) 
   
   
 
@@ -281,6 +252,21 @@ def login():
         recipient = flask.request.form['to'] + '@jabber.fbpeople.com'
         return render_template('room.html', recipient=recipient)
     return '<form action="/login" method="post">user: <input name="user"><br>password:<input name="password"><br>chat with:<input name="to"><br><input type="submit" value="Submit"><br>'
+
+
+
+@app.route('/getlist', methods=['GET'])
+def getlist():
+    if flask.request.method == 'GET':# and session.get('user'):
+        users = UserComplete.query.all()
+        json_results = to_json(users[:100])
+        return jsonify(**json_results)
+    return jsonify([])
+
+
+
+
+
 
 
 

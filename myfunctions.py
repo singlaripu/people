@@ -364,3 +364,16 @@ def search_index(token, form, fetch_fields=['docid']):
 
 def get_user_by_id(user_id):
 	return User.query.get(int(user_id))
+
+
+def to_json(users):
+	# import simplejson as json
+	from random import random
+	keys = ('name', 'fb_uid', 'gender', 'profile_pic_url')
+	res = []
+	for user in users:
+		a = {c.name: getattr(user, c.name) for c in user.__table__.columns if c.name in keys}
+		a['score'] = random()
+		a['height'] = round((float(user.height)/float(user.width))*200)
+	 	res.append(a)
+	return {'data':res}

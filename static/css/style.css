@@ -1,0 +1,263 @@
+
+/**
+ * Grid container
+ */
+#tiles {
+list-style-type: none;
+position: relative; /** Needed to ensure items are laid out relative to this container **/
+margin: 0;
+}
+
+/**
+ * Grid items
+ */
+#tiles li {
+width: 230px;
+background-color: #ffffff;
+border: 1px solid #dedede;
+-moz-border-radius: 2px;
+-webkit-border-radius: 2px;
+border-radius: 2px;
+display: none; /** Hide items initially to avoid a flicker effect **/
+  cursor: pointer;
+padding: 4px;
+}
+
+#tiles li img {
+    display: block;
+    padding-left: 15px;
+    padding-right: 15px;
+    padding-top: 15px;
+    padding-bottom: 6px;
+}
+
+/**
+ * Grid item text
+ */
+#tiles li p {
+color: #666;
+font-size: 11px;
+line-height: 16px;
+margin: 0 0 1px 15px;
+}
+
+/** General page styling **/
+  
+html {
+background-color: #e9e9e9;
+}
+
+#main {
+padding: 30px 0 30px 0;
+}
+
+header h1 {
+text-align: center;
+font-size: 24px;
+font-weight: normal;
+margin: 30px 0 3px 0;
+}
+
+header p {
+text-align: center;
+font-size: 13px;
+color: #777;
+margin: 0;
+}
+
+/** Loader **/
+  
+#loader {
+  height: 16px;
+  text-align: center;
+  padding: 25px 0 25px 0;
+}
+  
+#loaderCircle {
+  width: 16px;
+  height: 16px;
+margin: 0 auto;
+  background-image: url('../images/loader.gif');
+}
+
+
+
+
+.polaroid .options {
+    opacity: 0;
+    border: 0;
+    margin: 0;
+    padding: 0;
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    -moz-transition: opacity 0.15s ease-out;
+    -o-transition: opacity 0.15s ease-out;
+    -webkit-transition: opacity 0.15s ease-out;
+    -ms-transition: opacity 0.15s ease-out;
+    transition: opacity 0.15s ease-out;
+    background-color: white;
+    height: 50px;
+    width: 230px;
+    z-index: 10;
+}
+.polaroid.optionsActive .options,
+.polaroid:hover .options {
+    opacity: 1;
+}
+/*body.iPad .polaroid.optionsActive .options,*/
+/*body.iPad .polaroid:hover .options {*/
+    /*opacity: 0;*/
+/*}*/
+
+html.no-opacity .polaroid .options {
+    display: none;
+}
+html.no-opacity .polaroid.optionsActive .options,
+html.no-opacity .polaroid:hover .options {
+    display: block;
+}
+
+.polaroid .options .save,
+.polaroid .options .comment,
+.polaroid .options .like,
+.polaroid .options .magnify {
+    cursor: pointer;
+    position: absolute;
+    top: 0px;
+    width: 50px;
+    height: 50px;
+    -moz-transition: opacity 0.15s ease-out;
+    -o-transition: opacity 0.25s ease-out;
+    -webkit-transition: opacity 0.25s ease-out;
+    -ms-transition: opacity 0.25s ease-out;
+    transition: opacity 0.25s ease-out;
+}
+.polaroid .options span {
+    text-align: center;
+    width: 100%;
+    display: inline-block;
+    font-size: 9px;
+    color: #666666;
+    line-height: 9px;
+    margin: 2px 0 0 0;
+}
+
+
+.polaroid .options .save,
+.polaroid .options .comment,
+.polaroid .options .like {
+    border-left: 1px solid #dedede;
+}
+.polaroid .options .like { right: 0px; }
+.polaroid .options .like.active em,
+.polaroid .options .save.active em,
+.polaroid .options .comment.active em {
+    -webkit-animation: jump 0.75s 1;
+    -moz-animation: jump 0.75s 1;
+    -o-animation: jump 0.75s 1;
+    animation: jump .75s 1;
+}
+.polaroid .options .save.active,
+.polaroid .options .like.active,
+.polaroid .options .comment.active {
+    background-color: #008ed3;
+    color: #ffffff;
+}
+.polaroid .options .comment { right: 51px; }
+.polaroid .options .save { right: 102px; }
+.polaroid .options .magnify {
+    right: auto;
+    left: 0;
+    width: 230px;
+}
+.polaroid .options .like:hover span,
+.polaroid .options .save:hover span,
+.polaroid .options .magnify:hover span ,
+.polaroid .options .comment:hover span {
+    color: #008ed3;
+}
+.polaroid .options .like.active span,
+.polaroid .options .save.active span,
+.polaroid .options .magnify.active span,
+.polaroid .options .comment.active span {
+    color: #ffffff;
+}
+.polaroid .options .like.loading,
+.polaroid .options .save.loading,
+.polaroid .options .comment.loading {
+    background-repeat: no-repeat;
+    background-position: center 10px;
+}
+.polaroid .options .like.loading em,
+.polaroid .options .save.loading em,
+.polaroid .options .comment.loading em{
+    visibility: hidden;
+}
+.polaroid .options .magnify { width: 83px; }
+.polaroid .options a {
+    display: block;
+    padding-bottom: 8px;
+}
+
+.polaroid .options em {
+    width: 18px;
+    height: 18px;
+    display: block;
+    margin: 9px auto 1px auto;
+}
+
+
+.polaroid .options .magnify em { background-position: -18px 0; }
+.polaroid .options .save em{ background-position: -36px 0; }
+.polaroid .options .comment em { background-position: -54px 0; }
+
+
+.polaroid .options .like:hover em,
+#lightbox #tagOptions .likeButton:hover em { background-position: 0 -36px; }
+.polaroid .options .magnify:hover em { background-position: -18px -36px; }
+.polaroid .options .save:hover em,
+#lightbox #tagOptions .saveButton:hover em { background-position: -36px -36px; }
+.polaroid .options .comment:hover em,
+#lightbox #tagOptions .noteButton:hover em { background-position: -54px -36px; }
+#lightbox #tagOptions .shareButton:hover em { background-position: -72px -36px; }
+
+.polaroid .options .like.active em,
+#lightbox #tagOptions .likeButton.active em { background-position: 0 -18px; }
+.polaroid .options .magnify.active em { background-position: -18px -18px; }
+.polaroid .options .save.active em,
+#lightbox #tagOptions .saveButton.active em { background-position: -36px -18px; }
+.polaroid .options .comment.active em,
+#lightbox #tagOptions .noteButton.active em { background-position: -54px -18px; }
+#lightbox #tagOptions .shareButton.active em { background-position: -72px -18px; }
+
+
+/*@media screen and (max-width: 570px) {*/
+    /*.polaroid .options, .polaroid .options .save, .polaroid .options .comment, .polaroid .options .like, .polaroid .options .magnify {*/
+        /*opacity: 1;*/
+    /*}*/
+    /*.polaroid .options .magnify {*/
+        /*display: none;*/
+    /*}*/
+    /*.polaroid {*/
+        /*padding-top: 50px;*/
+    /*}*/
+/*}*/
+
+/*@media only screen and (-Webkit-min-device-pixel-ratio: 1.5),*/
+/*only screen and (-moz-min-device-pixel-ratio: 1.5),*/
+/*only screen and (-o-min-device-pixel-ratio: 3/2),*/
+/*only screen and (min-device-pixel-ratio: 1.5) {*/
+    /*#header .logo a {*/
+        /*background-image: url('/assets/icons/icons-hd.png');*/
+        /*background-size: 108px 189px;*/
+        /*margin-top: 11px;*/
+    /*}*/
+
+    /*.polaroid .options em,*/
+    /*.polaroid .stats em {*/
+        /*background-image: url('/assets/icons/icons-hd.png');*/
+        /*background-size: 108px 189px;*/
+    /*}*/
+/*}*/
+

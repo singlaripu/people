@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+    <link rel="stylesheet" href="/static/css/home1.css">
+    <link rel="stylesheet" href="/static/css/bootstrap.min.css">
+
+    <!-- Styling for your grid blocks -->
+    <link rel="stylesheet" href="/static/css/style1.css">
+
+    <title></title>
+</head>
+<body>
+
+
+    <div id="images">
+
+        <div class="polaroid tile"  id="image_273399">
+
+            <div class="options">
+                <div class="comment" title="Pin">
+                    <a href="#"><em><i class=" icon-tag"></i></em><span>Pin</span></a>
+                </div>
+                <div class="like"  title="Like">
+                    <a href="#"><em><i class="icon-thumbs-up"></i></em><span>Like</span></a>
+                </div>
+                <div class="save" title="Facebook Profile">
+                    <a href="#"><em><i class="icon-user"></i></em><span>Profile</span></a>
+                </div>
+                <div class="magnify"  title="Chat">
+                    <a  href="#"><em><i class=" icon-comment"></i></em><span>Chat</span></a>
+                </div>
+            </div>
+            <a href="#" class="imageLink">
+                <img src="http://images1.wookmark.com/273399_huatunan8.jpg" alt="Something" width="200" height="278"/>
+            </a>
+            <div class="stats">
+                <!--<p><em class="s">Ripu</em><em class="l"></em></p>-->
+                <p>Ripu Singla</p>
+            </div>
+        </div>
+
+
+    </div>
+
+
+
+
+<script src="/static/js/jquery.min.wookmark.js"></script>
+<script src="/static/js/jquery.wookmark.js"></script>
+
+
+<!-- Once the page is loaded, initalize the plug-in. -->
+<script type="text/javascript">
+    (function ($) {
+
+        // Prepare layout options.
+        var options = {
+            autoResize: true, // This will auto-update the layout when the browser window is resized.
+            container: $('#ripusingla'), // Optional, used for some extra CSS styling
+            offset: 2, // Optional, the distance between grid items
+            itemWidth: 210 // Optional, the width of a grid item
+        };
+
+
+
+        /**
+         * Refreshes the layout.
+         */
+
+            handler = $('#images div');
+            handler.wookmark(options);
+
+
+    })(jQuery);
+</script>
+</body>
+</html>

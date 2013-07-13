@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>People</title>
+    <meta name="People" content="">
+    <meta name="Ripu Singla" content="">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <!-- Le styles -->
+    <link href="/static/css/bootstrap.css" rel="stylesheet">
+    
+    <style type="text/css">
+      body {
+        padding-top: 60px;
+      }
+      .span12 li {
+        font-size: 14px;
+        font-weight: 200;
+        line-height: 21px;
+        /*letter-spacing: -1px;*/
+      }
+    </style>
+
+    <!-- Le fav and touch icons -->
+    <link rel="shortcut icon" href="images/favicon.ico">
+    <link rel="apple-touch-icon" href="images/apple-touch-icon.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="images/apple-touch-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="images/apple-touch-icon-114x114.png">
+
+  </head>
+
+  <body>
+ 
+
+    
+  <div id="fb-root"></div>
+
+  <script>
+    window.fbAsyncInit = function() {
+      // init the FB JS SDK
+      FB.init({
+        appId      : '{{ app_id }}',                        // App ID from the app dashboard
+        channelUrl : '{{ channel_url }}',                   // Channel file for x-domain comms
+        status     : true,                                 // Check Facebook Login status
+        xfbml      : true,                                  // Look for social plugins on the page
+        cookie     : true
+      });
+
+
+      FB.Event.subscribe('{% if current_user %}auth.logout{% else %}auth.login{% endif %}', function(response) {
+          {% if current_user %} window.location = "/logout" {% else %} window.location.reload(); {% endif %}
+        });   
+
+      // FB.Canvas.setAutoGrow();
+    };
+
+    (function(d, s, id) {
+      var js, fjs = d.getElementsByTagName(s)[0];
+      if (d.getElementById(id)) return;
+      js = d.createElement(s); js.id = id;
+      js.src = "//connect.facebook.net/en_US/all.js";
+      fjs.parentNode.insertBefore(js, fjs);
+    }(document, 'script', 'facebook-jssdk'));
+
+  </script>
+
+    <div class="topbar">
+      <div class="fill">
+        <div class="container">
+          <a class="brand" href="#"><strong>[people]</strong></a>
+          <ul class="nav">
+            <li class="active"><a href="#">Home</a></li>
+            <li><a href="#about">About</a></li>
+            <li><a href="#contact">Contact</a></li>
+
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="container">
+
+      <!-- Main hero unit for a primary marketing message or call to action -->
+      <div class="hero-unit">
+        <h1>Welcome to People!</h1>
+        <p>People lets you find people who wants to be found. You might be looking for a date or the last team member for your cricket team near by, welcome aboard.</p>
+        <p> You can use People to search people, visit profile and start conversing </p>
+        <p><a class="btn primary large">Login with Facebook &raquo;</a></p>
+      </div>
+
+      <!-- Example row of columns -->
+      <div class="row">
+        <div class="span12">
+          <!-- <h2>Features</h2>
+          <p>People is free and always will be</p> -->
+          <h3> You can use People to: </h3>
+          <ul>
+            <li> Search for people </li>
+            <li> Look at their Profile </li>
+            <li> Send an offline message or start chatting </li>
+          </ul>
+
+          <h3> Facebook Permission we require: </h3>
+          <ul>
+            <li> <b>Birthday</b> : To show your age to your profile visitors </li>
+            <li> Look at their Profile </li>
+            <li> Send an offile message or start chatting </li>
+          </ul>
+        <!-- </p> -->
+          <!-- <p><a class="btn" href="#">View details &raquo;</a></p> -->
+        </div>
+        <!-- <div class="span-one-third">
+          <h2>Heading 2</h2>
+           <p>we will never share/post your information outside of this app.</p>
+          <p><a class="btn" href="#">View details &raquo;</a></p>
+       </div>
+        <div class="span-one-third">
+          <h2>Heading 3</h2>
+          <p>lets think about it</p>
+          <p><a class="btn" href="#">View details &raquo;</a></p>
+        </div> -->
+      </div>
+
+      <footer>
+        <p>a Ripu Singla production<br>People &copy; 2013</p>
+      </footer>
+
+    </div> <!-- /container -->
+
+  </body>
+</html>
