@@ -376,4 +376,6 @@ def to_json(users):
 		a['score'] = random()
 		a['height'] = round((float(user.height)/float(user.width))*200)
 	 	res.append(a)
-	return {'data':res}
+	start = int(random()*200)
+	end = start + 100
+	return {'data':res[start:end]}

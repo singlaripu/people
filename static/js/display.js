@@ -42,63 +42,33 @@ app.factory('myService', function($http) {
 
 function DispCtrl($scope, myService, $http, $compile, $timeout) {
 
-//    $http.get('/getlist').success(function(d) {
-//        $scope.users = d.data;
-//        $scope.$apply();
-//    });
     $scope.users = [];
-    $scope.page = 0;
-    $scope.incr = 40;
-    $scope.light_url = "https://fbcdn-sphotos-a-a.akamaihd.net/hphotos-ak-frc1/10659_504540786283381_18902797_n.jpg";
+//    $scope.page = 0;
+    $scope.incr = 30;
+    $scope.light_url = "/static/images/loader.gif";
     $scope.light_caption = "something";
-//    $scope.html = 'welcome';
+    $scope.subset = [];
 
     myService.async().then(function(d) {
         $scope.users = d.data;
-        $scope.testname = 'ripusingla'
+
         $scope.newhtml = function(){
-            if ($scope.page >= $scope.users.length) return '';
-            var length = ($scope.users.length - $scope.page > $scope.incr) ? $scope.incr : ($scope.users.length - $scope.page);
-            length +=  $scope.page;
-            var html = '';
-            console.log($scope.page);
+            if ($scope.subset.length >= $scope.users.length) return '';
+            var temp = $scope.subset;
+            var length = ($scope.users.length - temp.length > $scope.incr) ? $scope.incr : ($scope.users.length - temp.length);
+            length +=  temp.length;
+            console.log(temp.length);
             console.log(length);
-            var i=$scope.page, image;
+            var i=temp.length, image;
             for(; i<length; i++) {
                 image = $scope.users[i];
-//                html += '<div id="mytile"><li><img src="' + image.profile_pic_url +'" width="200" height="' + image.height + '"><p>'+image.name+'</p></li></div>'
-//                html += '<li>';
-//                html += '<img src="' + image.profile_pic_url +'" width="200" height="' + image.height + '">';
-//                html += '<p>'+image.name+'</p>';
-//                html += '</li>';
-                html += '<li><div class="polaroid">'+
-                            '<div class="options">' +
-                                '<div class="comment" title="Pin"> '+
-                                    '<a href="#"><em><i class=" icon-tag"></i></em><span>Pin</span></a>'+
-                                '</div>'+
-                                '<div class="like"  title="Like">'+
-                                    '<a href="#"><em><i class="icon-thumbs-up"></i></em><span>Like</span></a>'+
-                                '</div>'+
-                                '<div class="save" title="Facebook Profile">'+
-                                    '<a href="#"><em><i class="icon-user"></i></em><span>Profile</span></a>'+
-                                '</div>'+
-                                '<div class="magnify"  title="Chat">'+
-                                    '<a  href="#"><em><i class=" icon-comment"></i></em><span>Chat</span></a>'+
-                                '</div>'+
-                            '</div>'+
-//                            '<a href="#" class="imageLink"><img src="'+image.profile_pic_url+'" alt="Something" width="200" height="'+image.height+'"/></a>'+
-//                            '<div class="stats"><p>'+image.name+'</p></div>'+
-                            '<a ng-click="ShowLightBox($event)""><img id="'+ i +'" src="' + image.profile_pic_url +'" width="200" height="' + image.height + '"></a><p>'+image.name+'</p>'+
-//                            '<img src="' + image.profile_pic_url +'" width="200" height="' + image.height + '"><p>{{$scope.testname}}</p>'+
-                        '</div></li>';
+                temp.push(image);
             }
-            var element = $compile(html)($scope);
-            $scope.page = length;
-            return element;
+            $scope.subset = temp;
+//            $scope.page = length;
         }
-        $scope.nextPage();
-//        $scope.html = $scope.newhtml();
 
+        $scope.nextPage();
 
     });
 
@@ -114,25 +84,38 @@ function DispCtrl($scope, myService, $http, $compile, $timeout) {
         var handler = $('#tiles li');
         handler.wookmark(options);
         $('#loaderCircle').hide();
+        $scope.scrollflag = true;
+        console.log($scope.scrollflag);
 
     }
 
     $scope.nextPage = function() {
         $('#loaderCircle').show();
-        $('#tiles').append($scope.newhtml());
-        console.log('i am taking timeout for loading images');
-        $timeout(function(){
-            $scope.loadimages();
-        }, 1000);
+        $scope.newhtml();
+        $scope.$apply();
+
+//        $('#tiles').append($scope.newhtml());
+//        console.log('i am taking timeout for loading images');
+//        $timeout(function(){
+//            $scope.loadimages();
+//        }, 1000);
 
     };
 
+    $scope.scrollflag = true;
 
     function onScroll(event) {
-        var closeToBottom = ($(window).scrollTop() + $(window).height() > $(document).height() - 50);
-        if(closeToBottom) {
-            $scope.nextPage();
+        if($scope.scrollflag) {
+
+            var closeToBottom = ($(window).scrollTop() + $(window).height() > $(document).height() - 100);
+            if(closeToBottom) {
+                $scope.scrollflag = false;
+                $scope.nextPage();
+//                $scope.scrollflag = true;
+            }
+
         }
+
     };
 
 
@@ -147,32 +130,25 @@ function DispCtrl($scope, myService, $http, $compile, $timeout) {
         $('#demoLightbox').lightbox(options);
     }
 
-    $scope.ShowLightBox = function(e) {
+    $scope.ShowLightBox = function(ind) {
 //        console.log('you clicked..i dont konw which one');
 ////        var elem = angular.element(e.srcElement);
 ////        var id = elem.id;
 //        console.log(e.target.id);
-        console.log(e.target.id);
-        var id = e.target.id;
-        $scope.light_url = $scope.users[id].profile_pic_url;
-        $scope.light_caption = $scope.users[id].name;
+//        console.log(e.target.id);
+//        var id = e.target.id;
+        $scope.light_url = $scope.users[ind].profile_pic_url;
+        $scope.light_caption = $scope.users[ind].name;
         console.log('i am taking timeout');
 
         $timeout(function(){
             $scope.loadlightbox();
         }, 10);
-//        var html = ''
-//        html += '<img src="'+$scope.users[id].profile_pic_url+'">' + '<div class="lightbox-caption"><p>' + $scope.users[id].name + '</p></div>';
-//        var element = $compile(html)($scope);
-//        $('div.light_content_unique').replaceWith(element);
-
-
-
-
     }
 
 
     $(document).bind('scroll', onScroll);
+
 
 }
 
@@ -188,3 +164,20 @@ function DispCtrl($scope, myService, $http, $compile, $timeout) {
 //    }
 //})
 
+
+app.directive('lastdirective', function($timeout) {
+    return function(scope, element, attrs) {
+//        console.log('ROW: index = ', scope.$index);
+        scope.$watch('$last',function(v){
+            if (v) {
+                console.log('last');
+                console.log('i am taking timeout for loading images');
+                $timeout(function(){
+                    scope.loadimages();
+                }, 1000);
+            }
+
+        });
+
+    };
+})

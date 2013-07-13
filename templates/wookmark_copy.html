@@ -75,43 +75,7 @@
             </div>
         </div>
         <!--Click me: <input type="checkbox" ng-model="checked"><br/>-->
-        <ul id="tiles">
-
-
-
-            <li ng-repeat="image in subset" lastdirective="">
-                <div class="polaroid">
-                    <div class="options">
-                        <div class="comment" title="Pin">
-                            <a href="#"><em><i class=" icon-tag"></i></em><span>Pin</span></a>
-                        </div>
-                        <div class="like"  title="Like">
-                            <a href="#"><em><i class="icon-thumbs-up"></i></em><span>Like</span></a>
-                        </div>
-                        <div class="save" title="Facebook Profile">
-                            <a href="#"><em><i class="icon-user"></i></em><span>Profile</span></a>
-                        </div>
-                        <div class="magnify"  title="Chat">
-                            <a  href="#"><em><i class=" icon-comment"></i></em><span>Chat</span></a>
-                        </div>
-                    </div>
-                    <a ng-click="ShowLightBox($index)">
-                        <img ng-src="{{image.profile_pic_url}}" width="200" height="{{image.height}}">
-                    </a>
-                    <p>{{image.name}}</p>
-                </div>
-            </li>
-
-
-
-
-
-
-
-
-
-        </ul>
-
+        <ul id="tiles"></ul>
         <div id="loader"><div id="loaderCircle" style="width:100px; height:100px; background-repeat: no-repeat"></div></div>
 
     </div>

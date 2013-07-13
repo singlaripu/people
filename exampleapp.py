@@ -259,7 +259,7 @@ def login():
 def getlist():
     if flask.request.method == 'GET':# and session.get('user'):
         users = UserComplete.query.all()
-        json_results = to_json(users[:100])
+        json_results = to_json(users[:500])
         return jsonify(**json_results)
     return jsonify([])
 
