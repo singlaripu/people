@@ -8,6 +8,16 @@ position: relative; /** Needed to ensure items are laid out relative to this con
 margin: 0;
 }
 
+/*.navbar-inner {*/
+    /*background-color: #3b5998; *//* background color will be black for all browsers */
+    /*background-image: none;*/
+    /*background-repeat: no-repeat;*/
+    /*filter: none;*/
+/*}*/
+
+/*.navbar-inner strong, .nav li {*/
+    /*color: ghostwhite;*/
+/*}*/
 /**
  * Grid items
  */

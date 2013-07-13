@@ -68,7 +68,7 @@ function DispCtrl($scope, myService, $http) {
 
 
     $scope.nextPage = function() {
-
+        $('#loaderCircle').show();
         $('#tiles').append($scope.newhtml());
         var options = {
             autoResize: true,
@@ -78,6 +78,7 @@ function DispCtrl($scope, myService, $http) {
         };
         var handler = $('#tiles li');
         handler.wookmark(options);
+        $('#loaderCircle').hide();
 
     };
 
@@ -85,9 +86,9 @@ function DispCtrl($scope, myService, $http) {
     function onScroll(event) {
         var closeToBottom = ($(window).scrollTop() + $(window).height() > $(document).height() - 50);
         if(closeToBottom) {
-            $('#loaderCircle').show();
+
             $scope.nextPage();
-            $('#loaderCircle').hide();
+
         }
     };
 
