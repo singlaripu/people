@@ -316,14 +316,14 @@ only screen and (min-device-pixel-ratio: 1.5) {
     position: fixed;
     /*left: 50%;*/
     z-index: 1050;
-    width: 50%;
-    margin-left: -25%;
+    width: 60%;
+    margin-left: -30%;
     background-color: #ffffff;
     border: 1px solid rgba(0, 0, 0, 0.3);
     /*border: 10px solid #ffffff;*/
-    -webkit-border-radius: 2px;
-    -moz-border-radius: 2px;
-    border-radius: 3px;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    border-radius: 4px;
     -webkit-box-shadow: 0 3px 7px rgba(0, 0, 0, 0.3);
     -moz-box-shadow: 0 3px 7px rgba(0, 0, 0, 0.3);
     box-shadow: 0 3px 7px rgba(0, 0, 0, 0.3);
