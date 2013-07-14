@@ -186,7 +186,7 @@ app.directive('lastdirective', function($timeout) {
                 console.log('i am taking timeout for loading images');
                 $timeout(function(){
                     scope.loadimages();
-                }, 200);
+                }, 1000);
             }
 
         });
