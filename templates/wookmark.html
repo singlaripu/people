@@ -12,7 +12,7 @@
     <!--<script src="/static/js/scale.fix.js"></script>-->
     <!--<script src="/static/js/prettify.js"></script>-->
     <script src="/static/js/bootstrap.min.js"></script>
-    <script src="/static/js/bootstrap-lightbox.min.js"></script>
+    <!--<script src="/static/js/bootstrap-lightbox.js"></script>-->
 
     <script src="/static/js/angular.min.js"></script>
     <script src="/static/js/display.js"></script>
@@ -28,7 +28,7 @@
   <!-- CSS Reset -->
 
   <link rel="stylesheet" href="/static/css/bootstrap.min.css">
-    <link rel="stylesheet" href="/static/css/bootstrap-lightbox.min.css">
+    <!--<link rel="stylesheet" href="/static/css/bootstrap-lightbox.css">-->
     <!--<link rel="stylesheet" href="/static/css/prettify.css">-->
     <link rel="stylesheet" href="/static/css/reset.css">
   <!-- Styling for your grid blocks -->
@@ -43,7 +43,7 @@
   <div id="container" >
       <div class="navbar navbar-fixed-top">
           <div class="navbar-inner" style="padding-left: 4px;">
-              <a class="brand" href="#"><strong>[People]</strong></a>
+              <a class="brand" href="#"><strong>[People]</strong><i class="icon-leaf"></i></a>
               <ul class="nav">
                   <li class="active"><a href="#">Stream</a></li>
                   <li><a href="#">Pin Board</a></li>
@@ -67,22 +67,97 @@
         <!--</form>-->
         <!--<div id="images"></div>-->
 
-        <div id="demoLightbox" class="lightbox hide fade"  tabindex="-1" role="dialog" aria-hidden="true">
-            <div class='lightbox-content'>
-                <!--<div class="container-fluid">-->
-                    <!--<div class="row-fluid">-->
-                        <!--<div class="span2">-->
-                            <!--<p>message</p>-->
-                        <!--</div>-->
-                        <!--<div class="span10">-->
-                            <!--<p>reply</p>-->
-                        <!--</div>-->
-                    <!--</div>-->
-                <!--</div>-->
-                <img ng-src="{{light_url}}">
-                <div class="lightbox-caption"><p>{{light_caption}}</p></div>
+        <!-- Button to trigger modal -->
+        <!--<a href="#myModal" role="button" class="btn" data-toggle="modal">Launch demo modal</a>-->
+
+        <!-- Modal -->
+        <div id="myModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" >
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                <h3 id="myModalLabel" class="lead">{{light_caption}} (25 yr)</h3>
             </div>
+            <div class="modal-body">
+                <div class="row-fluid">
+                    <div class="span5">
+                        <img class="thumbnail" ng-src="https://fbcdn-sphotos-c-a.akamaihd.net/hphotos-ak-ash3/946998_10151480908326312_1334686484_n.jpg">
+                    </div>
+                    <div class="span7">
+                        <ul class="unstyled">
+                            <li><i class="icon-briefcase"></i> Assitant Manager at Citi (June 2011 to present)</li>
+                            <li><i class="icon-book"></i> Studied at Indian Institute of Technology, Kanpur </li>
+                            <li><i class="icon-home"></i> Lives in Bangalore, India </li>
+                            <li><i class="icon-map-marker"></i> From Sirsa, Haryana </li>
+                            <li><i class="icon-flag"></i> Single </li>
+                            <li><i class="icon-gift"></i> July 21 </li>
+                            <li><i class="icon-eye-open"></i> Interested In: Women </li>
+                            <li><i class="icon-heart"></i> Lord of the Rings, Matrix, Friends <a href="#">more</a> </li>
+
+
+                        </ul>
+
+                        <div class="row-fluid">
+                            <ul class="thumbnails">
+                                <li class="span2">
+                                    <a href="#" class="thumbnail">
+                                        <img ng-src="https://fbcdn-sphotos-c-a.akamaihd.net/hphotos-ak-ash3/946998_10151480908326312_1334686484_s.jpg" alt="">
+                                    </a>
+                                </li>
+                                <li class="span2">
+                                    <a href="#" class="thumbnail">
+                                        <img ng-src="https://fbcdn-sphotos-c-a.akamaihd.net/hphotos-ak-ash3/946998_10151480908326312_1334686484_s.jpg" alt="">
+                                    </a>
+                                </li>
+                                <li class="span2">
+                                    <a href="#" class="thumbnail">
+                                        <img ng-src="https://fbcdn-sphotos-c-a.akamaihd.net/hphotos-ak-ash3/946998_10151480908326312_1334686484_s.jpg" alt="">
+                                    </a>
+                                </li>
+                                <li class="span2">
+                                    <a href="#" class="thumbnail">
+                                        <img ng-src="https://fbcdn-sphotos-c-a.akamaihd.net/hphotos-ak-ash3/946998_10151480908326312_1334686484_s.jpg" alt="">
+                                    </a>
+                                </li>
+
+
+                            </ul>
+                        </div>
+
+
+
+                    </div>
+                </div>
+
+
+
+
+            </div>
+            <!--<div class="modal-footer">-->
+                <!--<button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>-->
+                <!--<button class="btn btn-primary">Save changes</button>-->
+            <!--</div>-->
         </div>
+
+
+        <!--<div id="demoLightbox" class="lightbox hide fade"  tabindex="-1" role="dialog" aria-hidden="true">-->
+            <!--<div class='lightbox-content'>-->
+                <!--&lt;!&ndash;<div class="container-fluid">&ndash;&gt;-->
+                    <!--&lt;!&ndash;<div class="row-fluid">&ndash;&gt;-->
+                        <!--&lt;!&ndash;<div class="span2">&ndash;&gt;-->
+                            <!--&lt;!&ndash;<p>message</p>&ndash;&gt;-->
+                        <!--&lt;!&ndash;</div>&ndash;&gt;-->
+                        <!--&lt;!&ndash;<div class="span10">&ndash;&gt;-->
+                            <!--&lt;!&ndash;<p>reply</p>&ndash;&gt;-->
+                        <!--&lt;!&ndash;</div>&ndash;&gt;-->
+                    <!--&lt;!&ndash;</div>&ndash;&gt;-->
+                <!--&lt;!&ndash;</div>&ndash;&gt;-->
+                <!--<div>-->
+                    <!--<img ng-src="{{light_url}}">-->
+                    <!--<p style="position: relative; bottom:90%;"> my name is something</p>-->
+
+                <!--</div>-->
+                <!--&lt;!&ndash;<div class="lightbox-caption"><p>{{light_caption}}</p></div>&ndash;&gt;-->
+            <!--</div>-->
+        <!--</div>-->
         <!--Click me: <input type="checkbox" ng-model="checked"><br/>-->
         <ul id="tiles">
 

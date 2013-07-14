@@ -98,7 +98,7 @@ margin: 0;
     /*background-repeat: no-repeat;*/
     width: 70px;
     height: 70px;
-    background: transparent url('/static/images/loader1.gif') no-repeat center center;
+    background: transparent url('/static/images/loader3.gif') no-repeat center center;
     /*background-repeat: no-repeat;*/
 
 
@@ -285,12 +285,50 @@ only screen and (min-device-pixel-ratio: 1.5) {
     }
 }
 
-.lightbox-content div{
-    width:400px;
-    height:400px;
+/*.lightbox-content{*/
+    /*width: 90%; *//* desired relative width */
+    /*left: 5%; *//* (100%-width)/2 */
+    /* place center */
+    /*margin-left:auto;*/
+    /*margin-right:auto;*/
+    /*background: white url('/static/images/loader.gif') repeat center center;*/
 
-}
+/*}*/
+
+/*body .modal.fade.in {*/
+    /*top: auto; *//* fade in to correct spot */
+/*}*/
 
 [ng\:cloak], [ng-cloak], .ng-cloak {
     display: none !important;
+}
+
+.fade.in {
+    opacity: 0.9;
+}
+
+.modal.fade {
+    -webkit-transition: opacity .3s linear, top .3s ease-out;
+    transition: opacity .01s linear, top .01s ease-out;
+}
+
+.modal {
+    position: fixed;
+    /*left: 50%;*/
+    z-index: 1050;
+    width: 50%;
+    margin-left: -25%;
+    background-color: #ffffff;
+    border: 1px solid rgba(0, 0, 0, 0.3);
+    /*border: 10px solid #ffffff;*/
+    -webkit-border-radius: 2px;
+    -moz-border-radius: 2px;
+    border-radius: 3px;
+    -webkit-box-shadow: 0 3px 7px rgba(0, 0, 0, 0.3);
+    -moz-box-shadow: 0 3px 7px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 3px 7px rgba(0, 0, 0, 0.3);
+    -webkit-background-clip: padding-box;
+    -moz-background-clip: padding-box;
+    background-clip: padding-box;
+    outline: #ffffff;
 }

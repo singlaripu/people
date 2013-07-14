@@ -45,7 +45,7 @@ function DispCtrl($scope, myService, $http, $compile, $timeout) {
     $scope.users = [];
 //    $scope.page = 0;
     $scope.incr = 30;
-    $scope.light_url = "/static/images/loader.gif";
+    $scope.light_url = "/static/images/white.jpg";
     $scope.light_caption = "something";
     $scope.subset = [];
 
@@ -133,10 +133,11 @@ function DispCtrl($scope, myService, $http, $compile, $timeout) {
         var options = {
             backdrop: true,
             keyboard: true,
-            show: true,
-            resizeToFit: true
+            show: true
+//            resizeToFit: true
         };
-        $('#demoLightbox').lightbox(options);
+//        $('#demoLightbox').lightbox(options);
+        $('#myModal').modal(options);
     }
 
     $scope.ShowLightBox = function(ind) {
@@ -185,7 +186,7 @@ app.directive('lastdirective', function($timeout) {
                 console.log('i am taking timeout for loading images');
                 $timeout(function(){
                     scope.loadimages();
-                }, 2000);
+                }, 200);
             }
 
         });
