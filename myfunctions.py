@@ -400,6 +400,6 @@ def to_json(users):
 		# a['work_name'] = "Founder at People (June 2013 to present)"
 		# a['likes'] = user.likes[:3]
 	 	res.append(a)
-	start = int(random()*200)
-	end = start + 100
-	return {'data':res[-40:]}
+	# start = int(random()*100)
+	# end = start + 100
+	return {'data':res[500:]}
