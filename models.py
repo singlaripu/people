@@ -73,6 +73,7 @@ class UserComplete(db.Model):
     profile_pic_url = db.Column(db.String(300))
     profile_album = db.Column(db.PickleType)
     gender = db.Column(db.String(10))
+    work_name = db.Column(db.String(300))
     work_dummy = db.Column(db.String(1000))
     work = db.Column(db.PickleType)
     current_location_name = db.Column(db.String(80))
@@ -89,6 +90,7 @@ class UserComplete(db.Model):
     interested_in = db.Column(db.String(80))
     education_dummy = db.Column(db.String(1000))
     education = db.Column(db.PickleType)
+    education_name = db.Column(db.String(300))
     likes_dummy = db.Column(db.String(2000))
     watched = db.Column(db.PickleType)
     wants_to = db.Column(db.PickleType)
@@ -98,6 +100,8 @@ class UserComplete(db.Model):
     width=db.Column(db.String(4))
     height=db.Column(db.String(4))
     last_updated = db.Column(db.DateTime, default=sqlalchemy.func.now())
+    likes_name = db.Column(db.String(100))
+    username = db.Column(db.String(30))
 
     def __init__(self, **kwargs):
         for k, v in kwargs.iteritems():

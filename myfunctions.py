@@ -76,14 +76,14 @@ def push_to_index(user):
 
 def push_data(access_token, only_data=False):
 
-	me = fb_call('me/?fields=name,gender,work,education,birthday,interested_in,email,relationship_status', args={'access_token': access_token})
+	me = fb_call('me/?fields=name,gender,work,education,birthday,interested_in,email,relationship_status,username', args={'access_token': access_token})
 
 	if not only_data:
 		user = User(name=me.get('name'), email=me.get('email'), fb_uid=me.get('id'))
 		db.session.add(user)
 		db.session.commit()	
 
-
+	# username = me.get('username')
 	user = get_user(me.get('id'))
 	user_id = user.id
 	profile_pic_url = fb_call('me/picture/?type=large&redirect=false',args={'access_token': access_token})
@@ -95,7 +95,7 @@ def push_data(access_token, only_data=False):
 
 
 	profile_album = fql(
-	"select src, src_big from photo where album_object_id in (select object_id from album where owner=me() and type='profile')",
+	"select src_small, src_big from photo where album_object_id in (select object_id from album where owner=me() and type='profile')",
 	access_token
 	)
 
@@ -116,6 +116,8 @@ def push_data(access_token, only_data=False):
 		work[0]['start_date'] = parser.parse(work[0]['start_date']).strftime('%b %Y')
 	except Exception, e:
 		print "FACEBOOK_DATAPULL: work.start_date ::", e
+
+	# work_name = work[0]['position']['name'] + " at " + work[0]['employer']['name'] + " - " + work[0]['start_date'] + ' to present'	
 
 
 	loc = fql('select current_location, hometown_location from user where uid=me()', access_token)
@@ -159,6 +161,8 @@ def push_data(access_token, only_data=False):
 	    education_dummy = ''
 
 	education = me.get('education')
+
+	# education_name = education[2]['school']['name']
 
 	video_watched_dict = {'TV Shows':[], 'Movies':[]}
 	video_watched = fb_call('me/video.watches/?fields=data',args={'access_token': access_token})
@@ -209,6 +213,8 @@ def push_data(access_token, only_data=False):
 	        likes_dict[like['type']].append({'title':like['name'], 'id':like['page_id']})
 	likes_dict = [(key, value) for key, value in likes_dict.iteritems()]
 	likes_dict = sorted(likes_dict, key =lambda x: len(x[1]), reverse=True)
+
+	# likes_name = likes[0][1][0]['title'] + ", " + likes[0][1][2]['title'] + ", " + likes[10][1][0]['title']
 
 	watched = video_watched_dict
 	wants_to = video_want_to_watch_dict
@@ -366,16 +372,34 @@ def get_user_by_id(user_id):
 	return User.query.get(int(user_id))
 
 
+def get_parsed_birthday(b):
+	if b:
+		return b.strftime('%B %d')
+	else:
+		return ''
+
 def to_json(users):
 	# import simplejson as json
 	from random import random
-	keys = ('name', 'fb_uid', 'gender', 'profile_pic_url')
+	keys = ('name', 'fb_uid', 'gender', 'profile_pic_url', 'work_name', 'education_name','current_location_name',
+			'hometown_location_name', 'relationship_status', 'interested_in', 'likes_name', 'profile_album', 'username'
+			)
 	res = []
 	for user in users:
 		a = {c.name: getattr(user, c.name) for c in user.__table__.columns if c.name in keys}
 		a['score'] = random()
-		a['height'] = round((float(user.height)/float(user.width))*200)
+		if user.height and user.width:
+			a['height'] = round((float(user.height)/float(user.width))*200)
+		else:
+			a['height'] = 200
+		a['age'] = get_age(user.birthday)
+		a['birthday'] = get_parsed_birthday(user.birthday)
+		if a['profile_album']:
+			a['profile_album'] = a['profile_album'][:4]
+
+		# a['work_name'] = "Founder at People (June 2013 to present)"
+		# a['likes'] = user.likes[:3]
 	 	res.append(a)
 	start = int(random()*200)
 	end = start + 100
-	return {'data':res[start:end]}
+	return {'data':res[-40:]}

@@ -6,7 +6,7 @@
 <html class="no-js" lang="en" ng-app="myApp"> <!--<![endif]-->
 <head>
 
-
+    <link rel="shortcut icon" href="/static/images/favicon2.ico">
     <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
     <script src="/static/js/jquery.min.js"></script>
     <!--<script src="/static/js/scale.fix.js"></script>-->
@@ -22,7 +22,7 @@
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
 
-  <title>[People]</title>
+  <title>People</title>
 
 
   <!-- CSS Reset -->
@@ -42,10 +42,10 @@
 
   <div id="container" >
       <div class="navbar navbar-fixed-top">
-          <div class="navbar-inner" style="padding-left: 4px;">
-              <a class="brand" href="#"><strong>[People]</strong><i class="icon-leaf"></i></a>
+          <div class="navbar-inner" style="padding-left: 12px;">
+              <a class="brand" href="#"><strong>People</strong><i class="icon-leaf"></i></a>
               <ul class="nav">
-                  <li class="active"><a href="#">Stream</a></li>
+                  <li><a href="#">Stream</a></li>
                   <li><a href="#">Pin Board</a></li>
                   <li><a href="#">Account</a></li>
               </ul>
@@ -79,44 +79,50 @@
             <div class="modal-body">
                 <div class="row-fluid">
                     <div class="span5">
-                        <img class="img-polaroid" ng-src="https://fbcdn-sphotos-c-a.akamaihd.net/hphotos-ak-ash3/946998_10151480908326312_1334686484_n.jpg">
+                        <img class="span12 img-polaroid" ng-src="{{light_profile_pic_url}}">
                     </div>
-                    <div class="span7">
+                    <div class="span7" style="margin-left: -3%; margin-top: -2%;">
                         <ul class="unstyled">
-                            <li><i class="icon-briefcase"></i> Assitant Manager at Citi (June 2011 to present)</li>
-                            <li><i class="icon-book"></i> Studied at Indian Institute of Technology, Kanpur </li>
-                            <li><i class="icon-home"></i> Lives in Bangalore, India </li>
-                            <li><i class="icon-map-marker"></i> From Sirsa, Haryana </li>
-                            <li><i class="icon-flag"></i> Single </li>
-                            <li><i class="icon-gift"></i> July 21 </li>
-                            <li><i class="icon-eye-open"></i> Interested In: Women </li>
-                            <li><i class="icon-heart"></i> Lord of the Rings, Matrix, Friends <a href="#">more</a> </li>
+                            <li ng-show="light_work_name"><i class="icon-briefcase"></i> {{ light_work_name }} </li>
+                            <li ng-show="light_education_name"><i class="icon-book"></i> {{ light_education_name }} </li>
+                            <li ng-show="light_current_location_name"><i class="icon-home"></i> Lives in {{ light_current_location_name }} </li>
+                            <li ng-show="light_hometown_location_name"><i class="icon-map-marker"></i> From {{light_hometown_location_name }} </li>
+                            <li ng-show="light_relationship_status"><i class="icon-flag"></i> {{ light_relationship_status }} </li>
+                            <li ng-show="light_birthday"><i class="icon-gift"></i> {{ light_birthday }} </li>
+                            <li ng-show="light_interested_in"><i class="icon-eye-open"></i> Interested In: {{ light_interested_in }} </li>
+                            <li ng-show="light_likes_name"><i class="icon-heart"></i> {{ light_likes_name }} <a href="https://www.facebook.com/{{light_username}}/likes" target="_blank">more</a> </li>
 
 
                         </ul>
 
-                        <div class="row-fluid">
+                        <div class="row-fluid" ng-show="light_thumbnails">
                             <ul class="thumbnails">
-                                <li class="span3">
-                                    <a href="#" class="thumbnail">
-                                        <img ng-src="https://fbcdn-sphotos-c-a.akamaihd.net/hphotos-ak-ash3/946998_10151480908326312_1334686484_s.jpg" alt="">
-                                    </a>
+
+                                <li class="span3" ng-repeat="thumb in light_thumbnails">
+                                    <img ng-click="change_light_pic($index)" class="img-polaroid" ng-src="{{thumb.src}}" style="width: 75px; height: 75px;">
                                 </li>
-                                <li class="span3">
-                                    <a href="#" class="thumbnail">
-                                        <img ng-src="https://fbcdn-sphotos-c-a.akamaihd.net/hphotos-ak-ash3/946998_10151480908326312_1334686484_s.jpg" alt="">
-                                    </a>
-                                </li>
-                                <li class="span3">
-                                    <a href="#" class="thumbnail">
-                                        <img ng-src="https://fbcdn-sphotos-c-a.akamaihd.net/hphotos-ak-ash3/946998_10151480908326312_1334686484_s.jpg" alt="">
-                                    </a>
-                                </li>
-                                <li class="span3">
-                                    <a href="#" class="thumbnail">
-                                        <img ng-src="https://fbcdn-sphotos-c-a.akamaihd.net/hphotos-ak-ash3/946998_10151480908326312_1334686484_s.jpg" alt="">
-                                    </a>
-                                </li>
+
+
+                                <!--<li class="span3">-->
+                                    <!--<a href="#" class="thumbnail">-->
+                                        <!--<img ng-src="https://fbcdn-photos-g-a.akamaihd.net/hphotos-ak-prn1/936401_10151525490646312_1658312994_t.jpg" alt="">-->
+                                    <!--</a>-->
+                                <!--</li>-->
+                                <!--<li class="span3">-->
+                                    <!--<a href="#" class="thumbnail">-->
+                                        <!--<img ng-src="https://fbcdn-photos-g-a.akamaihd.net/hphotos-ak-prn1/936401_10151525490646312_1658312994_t.jpg" alt="">-->
+                                    <!--</a>-->
+                                <!--</li>-->
+                                <!--<li class="span3">-->
+                                    <!--<a href="#" class="thumbnail">-->
+                                        <!--<img ng-src="https://fbcdn-photos-g-a.akamaihd.net/hphotos-ak-prn1/936401_10151525490646312_1658312994_t.jpg" alt="">-->
+                                    <!--</a>-->
+                                <!--</li>-->
+                                <!--<li class="span3">-->
+                                    <!--<a href="#" class="thumbnail">-->
+                                        <!--<img ng-src="https://fbcdn-photos-g-a.akamaihd.net/hphotos-ak-prn1/936401_10151525490646312_1658312994_t.jpg" alt="">-->
+                                    <!--</a>-->
+                                <!--</li>-->
 
 
                             </ul>

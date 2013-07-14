@@ -46,7 +46,6 @@ function DispCtrl($scope, myService, $http, $compile, $timeout) {
 //    $scope.page = 0;
     $scope.incr = 30;
     $scope.light_url = "/static/images/white.jpg";
-    $scope.light_caption = "something";
     $scope.subset = [];
 
     myService.async().then(function(d) {
@@ -137,6 +136,13 @@ function DispCtrl($scope, myService, $http, $compile, $timeout) {
 //            resizeToFit: true
         };
 //        $('#demoLightbox').lightbox(options);
+//        $('#myModal').modal(options).css(
+//            {
+//
+//                'margin-left': function () {
+//                    return -($(this).width() / 2);
+//                }
+//            }) ;
         $('#myModal').modal(options);
     }
 
@@ -147,19 +153,36 @@ function DispCtrl($scope, myService, $http, $compile, $timeout) {
 //        console.log(e.target.id);
 //        console.log(e.target.id);
 //        var id = e.target.id;
-        $scope.light_url = $scope.users[ind].profile_pic_url;
-        $scope.light_caption = $scope.users[ind].name;
+        var user = $scope.users[ind];
+        $scope.light_profile_pic_url = user.profile_pic_url;
+        $scope.light_caption = user.name;
+        $scope.light_work_name = user.work_name;
+        $scope.light_education_name = user.education_name;
+        $scope.light_current_location_name = user.current_location_name;
+        $scope.light_hometown_location_name = user.hometown_location_name;
+        $scope.light_relationship_status = user.relationship_status;
+        $scope.light_birthday = user.birthday;
+        $scope.light_interested_in = user.interested_in;
+        $scope.light_likes_name = user.likes_name;
+        $scope.light_username = user.username;
+        $scope.light_thumbnails = user.profile_album;
+
+        console.log($scope.light_current_location_name);
         console.log('i am taking timeout');
 
         $timeout(function(){
             $scope.loadlightbox();
-        }, 10);
+        }, 50);
     }
 
 
     $(document).bind('scroll', onScroll);
 
-
+    $scope.change_light_pic = function(ind){
+//        var thumb = $scope.light_thumbnails[ind];
+        $scope.light_profile_pic_url = $scope.light_thumbnails[ind].src_big;
+//        $('#myModal').scrollTop();
+    }
 }
 
 //app.directive('lightdirective', function(){
