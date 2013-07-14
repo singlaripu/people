@@ -78,16 +78,30 @@ margin: 0;
 /** Loader **/
   
 #loader {
-  height: 16px;
-  text-align: center;
-  padding: 25px 0 25px 0;
+    /*height: 16px;*/
+    /*text-align: center;*/
+    /*padding: 25px 0 25px 0;*/
+    /*display: none;*/
+    position: fixed;
+    bottom: 70px;
+    left: 50%;
+
+    /*opacity: 0;*/
+    margin-left: -35px;
 }
   
 #loaderCircle {
-  width: 16px;
-  height: 16px;
-margin: 0 auto;
-  background-image: url('../images/loader.gif');
+    /*width: 100px;*/
+    /*height: 100px;*/
+    /*margin: 0 auto;*/
+    /*background-image: url('../images/loader.gif');*/
+    /*background-repeat: no-repeat;*/
+    width: 70px;
+    height: 70px;
+    background: transparent url('/static/images/loader1.gif') no-repeat center center;
+    /*background-repeat: no-repeat;*/
+
+
 }
 
 
@@ -271,3 +285,12 @@ only screen and (min-device-pixel-ratio: 1.5) {
     }
 }
 
+.lightbox-content div{
+    width:400px;
+    height:400px;
+
+}
+
+[ng\:cloak], [ng-cloak], .ng-cloak {
+    display: none !important;
+}

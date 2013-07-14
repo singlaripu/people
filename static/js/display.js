@@ -53,7 +53,10 @@ function DispCtrl($scope, myService, $http, $compile, $timeout) {
         $scope.users = d.data;
 
         $scope.newhtml = function(){
-            if ($scope.subset.length >= $scope.users.length) return '';
+            if ($scope.subset.length >= $scope.users.length) {
+                $('#loaderCircle').hide();
+                return '';
+            }
             var temp = $scope.subset;
             var length = ($scope.users.length - temp.length > $scope.incr) ? $scope.incr : ($scope.users.length - temp.length);
             length +=  temp.length;
@@ -74,7 +77,7 @@ function DispCtrl($scope, myService, $http, $compile, $timeout) {
 
 
     $scope.loadimages = function(){
-        $('#loaderCircle').show();
+
         console.log('timeout over');
         var options = {
             autoResize: true,
@@ -85,6 +88,8 @@ function DispCtrl($scope, myService, $http, $compile, $timeout) {
         var handler = $('#tiles li');
         handler.wookmark(options);
         $('#loaderCircle').hide();
+        console.log("deactivated loader circle");
+
         $scope.scrollflag = true;
         console.log($scope.scrollflag);
 
@@ -110,9 +115,12 @@ function DispCtrl($scope, myService, $http, $compile, $timeout) {
 
             var closeToBottom = ($(window).scrollTop() + $(window).height() > $(document).height() - 100);
             if(closeToBottom) {
+                console.log("activating loader circle");
+                $('#loaderCircle').show();
                 $scope.scrollflag = false;
                 $scope.nextPage();
 //                $scope.scrollflag = true;
+
             }
 
         }
@@ -169,13 +177,15 @@ function DispCtrl($scope, myService, $http, $compile, $timeout) {
 app.directive('lastdirective', function($timeout) {
     return function(scope, element, attrs) {
 //        console.log('ROW: index = ', scope.$index);
+
         scope.$watch('$last',function(v){
             if (v) {
+
                 console.log('last');
                 console.log('i am taking timeout for loading images');
                 $timeout(function(){
                     scope.loadimages();
-                }, 1000);
+                }, 2000);
             }
 
         });

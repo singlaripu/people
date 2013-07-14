@@ -7,7 +7,7 @@
 <head>
 
 
-    <!--<script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>-->
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
     <script src="/static/js/jquery.min.js"></script>
     <!--<script src="/static/js/scale.fix.js"></script>-->
     <!--<script src="/static/js/prettify.js"></script>-->
@@ -69,7 +69,16 @@
 
         <div id="demoLightbox" class="lightbox hide fade"  tabindex="-1" role="dialog" aria-hidden="true">
             <div class='lightbox-content'>
-                <div class="light_content_unique"></div>
+                <!--<div class="container-fluid">-->
+                    <!--<div class="row-fluid">-->
+                        <!--<div class="span2">-->
+                            <!--<p>message</p>-->
+                        <!--</div>-->
+                        <!--<div class="span10">-->
+                            <!--<p>reply</p>-->
+                        <!--</div>-->
+                    <!--</div>-->
+                <!--</div>-->
                 <img ng-src="{{light_url}}">
                 <div class="lightbox-caption"><p>{{light_caption}}</p></div>
             </div>
@@ -79,7 +88,7 @@
 
 
 
-            <li ng-repeat="image in subset" lastdirective="">
+            <li ng-repeat="image in subset" lastdirective="" ng-cloak class="ng-cloak">
                 <div class="polaroid">
                     <div class="options">
                         <div class="comment" title="Pin">
@@ -112,7 +121,7 @@
 
         </ul>
 
-        <div id="loader"><div id="loaderCircle" style="width:100px; height:100px; background-repeat: no-repeat"></div></div>
+        <div id="loader"><div id="loaderCircle"></div></div>
 
     </div>
   </div>
