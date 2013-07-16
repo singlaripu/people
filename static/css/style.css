@@ -83,7 +83,7 @@ margin: 0;
     /*padding: 25px 0 25px 0;*/
     /*display: none;*/
     position: fixed;
-    bottom: 50px;
+    bottom: 40px;
     left: 50%;
 
     /*opacity: 0;*/
@@ -96,9 +96,9 @@ margin: 0;
     /*margin: 0 auto;*/
     /*background-image: url('../images/loader.gif');*/
     /*background-repeat: no-repeat;*/
-    width: 70px;
-    height: 70px;
-    background: transparent url('/static/images/loader3.gif') no-repeat center center;
+    width: 16px;
+    height: 11px;
+    background: transparent url('/static/images/loader7.gif') no-repeat center center;
     /*background-repeat: no-repeat;*/
 
 
