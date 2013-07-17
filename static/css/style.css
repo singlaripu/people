@@ -22,7 +22,7 @@ margin: 0;
  * Grid items
  */
 #tiles li {
-width: 230px;
+width: 220px;
 background-color: #ffffff;
 border: 1px solid #dedede;
 -moz-border-radius: 2px;
@@ -31,13 +31,53 @@ border-radius: 2px;
 display: none; /** Hide items initially to avoid a flicker effect **/
   cursor: pointer;
 padding: 4px;
+
+    -webkit-transition: all 0.3s ease-out;
+    -moz-transition: all 0.3s ease-out;
+    -o-transition: all 0.3s ease-out;
+    transition: all 0.3s ease-out;
 }
+
+/*#tiles li {*/
+    /*background-color: #ffffff;*/
+    /*border: 1px solid #dedede;*/
+    /*display: none; *//**//** Hide items initially to avoid a flicker effect **/
+    /*padding: 4px;*/
+    /*-webkit-transition: all 0.3s ease-out;*/
+    /*-moz-transition: all 0.3s ease-out;*/
+    /*-o-transition: all 0.3s ease-out;*/
+    /*transition: all 0.3s ease-out;*/
+    /*-webkit-border-radius: 2px;*/
+    /*-moz-border-radius: 2px;*/
+    /*border-radius: 2px;*/
+/*}*/
+
+
+
+.wookmark-placeholder {
+    -webkit-transition: all 0.3s ease-out;
+    -moz-transition: all 0.3s ease-out;
+    -o-transition: all 0.3s ease-out;
+    transition: all 0.3s ease-out;
+    -moz-border-radius: 2px;
+    -webkit-border-radius: 2px;
+    border-radius: 2px;
+    background-color: #eee;
+    border: 1px solid #dedede;
+    z-index: -1;
+}
+
+#tiles li.inactive {
+    visibility: hidden;
+    opacity: 0;
+}
+
 
 #tiles li img {
     display: block;
-    padding-left: 15px;
-    padding-right: 15px;
-    padding-top: 15px;
+    padding-left: 10px;
+    padding-right: 10px;
+    padding-top: 10px;
     padding-bottom: 6px;
 }
 

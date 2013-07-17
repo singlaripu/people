@@ -47,9 +47,31 @@ function DispCtrl($scope, myService, $http, $compile, $timeout) {
     $scope.incr = 30;
     $scope.light_url = "/static/images/white.jpg";
     $scope.subset = [];
+    $scope.handler = $('#tiles li');
 
     myService.async().then(function(d) {
         $scope.users = d.data;
+
+        for(var j=0; j<$scope.users.length; j++){
+
+            $scope.users[j].namefilter = 1;
+            $scope.users[j].genderfilter = 1;
+            $scope.users[j].locationfilter = 1;
+            $scope.users[j].hometownfilter = 1;
+            $scope.users[j].workfilter = 1;
+            $scope.users[j].educationfilter = 1;
+            $scope.users[j].likesfilter = 1;
+
+
+
+            $scope.users[j].classfilter = "active";
+
+        }
+
+
+        $scope.users.sort($scope.sortfunction);
+
+
 
         $scope.newhtml = function(){
             if ($scope.subset.length >= $scope.users.length) {
@@ -64,13 +86,17 @@ function DispCtrl($scope, myService, $http, $compile, $timeout) {
             var i=temp.length, image;
             for(; i<length; i++) {
                 image = $scope.users[i];
+
+
                 temp.push(image);
             }
             $scope.subset = temp;
 //            $scope.page = length;
+
         }
 
         $scope.newhtml();
+
 
     });
 
@@ -82,10 +108,12 @@ function DispCtrl($scope, myService, $http, $compile, $timeout) {
             autoResize: true,
             container: $('#main'),
             offset: 2,
-            itemWidth: 240
+            itemWidth: 230
         };
         var handler = $('#tiles li');
-        handler.wookmark(options);
+        $scope.handler = handler;
+        $scope.handler.wookmark(options);
+
         $('#loaderCircle').hide();
         console.log("deactivated loader circle");
 
@@ -183,6 +211,199 @@ function DispCtrl($scope, myService, $http, $compile, $timeout) {
         $scope.light_profile_pic_url = $scope.light_thumbnails[ind].src_big;
 //        $('#myModal').scrollTop();
     }
+
+    $scope.sortfunction = function(a,b){
+        return b.score - a.score;
+    }
+
+
+    $scope.layoutchange = function(){
+//        var handler = $('#tiles li');
+        console.log("aaha i came here atleast");
+        $scope.handler.addClass('inactive');
+        $scope.columns = null;
+        $scope.handler.wookmark();
+    }
+
+//    $scope.keylog = [];
+////    $scope.keyCount= 0;
+//
+    $scope.filter_intersection = function(array) {
+        for ( var j = 0; j < array.length; j++) {
+            if (
+                array[j].namefilter &&
+                array[j].genderfilter &&
+                array[j].locationfilter &&
+                array[j].hometownfilter &&
+                array[j].workfilter &&
+                array[j].educationfilter &&
+                array[j].likesfilter
+                ) {
+
+                array[j].classfilter = "active";
+            }
+            else{
+                array[j].classfilter = "inactive";
+            }
+        }
+        $scope.$apply();
+    };
+
+    $scope.mysearchfilter = function(array, expression, comperator, arg1) {
+        console.log('i was called atleast');
+//        return function() {
+
+            if (!angular.isArray(array)) return array;
+            var predicates = [];
+            predicates.check = function(value) {
+                for (var j = 0; j < predicates.length; j++) {
+                    if(!predicates[j](value)) {
+                        return false;
+                    }
+                }
+                return true;
+            };
+            switch(typeof comperator) {
+                case "function":
+                    break;
+                case "boolean":
+                    if(comperator == true) {
+                        comperator = function(obj, text) {
+                            return angular.equals(obj, text);
+                        }
+                        break;
+                    }
+                default:
+                    comperator = function(obj, text) {
+                        text = (''+text).toLowerCase();
+                        return (''+obj).toLowerCase().indexOf(text) > -1
+                    };
+            }
+            var search = function(obj, text){
+                if (typeof text == 'string' && text.charAt(0) === '!') {
+                    return !search(obj, text.substr(1));
+                }
+                switch (typeof obj) {
+                    case "boolean":
+                    case "number":
+                    case "string":
+                        return comperator(obj, text);
+                    case "object":
+                        switch (typeof text) {
+                            case "object":
+                                return comperator(obj, text);
+                                break;
+                            default:
+                                for ( var objKey in obj) {
+                                    if (objKey.charAt(0) !== '$' && search(obj[objKey], text)) {
+                                        return true;
+                                    }
+                                }
+                                break;
+                        }
+                        return false;
+                    case "array":
+                        for ( var i = 0; i < obj.length; i++) {
+                            if (search(obj[i], text)) {
+                                return true;
+                            }
+                        }
+                        return false;
+                    default:
+                        return false;
+                }
+            };
+            switch (typeof expression) {
+                case "boolean":
+                case "number":
+                case "string":
+                    expression = {$:expression};
+                case "object":
+                    for (var key in expression) {
+                        if (key == '$') {
+                            (function() {
+                                if (!expression[key]) return;
+                                var path = key
+                                predicates.push(function(value) {
+                                    return search(value, expression[path]);
+                                });
+                            })();
+                        } else {
+                            (function() {
+                                if (!expression[key]) return;
+                                var path = key;
+                                predicates.push(function(value) {
+                                    return search($scope.mygetter(value,path), expression[path]);
+                                });
+                            })();
+                        }
+                    }
+                    break;
+                case 'function':
+                    predicates.push(expression);
+                    break;
+                default:
+                    return array;
+            }
+//            var filtered = [];
+            for ( var j = 0; j < array.length; j++) {
+                var value = array[j];
+                if (predicates.check(value)) {
+//                    filtered.push(value);
+                    array[j][arg1 + "filter"] = 1;
+
+                }
+                else {
+                    array[j][arg1 + "filter"] = 0;
+
+                }
+//                $scope.$apply();
+            }
+//            return filtered;
+            return;
+//        }
+    }
+
+
+    $scope.mygetter = function(obj, path, bindFnToScope) {
+        if (!path) return obj;
+        var keys = path.split('.');
+        var key;
+        var lastInstance = obj;
+        var len = keys.length;
+
+        for (var i = 0; i < len; i++) {
+            key = keys[i];
+            if (obj) {
+                obj = (lastInstance = obj)[key];
+            }
+        }
+        if (!bindFnToScope && angular.isFunction(obj)) {
+            return bind(lastInstance, obj);
+        }
+        return obj;
+    }
+
+    $scope.fn_gender_filter = function(array, expression, arg1){
+
+//        if (!expression) return;
+
+        for (var j= 0; j<array.length; j++){
+            if (array[j].gender == expression || expression==''){
+                array[j][arg1 + "filter"] = 1;
+            }
+            else {
+                array[j][arg1 + "filter"] = 0;
+            }
+        }
+
+    }
+
+//    $scope.wookmarkfilter = function(){
+//        console.log("i am in wookmarkfilter function");
+//        $scope.handler.wookmarkInstance.filter(["singlaripu", "ripusingla"]);
+//    }
+
 }
 
 //app.directive('lightdirective', function(){
@@ -208,11 +429,73 @@ app.directive('lastdirective', function($timeout) {
                 console.log('last');
                 console.log('i am taking timeout for loading images');
                 $timeout(function(){
+                    scope.handler = $('#tiles li');
                     scope.loadimages();
                 }, 1000);
+
             }
 
         });
 
     };
 })
+
+
+app.directive("enter", function($timeout){
+    return function (scope, element, attrs) {
+
+        element.bind("keyup", function(evt) {
+
+//            if (evt.which != "13") {
+                searchterm = evt.srcElement.value;
+                console.log(searchterm);
+//                scope.subset = $filter('filter')(scope.users, {name:searchterm});
+//                var keyname = JSON.stringify(attrs.fieldname);
+//                var keyname = attrs.fieldname;
+//                console.log(keyname);
+                var exp = {};
+                exp[attrs.fieldname] = searchterm;
+                if (attrs.fieldname == "gender") {
+//                    exp[attrs.fieldname] = JSON.stringify(searchterm);
+                    scope.fn_gender_filter(scope.subset, searchterm, attrs.fieldname)
+                }
+                else {
+                    var exp = {};
+                    exp[attrs.dataname] = searchterm;
+
+                    scope.mysearchfilter(scope.subset, exp, "somecomparator", attrs.fieldname);
+                }
+                console.log(exp);
+
+                scope.filter_intersection(scope.subset);
+
+                scope.handler.wookmarkInstance.layout();
+//                scope.subset = res;
+//                scope.$apply();
+//                var options = {
+//                    autoResize: true,
+//                    container: $('#main'),
+//                    offset: 2,
+//                    itemWidth: 230
+//                };
+//                console.log(res.length);
+//                var activeFilters = ["paris"];
+//                var handler = $('#tiles li');
+//
+//                scope.handler.wookmark(options);
+//                scope.loadimages();
+//                $timeout(function(){
+//                    scope.handler.wookmarkInstance.filter(["searched"]);
+//                },2000);
+
+
+//            }
+
+        })
+    }
+})
+
+
+
+
+

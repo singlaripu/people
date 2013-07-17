@@ -41,6 +41,8 @@
 
 
   <div id="container" >
+
+
       <div class="navbar navbar-fixed-top">
           <div class="navbar-inner" style="padding-left: 12px;">
               <a class="brand" href="#"><strong>People</strong><i class="icon-leaf"></i></a>
@@ -58,6 +60,7 @@
 
 
     <div id="main" role="main" ng-controller="DispCtrl" style="padding-top: 75px;">
+
 
         <!--<a data-toggle="lightbox" href="#demoLightbox"><img  src="https://fbcdn-profile-a.akamaihd.net/hprofile-ak-ash2/186466_220900067_1761400224_n.jpg"></a>-->
         <!--<form >-->
@@ -165,11 +168,30 @@
             <!--</div>-->
         <!--</div>-->
         <!--Click me: <input type="checkbox" ng-model="checked"><br/>-->
+        <!--<input type="text" value="inactive" ng-model="classname">-->
+        <!--<input type="submit" ng-click="wookmarkfilter()">-->
+
+        <div class="row-fluid" style="text-align: center; width: 80%">
+
+            <input type="text" enter="handleKeypress" value="name" fieldname="name" dataname="name">
+            <input type="text" enter="handleKeypress" value="gender" fieldname="gender" dataname="gender">
+            <input type="text" enter="handleKeypress" value="location" fieldname="location" dataname="current_location_name">
+            <input type="text" enter="handleKeypress" value="online" fieldname="online" dataname="online">
+            <input type="text" enter="handleKeypress" value="work" fieldname="work" dataname="work_name">
+            <input type="text" enter="handleKeypress" value="education" fieldname="education" dataname="education_name">
+            <input type="text" enter="handleKeypress" value="hometown" fieldname="hometown" dataname="hometown_location_name">
+            <input type="text" enter="handleKeypress" value="likes" fieldname="likes" dataname="likes_name">
+
+        </div>
+
+
+
+
         <ul id="tiles">
 
 
 
-            <li ng-repeat="image in subset" lastdirective="" ng-cloak class="ng-cloak">
+            <li class="{{image.classfilter}}" ng-repeat="image in subset" lastdirective="" ng-cloak class="ng-cloak">
                 <div class="polaroid">
                     <div class="options">
                         <div class="comment" title="Pin">
@@ -188,9 +210,11 @@
                     <a ng-click="ShowLightBox($index)">
                         <img ng-src="{{image.profile_pic_url}}" width="200" height="{{image.height}}">
                     </a>
-                    <p>{{image.name}}</p>
+                    <p>{{image.gender}} {{image.name}}</p>
                 </div>
             </li>
+
+
 
 
 
