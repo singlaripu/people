@@ -26,7 +26,7 @@
 //    })
 //});
 
-var app =  angular.module('myApp', []);
+var app =  angular.module('myApp', ['ui.bootstrap']);
 
 app.factory('myService', function($http) {
     var myService = {
@@ -383,19 +383,81 @@ function DispCtrl($scope, myService, $http, $compile, $timeout) {
         }
         return obj;
     }
+//
+//    $scope.fn_gender_filter = function(array, expression, arg1){
+//
+////        if (!expression) return;
+//
+//        for (var j= 0; j<array.length; j++){
+//            if (array[j].gender == expression || expression==''){
+//                array[j][arg1 + "filter"] = 1;
+//            }
+//            else {
+//                array[j][arg1 + "filter"] = 0;
+//            }
+//        }
+//
+//    }
 
-    $scope.fn_gender_filter = function(array, expression, arg1){
+
+    $scope.fn_gender_filter = function(array, arg1){
+
+//        console.log(arg1);
+//
+//        return ;
+
+//        console.log("i came to fn gender filter");
 
 //        if (!expression) return;
 
-        for (var j= 0; j<array.length; j++){
-            if (array[j].gender == expression || expression==''){
-                array[j][arg1 + "filter"] = 1;
+        if ($scope.checkModel.male && !$scope.checkModel.female){
+
+            console.log('i think only male is clicked');
+
+            for (var j= 0; j<array.length; j++){
+
+                if (array[j].gender=="male"){
+                    array[j]["genderfilter"] = 1;
+//                    console.log('do something then');
+                }
+                else {
+                    array[j]["genderfilter"] = 0;
+                }
             }
-            else {
-                array[j][arg1 + "filter"] = 0;
-            }
+
         }
+
+        else if (!$scope.checkModel.male && $scope.checkModel.female){
+
+            console.log('i think only female is clicked');
+
+            for (var j= 0; j<array.length; j++){
+
+                if (array[j].gender=="female"){
+                    array[j]["genderfilter"] = 1;
+                }
+                else {
+                    array[j]["genderfilter"] = 0;
+                }
+            }
+
+        }
+
+        else {
+
+            console.log('i think either both are clicked or both are unclicked');
+
+            for (var j= 0; j<array.length; j++){
+                    array[j]["genderfilter"] = 1;
+            }
+
+        }
+
+        $scope.$apply();
+
+        return ;
+
+
 
     }
 
@@ -403,6 +465,14 @@ function DispCtrl($scope, myService, $http, $compile, $timeout) {
 //        console.log("i am in wookmarkfilter function");
 //        $scope.handler.wookmarkInstance.filter(["singlaripu", "ripusingla"]);
 //    }
+
+    $scope.checkModel = {
+        male: false,
+        female: false,
+        online: false
+
+
+    };
 
 }
 
@@ -453,11 +523,12 @@ app.directive("enter", function($timeout){
 //                var keyname = JSON.stringify(attrs.fieldname);
 //                var keyname = attrs.fieldname;
 //                console.log(keyname);
-                var exp = {};
-                exp[attrs.fieldname] = searchterm;
+//                var exp = {};
+//                exp[attrs.fieldname] = searchterm;
                 if (attrs.fieldname == "gender") {
+                    console.log('i am in if condition for gender');
 //                    exp[attrs.fieldname] = JSON.stringify(searchterm);
-                    scope.fn_gender_filter(scope.subset, searchterm, attrs.fieldname)
+                    scope.fn_gender_filter(scope.subset);
                 }
                 else {
                     var exp = {};
@@ -491,8 +562,45 @@ app.directive("enter", function($timeout){
 
 //            }
 
-        })
+        });
+
+
     }
+})
+
+
+app.directive('genderclick', function($timeout){
+
+    return function (scope, element, attrs) {
+
+//        console.log('i am in genderclick directive');
+        element.bind('mouseup', function(evt){
+
+            scope.$apply();
+//            console.log('i am in if condition for gender');
+
+//            if (attrs.fieldname == "gender") {
+
+//                    exp[attrs.fieldname] = JSON.stringify(searchterm);
+            $timeout(function() {
+                scope.fn_gender_filter(scope.subset, attrs.genderclick);
+            }, 10) ;
+
+//            scope.$apply();
+
+            $timeout(function() {
+
+                scope.filter_intersection(scope.subset);
+
+                scope.handler.wookmarkInstance.layout();
+
+            },100) ;
+
+//            }
+        });
+    }
+
+
 })
 
 

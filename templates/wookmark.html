@@ -12,9 +12,11 @@
     <!--<script src="/static/js/scale.fix.js"></script>-->
     <!--<script src="/static/js/prettify.js"></script>-->
     <script src="/static/js/bootstrap.min.js"></script>
+    <link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/css/bootstrap-combined.min.css" rel="stylesheet">
     <!--<script src="/static/js/bootstrap-lightbox.js"></script>-->
 
     <script src="/static/js/angular.min.js"></script>
+    <script src="http://angular-ui.github.io/bootstrap/ui-bootstrap-tpls-0.4.0.js"></script>
     <script src="/static/js/display.js"></script>
 
 
@@ -171,18 +173,49 @@
         <!--<input type="text" value="inactive" ng-model="classname">-->
         <!--<input type="submit" ng-click="wookmarkfilter()">-->
 
-        <div class="row-fluid" style="text-align: center; width: 80%">
+        <div class="row-fluid" style="text-align: center;  padding: 1%; width: 100%;">
 
-            <input type="text" enter="handleKeypress" value="name" fieldname="name" dataname="name">
-            <input type="text" enter="handleKeypress" value="gender" fieldname="gender" dataname="gender">
-            <input type="text" enter="handleKeypress" value="location" fieldname="location" dataname="current_location_name">
-            <input type="text" enter="handleKeypress" value="online" fieldname="online" dataname="online">
-            <input type="text" enter="handleKeypress" value="work" fieldname="work" dataname="work_name">
-            <input type="text" enter="handleKeypress" value="education" fieldname="education" dataname="education_name">
-            <input type="text" enter="handleKeypress" value="hometown" fieldname="hometown" dataname="hometown_location_name">
-            <input type="text" enter="handleKeypress" value="likes" fieldname="likes" dataname="likes_name">
+            <div class="span10">
+
+                <div class="row-fluid">
+
+                    <input class="span2" type="text" enter placeholder="name" fieldname="name" dataname="name">
+                    <!--<input type="text" enter="handleKeypress" value="gender" fieldname="gender" dataname="gender">-->
+                    <input class="span2" type="text" enter placeholder="location" fieldname="location" dataname="current_location_name">
+                    <!--<input type="text" enter="handleKeypress" value="online" fieldname="online" dataname="online">-->
+                    <input class="span2" type="text" enter placeholder="work" fieldname="work" dataname="work_name">
+                    <input class="span2" type="text" enter placeholder="education" fieldname="education" dataname="education_name">
+                    <input class="span2" type="text" enter placeholder="hometown" fieldname="hometown" dataname="hometown_location_name">
+                    <input class="span2" type="text" enter placeholder="likes" fieldname="likes" dataname="likes_name">
+                </div>
+
+
+            </div>
+
+            <!--<div class="span2">-->
+
+                <!--<div class="row-fluid" >-->
+
+                    <div class="btn-group" style="margin-left: -7%;">
+                        <button type="checkbox" class="btn btn-primary" ng-model="checkModel.male" btn-checkbox genderclick="male" >Male</button>
+                        <!--<button ng-click="fn_gender_filter({{1}})" type="button" class="btn btn-primary" btn-checkbox>Male</button>-->
+                        <button type="button" class="btn btn-primary" ng-model="checkModel.female" btn-checkbox genderclick="female" >Female</button>
+                        <!--<button ng-click="fn_gender_filter({{0}})" type="button" class="btn btn-primary"  btn-checkbox>Female</button>-->
+                        <button enter type="button" class="btn btn-primary" ng-model="checkModel.online" btn-checkbox genderclick="online" >Online</button>
+                    </div>
+
+                <!--</div>-->
+
+
+            <!--</div>-->
+
+
 
         </div>
+
+        <!--<pre>{{checkModel}}</pre>-->
+
+
 
 
 
@@ -210,7 +243,7 @@
                     <a ng-click="ShowLightBox($index)">
                         <img ng-src="{{image.profile_pic_url}}" width="200" height="{{image.height}}">
                     </a>
-                    <p>{{image.gender}} {{image.name}}</p>
+                    <p> {{image.name}} </p>
                 </div>
             </li>
 
