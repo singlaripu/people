@@ -7,16 +7,16 @@
 <head>
 
     <link rel="shortcut icon" href="/static/images/favicon2.ico">
-    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <script src="/static/js/html5.js"></script>
     <script src="/static/js/jquery.min.js"></script>
     <!--<script src="/static/js/scale.fix.js"></script>-->
     <!--<script src="/static/js/prettify.js"></script>-->
     <script src="/static/js/bootstrap.min.js"></script>
-    <link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/css/bootstrap-combined.min.css" rel="stylesheet">
+    <link href="/static/css/bootstrap-combined.min.css" rel="stylesheet">
     <!--<script src="/static/js/bootstrap-lightbox.js"></script>-->
 
     <script src="/static/js/angular.min.js"></script>
-    <script src="http://angular-ui.github.io/bootstrap/ui-bootstrap-tpls-0.4.0.js"></script>
+    <script src="static/js/ui-bootstrap-tpls-0.4.0.js"></script>
     <script src="/static/js/display.js"></script>
 
 
@@ -173,7 +173,7 @@
         <!--<input type="text" value="inactive" ng-model="classname">-->
         <!--<input type="submit" ng-click="wookmarkfilter()">-->
 
-        <div class="row-fluid" style="text-align: center;  padding: 1%; width: 100%;">
+        <div class="row-fluid" style="text-align: center;  padding: 1%; width: 95%;">
 
             <div class="span10">
 
@@ -196,13 +196,25 @@
 
                 <!--<div class="row-fluid" >-->
 
-                    <div class="btn-group" style="margin-left: -7%;">
-                        <button type="checkbox" class="btn btn-primary" ng-model="checkModel.male" btn-checkbox genderclick="male" >Male</button>
-                        <!--<button ng-click="fn_gender_filter({{1}})" type="button" class="btn btn-primary" btn-checkbox>Male</button>-->
-                        <button type="button" class="btn btn-primary" ng-model="checkModel.female" btn-checkbox genderclick="female" >Female</button>
-                        <!--<button ng-click="fn_gender_filter({{0}})" type="button" class="btn btn-primary"  btn-checkbox>Female</button>-->
-                        <button enter type="button" class="btn btn-primary" ng-model="checkModel.online" btn-checkbox genderclick="online" >Online</button>
-                    </div>
+
+            <!--<div class="btn-group" style="margin-left: -7%;">-->
+                <!--<button type="checkbox" class="btn btn-primary" ng-model="checkModel.male" btn-checkbox genderclick="male" >Male</button>-->
+                <!--&lt;!&ndash;<button ng-click="fn_gender_filter({{1}})" type="button" class="btn btn-primary" btn-checkbox>Male</button>&ndash;&gt;-->
+                <!--<button type="button" class="btn btn-primary" ng-model="checkModel.female" btn-checkbox genderclick="female" >Female</button>-->
+                <!--&lt;!&ndash;<button ng-click="fn_gender_filter({{0}})" type="button" class="btn btn-primary"  btn-checkbox>Female</button>&ndash;&gt;-->
+                <!--<button enter type="button" class="btn btn-primary" ng-model="checkModel.online" btn-checkbox genderclick="online" >Online</button>-->
+            <!--</div>-->
+
+            <div class="span2 form-inline" style="margin-left: -2%">
+
+                <label class="checkbox"><input type=checkbox ng-model="checkModel.male" genderclick>Male</label>
+                <label class="checkbox"><input type=checkbox ng-model="checkModel.female" genderclick>Female</label>
+                <label class="checkbox"><input type=checkbox ng-model="checkModel.online" genderclick>Online</label>
+
+            </div>
+
+
+
 
                 <!--</div>-->
 
@@ -212,6 +224,9 @@
 
 
         </div>
+
+
+
 
         <!--<pre>{{checkModel}}</pre>-->
 
@@ -224,7 +239,7 @@
 
 
 
-            <li class="{{image.classfilter}}" ng-repeat="image in subset" lastdirective="" ng-cloak class="ng-cloak">
+            <li class="{{image.classfilter}}" ng-repeat="image in subset | orderBy:'-score' | limitTo:page*incr" lastdirective ng-cloak class="ng-cloak">
                 <div class="polaroid">
                     <div class="options">
                         <div class="comment" title="Pin">
@@ -243,7 +258,7 @@
                     <a ng-click="ShowLightBox($index)">
                         <img ng-src="{{image.profile_pic_url}}" width="200" height="{{image.height}}">
                     </a>
-                    <p> {{image.name}} </p>
+                    <p> {{image.name}}</p>
                 </div>
             </li>
 

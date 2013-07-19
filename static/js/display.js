@@ -43,14 +43,17 @@ app.factory('myService', function($http) {
 function DispCtrl($scope, myService, $http, $compile, $timeout) {
 
     $scope.users = [];
-//    $scope.page = 0;
+    $scope.page = 0;
     $scope.incr = 30;
     $scope.light_url = "/static/images/white.jpg";
     $scope.subset = [];
     $scope.handler = $('#tiles li');
+    $scope.firstload = false;
 
     myService.async().then(function(d) {
         $scope.users = d.data;
+        $scope.subset = d.data;
+
 
         for(var j=0; j<$scope.users.length; j++){
 
@@ -62,40 +65,45 @@ function DispCtrl($scope, myService, $http, $compile, $timeout) {
             $scope.users[j].educationfilter = 1;
             $scope.users[j].likesfilter = 1;
 
-
-
             $scope.users[j].classfilter = "active";
 
         }
 
 
-        $scope.users.sort($scope.sortfunction);
+//        $scope.users.sort($scope.sortfunction);
 
 
 
         $scope.newhtml = function(){
-            if ($scope.subset.length >= $scope.users.length) {
+
+            if ($scope.page*$scope.incr >= $scope.subset.length) {
                 $('#loaderCircle').hide();
-                return '';
+                return ;
             }
-            var temp = $scope.subset;
-            var length = ($scope.users.length - temp.length > $scope.incr) ? $scope.incr : ($scope.users.length - temp.length);
-            length +=  temp.length;
-            console.log(temp.length);
-            console.log(length);
-            var i=temp.length, image;
-            for(; i<length; i++) {
-                image = $scope.users[i];
-
-
-                temp.push(image);
-            }
-            $scope.subset = temp;
-//            $scope.page = length;
-
+            $scope.page += 1;
+            return;
         }
 
         $scope.newhtml();
+
+
+
+//        $timeout(function() {
+//
+//            var options = {
+//                autoResize: true,
+//                container: $('#main'),
+//                offset: 2,
+//                itemWidth: 230
+//            };
+//            var handler = $('#tiles li');
+//            $scope.handler = handler;
+//            $scope.handler.wookmark(options);
+//
+//
+//        }, 1000)  ;
+
+
 
 
     });
@@ -110,17 +118,42 @@ function DispCtrl($scope, myService, $http, $compile, $timeout) {
             offset: 2,
             itemWidth: 230
         };
-        var handler = $('#tiles li');
-        $scope.handler = handler;
+//        var handler = ;
+        $scope.handler = $('#tiles li');
         $scope.handler.wookmark(options);
-
+//          $scope.handler.wookmarkInstance.layout();
         $('#loaderCircle').hide();
         console.log("deactivated loader circle");
 
         $scope.scrollflag = true;
         console.log($scope.scrollflag);
 
+//        $scope.firstload = true;
+
+        return;
+
     }
+
+//    $scope.loadimages1 = function(){
+//
+//        console.log('timeout over');
+////        var options = {
+////            autoResize: true,
+////            container: $('#main'),
+////            offset: 2,
+////            itemWidth: 230
+////        };
+////        var handler = $('#tiles li');
+////        $scope.handler = handler;
+////        $scope.handler.wookmark(options);
+//        $scope.handler.wookmarkInstance.layout();
+//        $('#loaderCircle').hide();
+//        console.log("deactivated loader circle");
+//
+//        $scope.scrollflag = true;
+//        console.log($scope.scrollflag);
+//
+//    }
 
     $scope.nextPage = function() {
 
@@ -212,9 +245,9 @@ function DispCtrl($scope, myService, $http, $compile, $timeout) {
 //        $('#myModal').scrollTop();
     }
 
-    $scope.sortfunction = function(a,b){
-        return b.score - a.score;
-    }
+//    $scope.sortfunction = function(a,b){
+//        return b.score - a.score;
+//    }
 
 
     $scope.layoutchange = function(){
@@ -228,7 +261,14 @@ function DispCtrl($scope, myService, $http, $compile, $timeout) {
 //    $scope.keylog = [];
 ////    $scope.keyCount= 0;
 //
+
+
+
     $scope.filter_intersection = function(array) {
+
+        $scope.subset = [];
+        $scope.page = 1 ;
+
         for ( var j = 0; j < array.length; j++) {
             if (
                 array[j].namefilter &&
@@ -240,17 +280,20 @@ function DispCtrl($scope, myService, $http, $compile, $timeout) {
                 array[j].likesfilter
                 ) {
 
-                array[j].classfilter = "active";
+                $scope.subset.push(array[j])  ;
+//                array[j].classfilter = "active";
             }
-            else{
-                array[j].classfilter = "inactive";
-            }
+//            else{
+//                array[j].classfilter = "inactive";
+//            }
         }
         $scope.$apply();
+        console.log($scope.subset.length);
+        return;
     };
 
     $scope.mysearchfilter = function(array, expression, comperator, arg1) {
-        console.log('i was called atleast');
+//        console.log('i was called atleast');
 //        return function() {
 
             if (!angular.isArray(array)) return array;
@@ -496,12 +539,26 @@ app.directive('lastdirective', function($timeout) {
         scope.$watch('$last',function(v){
             if (v) {
 
-                console.log('last');
-                console.log('i am taking timeout for loading images');
-                $timeout(function(){
-                    scope.handler = $('#tiles li');
-                    scope.loadimages();
-                }, 1000);
+//                if (scope.firstload){
+
+                    console.log('last');
+                    console.log('i am taking timeout for loading images');
+                    $timeout(function(){
+//                        scope.handler = $('#tiles li');
+                        scope.loadimages();
+                    }, 200);
+
+//                }
+
+//                else {
+//                    console.log('last');
+//                    console.log('i am taking timeout for loading images');
+//                    $timeout(function(){
+////                        scope.handler = $('#tiles li');
+//                        scope.loadimages();
+//                    }, 1000);
+//                }
+
 
             }
 
@@ -516,6 +573,9 @@ app.directive("enter", function($timeout){
 
         element.bind("keyup", function(evt) {
 
+//            scope.page = 100;
+//            scope.$apply();
+
 //            if (evt.which != "13") {
                 searchterm = evt.srcElement.value;
                 console.log(searchterm);
@@ -525,22 +585,33 @@ app.directive("enter", function($timeout){
 //                console.log(keyname);
 //                var exp = {};
 //                exp[attrs.fieldname] = searchterm;
-                if (attrs.fieldname == "gender") {
-                    console.log('i am in if condition for gender');
-//                    exp[attrs.fieldname] = JSON.stringify(searchterm);
-                    scope.fn_gender_filter(scope.subset);
-                }
-                else {
+//                if (attrs.fieldname == "gender") {
+//                    console.log('i am in if condition for gender');
+////                    exp[attrs.fieldname] = JSON.stringify(searchterm);
+//                    scope.fn_gender_filter(scope.subset);
+//                }
+//                else {
                     var exp = {};
                     exp[attrs.dataname] = searchterm;
 
-                    scope.mysearchfilter(scope.subset, exp, "somecomparator", attrs.fieldname);
-                }
-                console.log(exp);
+                    scope.mysearchfilter(scope.users, exp, "somecomparator", attrs.fieldname);
+//                }
+//                console.log(exp);
 
-                scope.filter_intersection(scope.subset);
 
-                scope.handler.wookmarkInstance.layout();
+            $timeout(function() {
+
+                scope.filter_intersection(scope.users);
+
+
+
+//                scope.handler.wookmarkInstance.layout();
+                console.log('re-allign the layout');
+
+            }, 10);
+
+
+
 //                scope.subset = res;
 //                scope.$apply();
 //                var options = {
@@ -576,25 +647,30 @@ app.directive('genderclick', function($timeout){
 //        console.log('i am in genderclick directive');
         element.bind('mouseup', function(evt){
 
-            scope.$apply();
+//            scope.page = 4;
+//            scope.$apply();
+
+//            scope.$apply();
 //            console.log('i am in if condition for gender');
 
 //            if (attrs.fieldname == "gender") {
 
 //                    exp[attrs.fieldname] = JSON.stringify(searchterm);
             $timeout(function() {
-                scope.fn_gender_filter(scope.subset, attrs.genderclick);
+                scope.fn_gender_filter(scope.users, attrs.genderclick);
             }, 10) ;
 
 //            scope.$apply();
 
             $timeout(function() {
 
-                scope.filter_intersection(scope.subset);
+                scope.filter_intersection(scope.users);
 
-                scope.handler.wookmarkInstance.layout();
+//                scope.handler.wookmarkInstance.layout();
 
-            },100) ;
+            },200) ;
+
+//            scope.page = 100;
 
 //            }
         });
