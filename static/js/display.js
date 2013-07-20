@@ -331,7 +331,7 @@ function DispCtrl($scope, myService, $http, $compile, $timeout) {
         }
         else if (!$scope.checkModel.male && $scope.checkModel.female){
             for (var j= 0; j<array.length; j++){
-                if (array[j].gender=="female"){
+                if (array[j].gender.toLowerCase()=="female"){
                     array[j]["genderfilter"] = 1;
                 }
                 else {
