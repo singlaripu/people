@@ -369,7 +369,7 @@ app.directive('lastdirective', function($timeout) {
         });
 
     };
-})
+});
 
 
 app.directive("enter", function($timeout){
@@ -387,7 +387,7 @@ app.directive("enter", function($timeout){
 
         });
     }
-})
+});
 
 
 app.directive('genderclick', function($timeout){
@@ -402,7 +402,28 @@ app.directive('genderclick', function($timeout){
             },20) ;
         });
     }
-})
+}) ;
+
+
+//app.directive('fallbackimage', function($timeout) {
+////    console.log('executing fallback images');
+//     return {
+//        link: function(scope, element, attrs) {
+//
+////            element.bind("load", function(evt) {
+////                console.log('load event in fallback images');
+////                element.attr('ng-src', element.attr('ng-src')) ;
+////            });
+//
+//            element.bind('error', function(){
+//                console.log('error event in fallback images', attrs.fallbackimage);
+//                var url = element.attr('ng-src') + "?timestamp=" + new Date().getTime()  ;
+//                console.log(url);
+//                element.attr('src', url);
+//            });
+//        }
+//    }
+//});
 
 
 
