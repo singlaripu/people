@@ -377,7 +377,7 @@ app.directive("enter", function($timeout){
         element.bind("keyup", function(evt) {
             scope.EnterDirecFlag = false;
             console.log("executing enter directive");
-            searchterm = evt.srcElement.value;
+            searchterm = evt.target.value;
             var exp = {};
             exp[attrs.dataname] = searchterm;
             scope.mysearchfilter(scope.users, exp, "somecomparator", attrs.fieldname);
