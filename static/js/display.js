@@ -45,7 +45,7 @@ function DispCtrl($scope, myService, $http, $compile, $timeout) {
     $scope.users = [];
     $scope.page = 0;
     $scope.incr = 30;
-    $scope.light_url = "/static/images/white.jpg";
+//    $scope.light_url = "/static/images/white.jpg";
     $scope.subset = [];
     $scope.handler = $('#tiles li');
     $scope.scrollflag = true;
@@ -54,7 +54,7 @@ function DispCtrl($scope, myService, $http, $compile, $timeout) {
 
     myService.async().then(function(d) {
         $scope.users = d.data;
-        $scope.subset = d.data;
+
         for(var j=0; j<$scope.users.length; j++){
             $scope.users[j].namefilter = 1;
             $scope.users[j].genderfilter = 1;
@@ -63,7 +63,9 @@ function DispCtrl($scope, myService, $http, $compile, $timeout) {
             $scope.users[j].workfilter = 1;
             $scope.users[j].educationfilter = 1;
             $scope.users[j].likesfilter = 1;
+//            $scope.users[j].dummyurl = '/static/images/placeholder1.gif';
         }
+        $scope.subset = $scope.users;
         $scope.newhtml();
     });
 
