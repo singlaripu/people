@@ -48,15 +48,14 @@ function DispCtrl($scope, myService, $http, $compile, $timeout) {
     $scope.light_url = "/static/images/white.jpg";
     $scope.subset = [];
     $scope.handler = $('#tiles li');
-    $scope.firstload = false;
+    $scope.scrollflag = true;
+
+    $(document).bind('scroll', onScroll);
 
     myService.async().then(function(d) {
         $scope.users = d.data;
         $scope.subset = d.data;
-
-
         for(var j=0; j<$scope.users.length; j++){
-
             $scope.users[j].namefilter = 1;
             $scope.users[j].genderfilter = 1;
             $scope.users[j].locationfilter = 1;
@@ -64,157 +63,72 @@ function DispCtrl($scope, myService, $http, $compile, $timeout) {
             $scope.users[j].workfilter = 1;
             $scope.users[j].educationfilter = 1;
             $scope.users[j].likesfilter = 1;
-
-            $scope.users[j].classfilter = "active";
-
         }
-
-
-//        $scope.users.sort($scope.sortfunction);
-
-
-
-        $scope.newhtml = function(){
-
-            if ($scope.page*$scope.incr >= $scope.subset.length) {
-                $('#loaderCircle').hide();
-                return ;
-            }
-            $scope.page += 1;
-            return;
-        }
-
         $scope.newhtml();
-
-
-
-//        $timeout(function() {
-//
-//            var options = {
-//                autoResize: true,
-//                container: $('#main'),
-//                offset: 2,
-//                itemWidth: 230
-//            };
-//            var handler = $('#tiles li');
-//            $scope.handler = handler;
-//            $scope.handler.wookmark(options);
-//
-//
-//        }, 1000)  ;
-
-
-
-
     });
+
+    $scope.newhtml = function(){
+        if ($scope.page*$scope.incr >= $scope.subset.length) {
+            $('#loaderCircle').hide();
+            return ;
+        }
+        $scope.page += 1;
+        return;
+    }
 
 
     $scope.loadimages = function(){
-
-        console.log('timeout over');
+        console.log('executing loadimages');
         var options = {
             autoResize: true,
             container: $('#main'),
             offset: 2,
             itemWidth: 230
         };
-//        var handler = ;
         $scope.handler = $('#tiles li');
         $scope.handler.wookmark(options);
-//          $scope.handler.wookmarkInstance.layout();
         $('#loaderCircle').hide();
-        console.log("deactivated loader circle");
-
         $scope.scrollflag = true;
-        console.log($scope.scrollflag);
-
-//        $scope.firstload = true;
-
+        $scope.loadimages_flag = true;
         return;
-
     }
 
-//    $scope.loadimages1 = function(){
-//
-//        console.log('timeout over');
-////        var options = {
-////            autoResize: true,
-////            container: $('#main'),
-////            offset: 2,
-////            itemWidth: 230
-////        };
-////        var handler = $('#tiles li');
-////        $scope.handler = handler;
-////        $scope.handler.wookmark(options);
-//        $scope.handler.wookmarkInstance.layout();
-//        $('#loaderCircle').hide();
-//        console.log("deactivated loader circle");
-//
-//        $scope.scrollflag = true;
-//        console.log($scope.scrollflag);
-//
-//    }
+
 
     $scope.nextPage = function() {
-
         $scope.newhtml();
         $scope.$apply();
-
-//        $('#tiles').append($scope.newhtml());
-//        console.log('i am taking timeout for loading images');
-//        $timeout(function(){
-//            $scope.loadimages();
-//        }, 1000);
-
     };
 
-    $scope.scrollflag = true;
+
 
     function onScroll(event) {
         if($scope.scrollflag) {
-
             var closeToBottom = ($(window).scrollTop() + $(window).height() > $(document).height() - 100);
             if(closeToBottom) {
-                console.log("activating loader circle");
+                console.log("executing onscroll event");
                 $('#loaderCircle').show();
                 $scope.scrollflag = false;
                 $scope.nextPage();
-//                $scope.scrollflag = true;
-
             }
-
         }
-
     };
 
 
     $scope.loadlightbox = function(){
-        console.log('i got here');
+        console.log('executing load light box');
         var options = {
             backdrop: true,
             keyboard: true,
             show: true
 //            resizeToFit: true
         };
-//        $('#demoLightbox').lightbox(options);
-//        $('#myModal').modal(options).css(
-//            {
-//
-//                'margin-left': function () {
-//                    return -($(this).width() / 2);
-//                }
-//            }) ;
         $('#myModal').modal(options);
     }
 
     $scope.ShowLightBox = function(ind) {
-//        console.log('you clicked..i dont konw which one');
-////        var elem = angular.element(e.srcElement);
-////        var id = elem.id;
-//        console.log(e.target.id);
-//        console.log(e.target.id);
-//        var id = e.target.id;
-        var user = $scope.users[ind];
+        console.log('executing show light box');
+        var user = ind;
         $scope.light_profile_pic_url = user.profile_pic_url;
         $scope.light_caption = user.name;
         $scope.light_work_name = user.work_name;
@@ -227,48 +141,27 @@ function DispCtrl($scope, myService, $http, $compile, $timeout) {
         $scope.light_likes_name = user.likes_name;
         $scope.light_username = user.username;
         $scope.light_thumbnails = user.profile_album;
-
-        console.log($scope.light_current_location_name);
-        console.log('i am taking timeout');
-
         $timeout(function(){
             $scope.loadlightbox();
         }, 50);
     }
 
 
-    $(document).bind('scroll', onScroll);
+
 
     $scope.change_light_pic = function(ind){
-//        var thumb = $scope.light_thumbnails[ind];
         $scope.light_profile_pic_url = $scope.light_thumbnails[ind].src_big;
 //        $('#myModal').scrollTop();
     }
 
-//    $scope.sortfunction = function(a,b){
-//        return b.score - a.score;
-//    }
-
-
-    $scope.layoutchange = function(){
-//        var handler = $('#tiles li');
-        console.log("aaha i came here atleast");
-        $scope.handler.addClass('inactive');
-        $scope.columns = null;
-        $scope.handler.wookmark();
-    }
-
-//    $scope.keylog = [];
-////    $scope.keyCount= 0;
-//
 
 
 
     $scope.filter_intersection = function(array) {
-
-        $scope.subset = [];
+        console.log('executing filter intersection');
+        var temp = []
         $scope.page = 1 ;
-
+        $scope.loadimages_flag = false;
         for ( var j = 0; j < array.length; j++) {
             if (
                 array[j].namefilter &&
@@ -279,132 +172,125 @@ function DispCtrl($scope, myService, $http, $compile, $timeout) {
                 array[j].educationfilter &&
                 array[j].likesfilter
                 ) {
-
-                $scope.subset.push(array[j])  ;
-//                array[j].classfilter = "active";
+                temp.push(array[j]);
             }
-//            else{
-//                array[j].classfilter = "inactive";
-//            }
         }
-        $scope.$apply();
-        console.log($scope.subset.length);
+        $scope.subset = temp;
+        $timeout(function () {
+            if (!$scope.loadimages_flag) {
+                console.log('firing load images event myself');
+                $scope.loadimages();
+            }
+        }, 100)
         return;
     };
 
     $scope.mysearchfilter = function(array, expression, comperator, arg1) {
-//        console.log('i was called atleast');
-//        return function() {
-
-            if (!angular.isArray(array)) return array;
-            var predicates = [];
-            predicates.check = function(value) {
-                for (var j = 0; j < predicates.length; j++) {
-                    if(!predicates[j](value)) {
-                        return false;
-                    }
+        console.log('executing mysearch filter') ;
+        if (!angular.isArray(array)) return array;
+        var predicates = [];
+        predicates.check = function(value) {
+            for (var j = 0; j < predicates.length; j++) {
+                if(!predicates[j](value)) {
+                    return false;
                 }
-                return true;
-            };
-            switch(typeof comperator) {
-                case "function":
-                    break;
-                case "boolean":
-                    if(comperator == true) {
-                        comperator = function(obj, text) {
-                            return angular.equals(obj, text);
-                        }
-                        break;
-                    }
-                default:
-                    comperator = function(obj, text) {
-                        text = (''+text).toLowerCase();
-                        return (''+obj).toLowerCase().indexOf(text) > -1
-                    };
             }
-            var search = function(obj, text){
-                if (typeof text == 'string' && text.charAt(0) === '!') {
-                    return !search(obj, text.substr(1));
+            return true;
+        };
+        switch(typeof comperator) {
+            case "function":
+                break;
+            case "boolean":
+                if(comperator == true) {
+                    comperator = function(obj, text) {
+                        return angular.equals(obj, text);
+                    }
+                    break;
                 }
-                switch (typeof obj) {
-                    case "boolean":
-                    case "number":
-                    case "string":
-                        return comperator(obj, text);
-                    case "object":
-                        switch (typeof text) {
-                            case "object":
-                                return comperator(obj, text);
-                                break;
-                            default:
-                                for ( var objKey in obj) {
-                                    if (objKey.charAt(0) !== '$' && search(obj[objKey], text)) {
-                                        return true;
-                                    }
-                                }
-                                break;
-                        }
-                        return false;
-                    case "array":
-                        for ( var i = 0; i < obj.length; i++) {
-                            if (search(obj[i], text)) {
-                                return true;
-                            }
-                        }
-                        return false;
-                    default:
-                        return false;
-                }
-            };
-            switch (typeof expression) {
+            default:
+                comperator = function(obj, text) {
+                    text = (''+text).toLowerCase();
+                    return (''+obj).toLowerCase().indexOf(text) > -1
+                };
+        }
+        var search = function(obj, text){
+            if (typeof text == 'string' && text.charAt(0) === '!') {
+                return !search(obj, text.substr(1));
+            }
+            switch (typeof obj) {
                 case "boolean":
                 case "number":
                 case "string":
-                    expression = {$:expression};
+                    return comperator(obj, text);
                 case "object":
-                    for (var key in expression) {
-                        if (key == '$') {
-                            (function() {
-                                if (!expression[key]) return;
-                                var path = key
-                                predicates.push(function(value) {
-                                    return search(value, expression[path]);
-                                });
-                            })();
-                        } else {
-                            (function() {
-                                if (!expression[key]) return;
-                                var path = key;
-                                predicates.push(function(value) {
-                                    return search($scope.mygetter(value,path), expression[path]);
-                                });
-                            })();
+                    switch (typeof text) {
+                        case "object":
+                            return comperator(obj, text);
+                            break;
+                        default:
+                            for ( var objKey in obj) {
+                                if (objKey.charAt(0) !== '$' && search(obj[objKey], text)) {
+                                    return true;
+                                }
+                            }
+                            break;
+                    }
+                    return false;
+                case "array":
+                    for ( var i = 0; i < obj.length; i++) {
+                        if (search(obj[i], text)) {
+                            return true;
                         }
                     }
-                    break;
-                case 'function':
-                    predicates.push(expression);
-                    break;
+                    return false;
                 default:
-                    return array;
+                    return false;
             }
+        };
+        switch (typeof expression) {
+            case "boolean":
+            case "number":
+            case "string":
+                expression = {$:expression};
+            case "object":
+                for (var key in expression) {
+                    if (key == '$') {
+                        (function() {
+                            if (!expression[key]) return;
+                            var path = key
+                            predicates.push(function(value) {
+                                return search(value, expression[path]);
+                            });
+                        })();
+                    } else {
+                        (function() {
+                            if (!expression[key]) return;
+                            var path = key;
+                            predicates.push(function(value) {
+                                return search($scope.mygetter(value,path), expression[path]);
+                            });
+                        })();
+                    }
+                }
+                break;
+            case 'function':
+                predicates.push(expression);
+                break;
+            default:
+                return array;
+        }
 //            var filtered = [];
-            for ( var j = 0; j < array.length; j++) {
-                var value = array[j];
-                if (predicates.check(value)) {
+        for ( var j = 0; j < array.length; j++) {
+            var value = array[j];
+            if (predicates.check(value)) {
 //                    filtered.push(value);
-                    array[j][arg1 + "filter"] = 1;
-
-                }
-                else {
-                    array[j][arg1 + "filter"] = 0;
-
-                }
-//                $scope.$apply();
+                array[j][arg1 + "filter"] = 1;
             }
-//            return filtered;
-            return;
-//        }
+            else {
+                array[j][arg1 + "filter"] = 0;
+            }
+        }
+        return;
     }
 
 
@@ -426,56 +312,23 @@ function DispCtrl($scope, myService, $http, $compile, $timeout) {
         }
         return obj;
     }
-//
-//    $scope.fn_gender_filter = function(array, expression, arg1){
-//
-////        if (!expression) return;
-//
-//        for (var j= 0; j<array.length; j++){
-//            if (array[j].gender == expression || expression==''){
-//                array[j][arg1 + "filter"] = 1;
-//            }
-//            else {
-//                array[j][arg1 + "filter"] = 0;
-//            }
-//        }
-//
-//    }
+
 
 
     $scope.fn_gender_filter = function(array, arg1){
-
-//        console.log(arg1);
-//
-//        return ;
-
-//        console.log("i came to fn gender filter");
-
-//        if (!expression) return;
-
+        console.log('executing fn gender filter');
         if ($scope.checkModel.male && !$scope.checkModel.female){
-
-            console.log('i think only male is clicked');
-
             for (var j= 0; j<array.length; j++){
-
-                if (array[j].gender=="male"){
+                if (array[j].gender.toLowerCase()=="male"){
                     array[j]["genderfilter"] = 1;
-//                    console.log('do something then');
                 }
                 else {
                     array[j]["genderfilter"] = 0;
                 }
             }
-
         }
-
         else if (!$scope.checkModel.male && $scope.checkModel.female){
-
-            console.log('i think only female is clicked');
-
             for (var j= 0; j<array.length; j++){
-
                 if (array[j].gender=="female"){
                     array[j]["genderfilter"] = 1;
                 }
@@ -483,85 +336,34 @@ function DispCtrl($scope, myService, $http, $compile, $timeout) {
                     array[j]["genderfilter"] = 0;
                 }
             }
-
         }
-
         else {
-
-            console.log('i think either both are clicked or both are unclicked');
-
             for (var j= 0; j<array.length; j++){
-                    array[j]["genderfilter"] = 1;
+                array[j]["genderfilter"] = 1;
             }
-
         }
-
-        $scope.$apply();
-
         return ;
-
-
-
     }
 
-//    $scope.wookmarkfilter = function(){
-//        console.log("i am in wookmarkfilter function");
-//        $scope.handler.wookmarkInstance.filter(["singlaripu", "ripusingla"]);
-//    }
 
     $scope.checkModel = {
         male: false,
         female: false,
         online: false
-
-
     };
 
 }
 
-//app.directive('lightdirective', function(){
-//    return{
-//        restrict:"A",
-//        link:function(scope, element, attrs){
-//            element.bind('mouseenter', function(){
-//                console.log('i am in the lightbox directive');
-//            })
-//
-//        }
-//    }
-//})
-
 
 app.directive('lastdirective', function($timeout) {
     return function(scope, element, attrs) {
-//        console.log('ROW: index = ', scope.$index);
-
         scope.$watch('$last',function(v){
             if (v) {
-
-//                if (scope.firstload){
-
-                    console.log('last');
-                    console.log('i am taking timeout for loading images');
-                    $timeout(function(){
-//                        scope.handler = $('#tiles li');
-                        scope.loadimages();
-                    }, 200);
-
-//                }
-
-//                else {
-//                    console.log('last');
-//                    console.log('i am taking timeout for loading images');
-//                    $timeout(function(){
-////                        scope.handler = $('#tiles li');
-//                        scope.loadimages();
-//                    }, 1000);
-//                }
-
-
+                console.log('executing last directive');
+                $timeout(function(){
+                    scope.loadimages();
+                }, 20);
             }
-
         });
 
     };
@@ -570,113 +372,34 @@ app.directive('lastdirective', function($timeout) {
 
 app.directive("enter", function($timeout){
     return function (scope, element, attrs) {
-
         element.bind("keyup", function(evt) {
-
-//            scope.page = 100;
-//            scope.$apply();
-
-//            if (evt.which != "13") {
-                searchterm = evt.srcElement.value;
-                console.log(searchterm);
-//                scope.subset = $filter('filter')(scope.users, {name:searchterm});
-//                var keyname = JSON.stringify(attrs.fieldname);
-//                var keyname = attrs.fieldname;
-//                console.log(keyname);
-//                var exp = {};
-//                exp[attrs.fieldname] = searchterm;
-//                if (attrs.fieldname == "gender") {
-//                    console.log('i am in if condition for gender');
-////                    exp[attrs.fieldname] = JSON.stringify(searchterm);
-//                    scope.fn_gender_filter(scope.subset);
-//                }
-//                else {
-                    var exp = {};
-                    exp[attrs.dataname] = searchterm;
-
-                    scope.mysearchfilter(scope.users, exp, "somecomparator", attrs.fieldname);
-//                }
-//                console.log(exp);
-
-
+            scope.EnterDirecFlag = false;
+            console.log("executing enter directive");
+            searchterm = evt.srcElement.value;
+            var exp = {};
+            exp[attrs.dataname] = searchterm;
+            scope.mysearchfilter(scope.users, exp, "somecomparator", attrs.fieldname);
             $timeout(function() {
-
                 scope.filter_intersection(scope.users);
-
-
-
-//                scope.handler.wookmarkInstance.layout();
-                console.log('re-allign the layout');
-
-            }, 10);
-
-
-
-//                scope.subset = res;
-//                scope.$apply();
-//                var options = {
-//                    autoResize: true,
-//                    container: $('#main'),
-//                    offset: 2,
-//                    itemWidth: 230
-//                };
-//                console.log(res.length);
-//                var activeFilters = ["paris"];
-//                var handler = $('#tiles li');
-//
-//                scope.handler.wookmark(options);
-//                scope.loadimages();
-//                $timeout(function(){
-//                    scope.handler.wookmarkInstance.filter(["searched"]);
-//                },2000);
-
-
-//            }
+            }, 20);
 
         });
-
-
     }
 })
 
 
 app.directive('genderclick', function($timeout){
-
     return function (scope, element, attrs) {
-
-//        console.log('i am in genderclick directive');
-        element.bind('mouseup', function(evt){
-
-//            scope.page = 4;
-//            scope.$apply();
-
-//            scope.$apply();
-//            console.log('i am in if condition for gender');
-
-//            if (attrs.fieldname == "gender") {
-
-//                    exp[attrs.fieldname] = JSON.stringify(searchterm);
+        element.on('click', function(evt){
+            console.log('executing genderclick directive');
             $timeout(function() {
                 scope.fn_gender_filter(scope.users, attrs.genderclick);
-            }, 10) ;
-
-//            scope.$apply();
-
+            }, 10);
             $timeout(function() {
-
                 scope.filter_intersection(scope.users);
-
-//                scope.handler.wookmarkInstance.layout();
-
-            },200) ;
-
-//            scope.page = 100;
-
-//            }
+            },20) ;
         });
     }
-
-
 })
 
 
