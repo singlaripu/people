@@ -7,16 +7,18 @@
 <head>
 
     <link rel="shortcut icon" href="/static/images/favicon2.ico">
+    <!--<link rel="stylesheet"href="/static/css/sidenav.css" >-->
+    <link rel="stylesheet"href="/static/css/bootstrap-combined.min.css" >
+    <link rel="stylesheet" href="/static/css/reset.css">
+    <link rel="stylesheet" href="/static/css/style.css">
+
+
     <script src="/static/js/html5.js"></script>
     <script src="/static/js/jquery.min.js"></script>
-    <!--<script src="/static/js/scale.fix.js"></script>-->
-    <!--<script src="/static/js/prettify.js"></script>-->
     <script src="/static/js/bootstrap.min.js"></script>
-    <link href="/static/css/bootstrap-combined.min.css" rel="stylesheet">
-    <!--<script src="/static/js/bootstrap-lightbox.js"></script>-->
-
     <script src="/static/js/angular.min.js"></script>
-    <script src="static/js/ui-bootstrap-tpls-0.4.0.js"></script>
+    <script src="/static/js/ui-bootstrap-tpls-0.4.0.js"></script>
+    <script src="/static/js/socketio/socket.io.min.js"></script>
     <script src="/static/js/display.js"></script>
 
 
@@ -27,14 +29,15 @@
     <title>People</title>
 
 
+    <!--<script src="/static/js/bootstrap-lightbox.js"></script>-->
     <!-- CSS Reset -->
 
     <!--<link rel="stylesheet" href="/static/css/bootstrap.min.css">-->
         <!--<link rel="stylesheet" href="/static/css/bootstrap-lightbox.css">-->
     <!--<link rel="stylesheet" href="/static/css/prettify.css">-->
-    <link rel="stylesheet" href="/static/css/reset.css">
+
     <!-- Styling for your grid blocks -->
-    <link rel="stylesheet" href="/static/css/style.css">
+
 
 </head>
 
@@ -95,53 +98,104 @@
 
 
 
-          <div class="row-fluid" style="text-align: center;  padding: 1%; width: 95%;">
-              <div class="span10">
-                  <div class="row-fluid">
-                      <input class="span2" type="text" enter placeholder="name" fieldname="name" dataname="name">
-                      <input class="span2" type="text" enter placeholder="location" fieldname="location" dataname="current_location_name">
-                      <input class="span2" type="text" enter placeholder="work" fieldname="work" dataname="work_name">
-                      <input class="span2" type="text" enter placeholder="education" fieldname="education" dataname="education_name">
-                      <input class="span2" type="text" enter placeholder="hometown" fieldname="hometown" dataname="hometown_location_name">
-                      <input class="span2" type="text" enter placeholder="likes" fieldname="likes" dataname="likes_name">
+
+
+
+          <div class="row-fluid">
+             <div id="ulcontainer" class="span9">
+
+                 <ul id="tiles">
+                     <li ng-repeat="image in subset | orderBy:'-score' | limitTo:page*incr" lastdirective ng-cloak class="ng-cloak">
+                         <div class="polaroid">
+                             <div class="options">
+                                 <div class="comment" title="Pin">
+                                     <a href="#"><em><i class="icon-tag"></i></em><span>Pin</span></a>
+                                 </div>
+                                 <div class="like"  title="Like">
+                                     <a href="#"><em><i class="icon-thumbs-up"></i></em><span>Like</span></a>
+                                 </div>
+                                 <div class="save" title="Facebook Profile">
+                                     <a href="#"><em><i class="icon-user"></i></em><span>Profile</span></a>
+                                 </div>
+                                 <div class="magnify"  title="Chat">
+                                     <a  href="#"><em><i class=" icon-comment"></i></em><span>Chat</span></a>
+                                 </div>
+                             </div>
+                             <a ng-click="ShowLightBox(image)">
+                                 <!--<img  width="200" height="{{image.height}}" fallbackimage>-->
+                                 <img ng-src="{{image.profile_pic_url}}" width="200" height="{{image.height}}">
+                             </a>
+                             <p> {{image.name}}</p>
+                         </div>
+                     </li>
+                 </ul>
+
+                 <div id="loader"><div id="loaderCircle"></div></div>
+
+
+             </div>
+
+              <div class="span3" >
+
+                  <div class="nav nav-list affix" style="float: right; height: 500px; overflow: auto">
+                      <div class="righticonclass" ng-click="isCollapsed = !isCollapsed">
+                          <span class="muted">Refine Results</span>
+                          <i class="icon-chevron-right"></i>
+                      </div>
+                      <hr>
+
+                      <div collapse="isCollapsed">
+                          <input type="text" enter placeholder="Name" fieldname="name" dataname="name">  <br>
+                          <input type="text" enter placeholder="Current City" fieldname="location" dataname="current_location_name">    <br>
+                          <input type="text" enter placeholder="Employer" fieldname="work" dataname="work_name"><br>
+                          <input type="text" enter placeholder="School" fieldname="education" dataname="education_name">  <br>
+                          <input type="text" enter placeholder="Hometown" fieldname="hometown" dataname="hometown_location_name"> <br>
+                          <input type="text" enter placeholder="Likes" fieldname="likes" dataname="likes_name"> <br>
+
+                          <div class="form-inline">
+                              <label class="checkbox"><input type=checkbox ng-model="checkModel.male" genderclick>Male</label>
+                              <label class="checkbox"><input type=checkbox ng-model="checkModel.female" genderclick>Female</label>
+                              <label class="checkbox"><input type=checkbox ng-model="checkModel.online" genderclick>Online</label>
+                          </div>
+                          <hr>
+                      </div>
+
+
+
+                      <div class="righticonclass" ng-click="chatCollapsed = !chatCollapsed">
+                          <span class="muted">Chats</span>
+                          <i class="icon-chevron-right"></i>
+                      </div>
+
+                      <hr>
+                      <div collapse="chatCollapsed">
+
+                          <accordion close-others="true">
+                              <accordion-group heading="Abhishek Malik">
+                                <div id="malik" class="chatbox"></div>
+                                <input messageenter="malik" type="text" ng-model="selected">  <br>
+                              </accordion-group>
+
+                              <accordion-group heading="Manoj Singla">
+                                  <div id="manoj" class="chatbox"></div>
+                                  <input messageenter="manoj" type="text" ng-model="selected">  <br>
+                              </accordion-group>
+
+                          </accordion>
+                      </div>
+
+
                   </div>
+
+
+
+
+
+
               </div>
 
-              <div class="span2 form-inline" style="margin-left: -2%">
-                  <label class="checkbox"><input type=checkbox ng-model="checkModel.male" genderclick>Male</label>
-                  <label class="checkbox"><input type=checkbox ng-model="checkModel.female" genderclick>Female</label>
-                  <label class="checkbox"><input type=checkbox ng-model="checkModel.online" genderclick>Online</label>
-              </div>
           </div>
 
-
-          <ul id="tiles">
-              <li ng-repeat="image in subset | orderBy:'-score' | limitTo:page*incr" lastdirective ng-cloak class="ng-cloak">
-                  <div class="polaroid">
-                      <div class="options">
-                          <div class="comment" title="Pin">
-                              <a href="#"><em><i class=" icon-tag"></i></em><span>Pin</span></a>
-                          </div>
-                          <div class="like"  title="Like">
-                              <a href="#"><em><i class="icon-thumbs-up"></i></em><span>Like</span></a>
-                          </div>
-                          <div class="save" title="Facebook Profile">
-                              <a href="#"><em><i class="icon-user"></i></em><span>Profile</span></a>
-                          </div>
-                          <div class="magnify"  title="Chat">
-                              <a  href="#"><em><i class=" icon-comment"></i></em><span>Chat</span></a>
-                          </div>
-                      </div>
-                      <a ng-click="ShowLightBox(image)">
-                          <!--<img  width="200" height="{{image.height}}" fallbackimage>-->
-                          <img ng-src="{{image.profile_pic_url}}" width="200" height="{{image.height}}">
-                      </a>
-                      <p> {{image.name}}</p>
-                  </div>
-              </li>
-          </ul>
-
-          <div id="loader"><div id="loaderCircle"></div></div>
       </div>
   </div>
 

@@ -56,12 +56,15 @@ class ChatNamespace(BaseNamespace):
     #     self.logger.info("[{0}] {1}".format(self.socket.sessid, message))
 
 
-    def on_user_message(self, msg, recipient):
+    def on_user_message(self, data):
+        print data
+        msg = data['message']
+        recipient = data['recipient']
         # self.log('User message: {0}'.format(msg))
         print 'msg recieved'
         recipient = recipient + '@jabber.fbpeople.com'
         self.xmpp.send_message(mto=recipient, mbody=msg, mtype='chat')
-        return True
+        # return True
 
     def my_message(self, msg):
         print 'hello i recieved something', msg['body']
@@ -81,7 +84,7 @@ class ChatNamespace(BaseNamespace):
             #text = msg['to'].split('@')[0] 
             #print text
             #self.emit('boo')
-            self.emit('my_mess', sender_name, jid, data)
+            self.emit('my_mess', {'sender':sender_name, 'jid':jid, 'message':data})
 
 
     def xmpp_connect(self):

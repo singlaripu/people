@@ -162,7 +162,7 @@ margin: 0;
     transition: opacity 0.15s ease-out;
     background-color: white;
     height: 50px;
-    width: 230px;
+    width: 220px;
     z-index: 10;
 }
 .polaroid.optionsActive .options,
@@ -379,3 +379,30 @@ only screen and (min-device-pixel-ratio: 1.5) {
     /*background-clip: padding-box;*/
     outline: #ffffff;
 }
+
+
+/*.accordion{margin-bottom:20px; }*/
+/*.accordion-group{margin-bottom:2px;border:0px solid white;-webkit-border-radius:4px;-moz-border-radius:4px;border-radius:4px; }*/
+/*.accordion-heading{border-bottom:0; font-size: 14px; font-weight: 200;}*/
+/*.accordion-heading .accordion-toggle{display:block;padding:8px 15px; }*/
+/*.accordion-toggle{cursor:pointer;}*/
+/*.accordion-inner{padding:9px 15px;border-top:0px solid #e5e5e5; }*/
+/*a{color:#808080;text-decoration:none;}*/
+/*a:hover,a:focus{color:#808080;text-decoration:none;}*/
+
+/*.affix{top:60px;}*/
+
+.righticonclass > .icon-chevron-right {
+    float: right;
+    margin-top: 2px;
+    margin-right: 0;
+    opacity: .25;
+}
+
+.chatbox {
+    height : 100px;
+    overflow : auto;
+
+}
+
+/*.righticonclass {font-size: 14px; font-weight: }*/

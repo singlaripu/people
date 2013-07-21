@@ -1,30 +1,4 @@
-//
-//var app =  angular.module('myApp', [], function($compileProvider){
-//    // configure new 'compile' directive by passing a directive
-//    // factory function. The factory function injects the '$compile'
-//    $compileProvider.directive('compile', function($compile) {
-//        // directive factory creates a link function
-//        return function(scope, element, attrs) {
-//            scope.$watch(
-//                function(scope) {
-//                    // watch the 'compile' expression for changes
-//                    return scope.$eval(attrs.compile);
-//                },
-//                function(value) {
-//                    // when the 'compile' expression changes
-//                    // assign it into the current DOM
-//                    element.html(value);
-//
-//                    // compile the new DOM and link it to the current
-//                    // scope.
-//                    // NOTE: we only compile .childNodes so that
-//                    // we don't get into infinite loop compiling ourselves
-//                    $compile(element.contents())(scope);
-//                }
-//            );
-//        };
-//    })
-//});
+
 
 var app =  angular.module('myApp', ['ui.bootstrap']);
 
@@ -40,7 +14,7 @@ app.factory('myService', function($http) {
     return myService;
 });
 
-function DispCtrl($scope, myService, $http, $compile, $timeout) {
+function DispCtrl($scope, myService, $http, $compile, $timeout, $socketio) {
 
     $scope.users = [];
     $scope.page = 0;
@@ -49,6 +23,8 @@ function DispCtrl($scope, myService, $http, $compile, $timeout) {
     $scope.subset = [];
     $scope.handler = $('#tiles li');
     $scope.scrollflag = true;
+    $scope.isCollapsed = false;
+    $scope.chatCollapsed = false;
 
     $(document).bind('scroll', onScroll);
 
@@ -83,7 +59,7 @@ function DispCtrl($scope, myService, $http, $compile, $timeout) {
         console.log('executing loadimages');
         var options = {
             autoResize: true,
-            container: $('#main'),
+            container: $('#ulcontainer'),
             offset: 2,
             itemWidth: 230
         };
@@ -354,6 +330,17 @@ function DispCtrl($scope, myService, $http, $compile, $timeout) {
         online: false
     };
 
+    $socketio.on('my_mess', function(data){
+//        console.log('hey my mess control got it now', sender, jid, data);
+//        console.log("here is your message : ", data);
+//        addmybox (sender, sender);
+//        $("#" + sender).chatbox("option", "boxManager").addMsg(sender, data);
+//        console.log(sender, jid)
+        var divid = '#' + data.sender ;
+        $(divid).append('<p>'+data.message+'</p>')  ;
+    });
+
+
 }
 
 
@@ -405,25 +392,63 @@ app.directive('genderclick', function($timeout){
 }) ;
 
 
-//app.directive('fallbackimage', function($timeout) {
-////    console.log('executing fallback images');
-//     return {
-//        link: function(scope, element, attrs) {
-//
-////            element.bind("load", function(evt) {
-////                console.log('load event in fallback images');
-////                element.attr('ng-src', element.attr('ng-src')) ;
-////            });
-//
-//            element.bind('error', function(){
-//                console.log('error event in fallback images', attrs.fallbackimage);
-//                var url = element.attr('ng-src') + "?timestamp=" + new Date().getTime()  ;
-//                console.log(url);
-//                element.attr('src', url);
-//            });
-//        }
-//    }
-//});
+app.directive('messageenter', function($socketio){
+    return function(scope, element, attrs) {
+        element.bind('keyup', function(evt) {
+            if (evt.which == 13){
+                var message = evt.target.value;
+                var divid = '#'+attrs.messageenter;
+                $(divid).append('<p>'+message+'</p>');
+                $socketio.emit('user message', {message:message, recipient:attrs.messageenter}) ;
+                evt.target.value = '';
+            }
+        })
+    }
+})
+
+app.factory("$socketio", function($rootScope) {
+//    var WEB_SOCKET_SWF_LOCATION = '/static/js/socketio/WebSocketMain.swf';
+    var socket = io.connect('/chat') ;
+    return {
+        on: function(eventName, callback) {
+            socket.on(eventName, function() {
+                var args = arguments;
+                $rootScope.$apply(function() {
+                    callback.apply(socket, args);
+                });
+            });
+        },
+
+        emit: function (eventName, data, callback) {
+            socket.emit(eventName, data, function() {
+                var args = arguments;
+                $rootScope.$apply(function() {
+                    if (callback) {
+                        callback.apply(socket, data);
+                    }
+                });
+            })
+        }
+    } ;
+}) ;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
