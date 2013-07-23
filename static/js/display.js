@@ -476,7 +476,7 @@ app.factory("$chatboxManager", function($rootScope, $socketio) {
     var nameList = new Array();
 
     var config = {
-        width : 245, //px
+        width : 220, //px
         gap : 20,
         maxBoxes : 5,
         messageSent : function(id, dest, msg) {
