@@ -2,7 +2,7 @@
 .ui-chatbox {
     position: fixed;
     bottom:0;
-    padding: 2px;
+    /*padding: 2px;*/
     background:  #CCCCCC;
 }
 
@@ -10,6 +10,8 @@
     padding: 3px;
     height: 20px;
     cursor: pointer;
+    background-color: #6d84b4;
+    font-color:white;
 }
 
 .ui-chatbox-content {
@@ -20,23 +22,24 @@
 
 .ui-chatbox-log {
     padding: 3px;
-    height: 250px;
+    height: 210px;
     overflow-y: auto;
     overflow-x: hidden;
     background: #FFFFFF;
 }
 
 .ui-chatbox-input {
-    padding: 3px;
+    /*padding: 3px;*/
     border-top: 1px solid grey;
     overflow: hidden;
 }
 
 .ui-chatbox-input-box {
     margin: 5px;
-    border: 2px solid lightgrey;/* #6699FF */
+    /*border: 2px solid lightgrey;*//* #6699FF */
     padding: 2px;
-    height: 50px;
+    height: 16px;
+    overflow: hidden;
 }
 
 .ui-chatbox-icon {
@@ -58,3 +61,18 @@
     white-space: -o-pre-wrap;   /* Opera 7 */
     word-wrap: break-word;      /* IE */
 }
+
+.ui-state-hover .ui-icon, .ui-state-focus .ui-icon {
+    /*background-image: url(images/ui-icons_ef8c08_256x240.png); */
+    background-color: #6d84b4;
+
+}
+
+/*.ui-widget-header { border: 1px solid #e78f08; background-color: #6d84b4; color: #ffffff; font-weight: bold; }*/
+.ui-widget { font-family: Trebuchet MS, Tahoma, Verdana, Arial, sans-serif; font-size: 11px; }
+.ui-widget-content { border: 0px solid #dddddd; background: #ffffff ; color: #333333; }
+.ui-corner-top { -moz-border-radius-topleft: 0px; -webkit-border-top-left-radius: 0px; border-top-left-radius: 0px; -moz-border-radius-topright: 0px; -webkit-border-top-right-radius: 0px; border-top-right-radius: 0px; }
+.ui-widget-header { border: 1px solid rgba(0, 39, 121, .76); border-bottom:hidden; background: #6d84b4; color: #ffffff; font-weight: bold; }
+
+
+/*1px solid rgba(0, 39, 121, .76)*/

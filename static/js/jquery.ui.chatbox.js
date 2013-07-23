@@ -15,6 +15,7 @@
 // TODO: implement destroy()
 (function($) {
     $.widget("ui.chatbox", {
+
         options: {
             id: null, //id for the DOM element
             title: null, // title of the chatbox
@@ -27,13 +28,16 @@
                 this.boxManager.addMsg(user.first_name, msg);
             },
             boxClosed: function(id) {
+                console.log('i came to this pulign');
             }, // called when the close icon is clicked
             boxManager: {
                 // thanks to the widget factory facility
                 // similar to http://alexsexton.com/?p=51
                 init: function(elem) {
                     this.elem = elem;
+                    console.log('i came to this pulign');
                 },
+
                 addMsg: function(peer, msg) {
                     var self = this;
                     var box = self.elem.uiChatboxLog;
@@ -247,7 +251,7 @@
             this.uiChatboxLog.width(width + "px");
             this.uiChatboxInput.css("maxWidth", width + "px");
             // padding:2, boarder:2, margin:5
-            this.uiChatboxInputBox.css("width", (width - 18) + "px");
+            this.uiChatboxInputBox.css("width", (width - 10) + "px");
         },
         _position: function(offset) {
             this.uiChatbox.css("right", offset);

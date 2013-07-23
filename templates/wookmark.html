@@ -1,7 +1,7 @@
 <!doctype html>
-<!--[if lt IE 7]> <html class="no-js ie6 oldie" lang="en"> <![endif]-->
-<!--[if IE 7]>    <html class="no-js ie7 oldie" lang="en"> <![endif]-->
-<!--[if IE 8]>    <html class="no-js ie8 oldie" lang="en"> <![endif]-->
+<!--[if lt IE 7]> <html class="no-js ie6 oldie" lang="en" ng-app="myApp"> <![endif]-->
+<!--[if IE 7]>    <html class="no-js ie7 oldie" lang="en" ng-app="myApp">  <![endif]-->
+<!--[if IE 8]>    <html class="no-js ie8 oldie" lang="en" ng-app="myApp"> <![endif]-->
 <!--[if gt IE 8]><!--> 
 <html class="no-js" lang="en" ng-app="myApp"> <!--<![endif]-->
 <head>
@@ -9,17 +9,27 @@
     <link rel="shortcut icon" href="/static/images/favicon2.ico">
     <!--<link rel="stylesheet"href="/static/css/sidenav.css" >-->
     <link rel="stylesheet"href="/static/css/bootstrap-combined.min.css" >
+
+    <link rel="stylesheet" href="/static/css/jquery-ui-1.8.2.custom.css" type="text/css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="/static/css/jquery.ui.chatbox.css"  />
     <link rel="stylesheet" href="/static/css/reset.css">
     <link rel="stylesheet" href="/static/css/style.css">
 
 
-    <script src="/static/js/html5.js"></script>
+
     <script src="/static/js/jquery.min.js"></script>
+    <script type="text/javascript" src="/static/js/jquery-ui-1.8.2.custom.min.js"></script>
+    <script type="text/javascript" src="/static/js/jquery.ui.chatbox.js"></script>
+    <script src="/static/js/html5.js"></script>
     <script src="/static/js/bootstrap.min.js"></script>
     <script src="/static/js/angular.min.js"></script>
+
     <script src="/static/js/ui-bootstrap-tpls-0.4.0.js"></script>
     <script src="/static/js/socketio/socket.io.min.js"></script>
+
     <script src="/static/js/display.js"></script>
+
+
 
 
 
@@ -118,7 +128,7 @@
                                      <a href="#"><em><i class="icon-user"></i></em><span>Profile</span></a>
                                  </div>
                                  <div class="magnify"  title="Chat">
-                                     <a  href="#"><em><i class=" icon-comment"></i></em><span>Chat</span></a>
+                                     <a  href="#" ng-click="addmybox(image.fb_uid, image.name)"><em><i class=" icon-comment"></i></em><span>Chat</span></a>
                                  </div>
                              </div>
                              <a ng-click="ShowLightBox(image)">
@@ -162,27 +172,27 @@
 
 
 
-                      <div class="righticonclass" ng-click="chatCollapsed = !chatCollapsed">
-                          <span class="muted">Chats</span>
-                          <i class="icon-chevron-right"></i>
-                      </div>
+                      <!--<div class="righticonclass" ng-click="chatCollapsed = !chatCollapsed">-->
+                          <!--<span class="muted">Chats</span>-->
+                          <!--<i class="icon-chevron-right"></i>-->
+                      <!--</div>-->
 
-                      <hr>
-                      <div collapse="chatCollapsed">
+                      <!--<hr>-->
+                      <!--<div collapse="chatCollapsed">-->
 
-                          <accordion close-others="true">
-                              <accordion-group heading="Abhishek Malik">
-                                <div id="malik" class="chatbox"></div>
-                                <input messageenter="malik" type="text" ng-model="selected">  <br>
-                              </accordion-group>
+                          <!--<accordion close-others="true">-->
+                              <!--<accordion-group heading="Abhishek Malik">-->
+                                <!--<div id="malik" class="chatbox"></div>-->
+                                <!--<input messageenter="malik" type="text" ng-model="selected">  <br>-->
+                              <!--</accordion-group>-->
 
-                              <accordion-group heading="Manoj Singla">
-                                  <div id="manoj" class="chatbox"></div>
-                                  <input messageenter="manoj" type="text" ng-model="selected">  <br>
-                              </accordion-group>
+                              <!--<accordion-group heading="Manoj Singla">-->
+                                  <!--<div id="manoj" class="chatbox"></div>-->
+                                  <!--<input messageenter="manoj" type="text" ng-model="selected">  <br>-->
+                              <!--</accordion-group>-->
 
-                          </accordion>
-                      </div>
+                          <!--</accordion>-->
+                      <!--</div>-->
 
 
                   </div>

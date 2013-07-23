@@ -250,7 +250,7 @@ def login():
         flask.session['jid'] = flask.request.form['user'] + '@jabber.fbpeople.com'
         flask.session['jidpass'] = flask.request.form['password']
         recipient = flask.request.form['to'] + '@jabber.fbpeople.com'
-        # return render_template('wookmark.html', recipient=recipient)
+        # return render_template('room.html', recipient=recipient)
         return redirect('/wookmark')
     return '<form action="/login" method="post">user: <input name="user"><br>password:<input name="password"><br>chat with:<input name="to"><br><input type="submit" value="Submit"><br>'
 

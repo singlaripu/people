@@ -14,7 +14,7 @@ app.factory('myService', function($http) {
     return myService;
 });
 
-function DispCtrl($scope, myService, $http, $compile, $timeout, $socketio) {
+function DispCtrl($scope, myService, $http, $compile, $timeout, $socketio, $chatboxManager) {
 
     $scope.users = [];
     $scope.page = 0;
@@ -143,12 +143,12 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $socketio) {
         for ( var j = 0; j < array.length; j++) {
             if (
                 array[j].namefilter &&
-                array[j].genderfilter &&
-                array[j].locationfilter &&
-                array[j].hometownfilter &&
-                array[j].workfilter &&
-                array[j].educationfilter &&
-                array[j].likesfilter
+                    array[j].genderfilter &&
+                    array[j].locationfilter &&
+                    array[j].hometownfilter &&
+                    array[j].workfilter &&
+                    array[j].educationfilter &&
+                    array[j].likesfilter
                 ) {
                 temp.push(array[j]);
             }
@@ -332,14 +332,33 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $socketio) {
 
     $socketio.on('my_mess', function(data){
 //        console.log('hey my mess control got it now', sender, jid, data);
+        console.log(data);
 //        console.log("here is your message : ", data);
-//        addmybox (sender, sender);
-//        $("#" + sender).chatbox("option", "boxManager").addMsg(sender, data);
+        $scope.addmybox (data.sender, data.sender);
+        $("#" + data.sender).chatbox("option", "boxManager").addMsg(data.sender,data.message);
 //        console.log(sender, jid)
-        var divid = '#' + data.sender ;
-        $(divid).append('<p>'+data.message+'</p>')  ;
+//        var divid = '#' + data.sender ;
+//        $(divid).append('<p>'+data.message+'</p>')  ;
     });
 
+
+    $scope.counter = 0;
+    $scope.idList = new Array();
+
+    $scope.broadcastMessageCallback = function(id, from, msg) {
+        $("#" + id).chatbox("option", "boxManager").addMsg(from, msg);
+
+    }
+
+    $chatboxManager.init({messageSent : $scope.broadcastMessageCallback});
+
+    $scope.addmybox = function (recipient, name, event, ui) {
+        console.log(recipient, name);
+        $scope.counter ++;
+        var id = recipient;
+        $scope.idList.push(id);
+        $chatboxManager.addBox(id,{dest:"dest" + $scope.counter, title: name,first_name: 'me'});
+    }
 
 }
 
@@ -392,19 +411,19 @@ app.directive('genderclick', function($timeout){
 }) ;
 
 
-app.directive('messageenter', function($socketio){
-    return function(scope, element, attrs) {
-        element.bind('keyup', function(evt) {
-            if (evt.which == 13){
-                var message = evt.target.value;
-                var divid = '#'+attrs.messageenter;
-                $(divid).append('<p>'+message+'</p>');
-                $socketio.emit('user message', {message:message, recipient:attrs.messageenter}) ;
-                evt.target.value = '';
-            }
-        })
-    }
-})
+//app.directive('messageenter', function($socketio){
+//    return function(scope, element, attrs) {
+//        element.bind('keyup', function(evt) {
+//            if (evt.which == 13){
+//                var message = evt.target.value;
+//                var divid = '#'+attrs.messageenter;
+//                $(divid).append('<p>'+message+'</p>');
+//                $socketio.emit('user message', {message:message, recipient:attrs.messageenter}) ;
+//                evt.target.value = '';
+//            }
+//        })
+//    }
+//})
 
 app.factory("$socketio", function($rootScope) {
 //    var WEB_SOCKET_SWF_LOCATION = '/static/js/socketio/WebSocketMain.swf';
@@ -413,6 +432,7 @@ app.factory("$socketio", function($rootScope) {
         on: function(eventName, callback) {
             socket.on(eventName, function() {
                 var args = arguments;
+                console.log("on:", arguments)   ;
                 $rootScope.$apply(function() {
                     callback.apply(socket, args);
                 });
@@ -422,6 +442,7 @@ app.factory("$socketio", function($rootScope) {
         emit: function (eventName, data, callback) {
             socket.emit(eventName, data, function() {
                 var args = arguments;
+                console.log("emit:", data)   ;
                 $rootScope.$apply(function() {
                     if (callback) {
                         callback.apply(socket, data);
@@ -433,24 +454,123 @@ app.factory("$socketio", function($rootScope) {
 }) ;
 
 
+app.factory("$chatboxManager", function($rootScope, $socketio) {
+
+    if(!Array.indexOf){
+        Array.prototype.indexOf = function(obj){
+            for(var i=0; i<this.length; i++){
+                if(this[i]==obj){
+                    return i;
+                }
+            }
+            return -1;
+        }
+    }
+
+
+    // list of all opened boxes
+    var boxList = new Array();
+    // list of boxes shown on the page
+    var showList = new Array();
+    // list of first names, for in-page demo
+    var nameList = new Array();
+
+    var config = {
+        width : 245, //px
+        gap : 20,
+        maxBoxes : 5,
+        messageSent : function(id, dest, msg) {
+            // override this
+            $("#" + dest).chatbox("option", "boxManager").addMsg(dest, msg);
+
+        }
+    };
+
+
+    var init = function(options) {
+        $.extend(config, options)
+    };
+
+
+    var delBox = function(id) {
+        // TODO
+    };
+
+    var getNextOffset = function() {
+        return (config.width + config.gap) * showList.length;
+    };
+
+    var boxClosedCallback = function(id) {
+        // close button in the titlebar is clicked
+        var idx = showList.indexOf(id);
+        if(idx != -1) {
+            showList.splice(idx, 1);
+            diff = config.width + config.gap;
+            for(var i = idx; i < showList.length; i++) {
+                offset = $("#" + showList[i]).chatbox("option", "offset");
+                $("#" + showList[i]).chatbox("option", "offset", offset - diff);
+            }
+        }
+        else {
+            alert("should not happen: " + id);
+        }
+    };
+
+    // caller should guarantee the uniqueness of id
+    var addBox = function(id, user, name) {
+        var idx1 = showList.indexOf(id);
+        var idx2 = boxList.indexOf(id);
+        if(idx1 != -1) {
+            // found one in show box, do nothing
+        }
+        else if(idx2 != -1) {
+            // exists, but hidden
+            // show it and put it back to showList
+            $("#"+id).chatbox("option", "offset", getNextOffset());
+            var manager = $("#"+id).chatbox("option", "boxManager");
+            manager.toggleBox();
+            showList.push(id);
+        }
+        else{
+            var el = document.createElement('div');
+            el.setAttribute('id', id);
+            $(el).chatbox({id : id,
+                user : user,
+                title : user.title,
+                hidden : false,
+                width : config.width,
+                offset : getNextOffset(),
+                messageSent : messageSentCallback,
+                boxClosed : boxClosedCallback
+            });
+            console.log('successfully called chatbox');
+            boxList.push(id);
+            showList.push(id);
+            nameList.push(user.first_name);
+        }
+    };
+
+    var messageSentCallback = function(id, user, msg) {
+        var idx = boxList.indexOf(id);
+        config.messageSent(id, nameList[idx], msg);
+        $socketio.emit('user_message', {message:msg, recipient:id});
+
+    };
+
+    // not used in demo
+    var dispatch = function(id, user, msg) {
+        $("#" + id).chatbox("option", "boxManager").addMsg(user.first_name, msg);
+    }
+
+    return {
+        init : init,
+        addBox : addBox,
+        delBox : delBox,
+        dispatch : dispatch
+    };
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+});
 
 

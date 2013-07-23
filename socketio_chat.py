@@ -68,14 +68,15 @@ class ChatNamespace(BaseNamespace):
 
     def my_message(self, msg):
         print 'hello i recieved something', msg['body']
-        if msg['type'] in ('chat', 'normal'):
-            print msg
+        if True: #msg['type'] in ('chat', 'normal'):
+            #print msg
             #print msg['from'], msg['body']
             try:
                 sender = str(msg['from'])
                 sender_name = sender.split('@')[0]
                 jid = sender.split('/')[0]
             except Exception, e:
+                print 'some exception occured'
                 print e
                 sender = 'Monika'
                 jid = "monika"
@@ -85,6 +86,7 @@ class ChatNamespace(BaseNamespace):
             #print text
             #self.emit('boo')
             self.emit('my_mess', {'sender':sender_name, 'jid':jid, 'message':data})
+            # self.emit('my_mess', sender_name, jid, data)
 
 
     def xmpp_connect(self):
