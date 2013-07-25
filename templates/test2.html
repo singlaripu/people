@@ -15,7 +15,8 @@
         console.log(peer1);
 
         peer1.on('error', function(e) {
-            alert(e);
+//            alert(e.type);
+            $('#msgs').append('<p>'+ e.type+'</p>');
         })
 
 
@@ -25,12 +26,14 @@
 
             connection.on('data', function(data) {
                 console.log(connection.peer, 'says: ', data)
+                $('#msgs').append('<p>'+data+'</p>');
             })
         })
 
         peer2.on('connection', function(connection) {
             connection.on('data', function(data) {
                 console.log(connection.peer, 'says: ', data)
+                $('#msgs').append('<p>'+data+'</p>');
             })
         })
 
@@ -60,6 +63,7 @@
 <body>
         <a href="#" onclick="sendMsg1()"> send my message1 </a>  <br>
         <a href="#" onclick="sendMsg2()"> send my message2 </a>
+        <div id="msgs"></div>
 
 
 

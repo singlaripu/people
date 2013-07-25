@@ -25,6 +25,7 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager)
     $scope.scrollflag = true;
     $scope.isCollapsed = false;
     $scope.chatCollapsed = false;
+    $scope.browser_incompatible = false;
 
     $(document).bind('scroll', onScroll);
 
@@ -42,7 +43,9 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager)
 //
 //
         peer.on('error', function(e) {
-            console.log(e);
+            if (e.type=='browser-incompatible') {
+                $scope.browser_incompatible = true;
+            }
         })
 
 //        console.log(peer._events)
