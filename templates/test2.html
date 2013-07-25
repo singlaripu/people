@@ -1,0 +1,72 @@
+<html>
+
+<head>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
+    <script src="http://cdn.peerjs.com/0/peer.min.js"></script>
+    <script>
+
+
+        var peerid1 = '1135280965';
+        var peerid2 = '1135416207';
+
+        var peer1 = new Peer(peerid1, {host: 'ec2-54-218-10-57.us-west-2.compute.amazonaws.com', port: 9000});
+        var peer2 = new Peer(peerid2, {host: 'ec2-54-218-10-57.us-west-2.compute.amazonaws.com', port: 9000});
+
+        console.log(peer1);
+
+        peer1.on('error', function() {
+            console.log('error');
+        })
+
+
+        peer1.on('connection', function(connection) {
+
+//            console.log(connection);
+
+            connection.on('data', function(data) {
+                console.log(connection.peer, 'says: ', data)
+            })
+        })
+
+        peer2.on('connection', function(connection) {
+            connection.on('data', function(data) {
+                console.log(connection.peer, 'says: ', data)
+            })
+        })
+
+
+
+//        var c1 = peer1.connect(peerid2);
+//        var c2 = peer2.connect(peerid1);
+
+        function sendMsg1() {
+            var c = peer1.connect(peerid2);
+            c.on('open', function(id) {
+                c.send('hello');
+            }) ;
+        }
+
+        function sendMsg2() {
+            var c = peer2.connect(peerid1);
+            c.on('open', function() {
+                c.send('world');
+            }) ;
+        }
+
+    </script>
+
+</head>
+
+<body>
+        <a href="#" onclick="sendMsg1()"> send my message1 </a>  <br>
+        <a href="#" onclick="sendMsg2()"> send my message2 </a>
+
+
+
+</body>
+
+</html>
+
+
+
+

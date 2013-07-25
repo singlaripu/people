@@ -250,9 +250,20 @@ def login():
         flask.session['jid'] = flask.request.form['user'] + '@jabber.fbpeople.com'
         flask.session['jidpass'] = flask.request.form['password']
         recipient = flask.request.form['to'] + '@jabber.fbpeople.com'
+        session["user"] = dict(
+                name=flask.request.form['user'],
+                fb_uid=flask.request.form['password'],
+                # id=user.id,
+                # access_token=cookie["access_token"]
+            )
         # return render_template('room.html', recipient=recipient)
         return redirect('/wookmark')
-    return '<form action="/login" method="post">user: <input name="user"><br>password:<input name="password"><br>chat with:<input name="to"><br><input type="submit" value="Submit"><br>'
+
+    users = UserComplete.query.all()
+    users = users[:20]
+
+
+    return render_template('dummy_login.html', users=users)
 
 
 
@@ -261,8 +272,16 @@ def getlist():
     if flask.request.method == 'GET':# and session.get('user'):
         users = UserComplete.query.all()
         json_results = to_json(users)
+        my_user = current_user()
+        json_results['fb_uid'] = my_user['fb_uid']
         return jsonify(**json_results)
     return jsonify([])
+
+
+@app.route('/test', methods=['GET'])
+def peerstest():
+    return render_template('test2.html')
+       
 
 
 

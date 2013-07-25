@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+</head>
+<body>
+    <form action="/login" method="post">
+        user: <input name="user"><br>
+        password:<input name="password"><br>
+        chat with:<input name="to"><br>
+        <input type="submit" value="Submit"><br>
+
+        {% for user in users %}
+            <p>{{user.name}} : {{user.fb_uid}}</p>
+        {% endfor %}
+
+    </form>
+</body>
+</html>

@@ -14,7 +14,7 @@ app.factory('myService', function($http) {
     return myService;
 });
 
-function DispCtrl($scope, myService, $http, $compile, $timeout, $socketio, $chatboxManager) {
+function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager) {
 
     $scope.users = [];
     $scope.page = 0;
@@ -28,7 +28,26 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $socketio, $chat
 
     $(document).bind('scroll', onScroll);
 
+
+
     myService.async().then(function(d) {
+
+        var peer = new Peer(d.fb_uid, {host: 'ec2-54-218-10-57.us-west-2.compute.amazonaws.com', port: 9000});
+        console.log(peer);
+
+//        peer.on('open', function(id, opts) {
+//            console.log(id);
+//            console.log(opts.browser);
+//        })
+//
+//
+        peer.on('error', function(e) {
+            console.log(e);
+        })
+
+//        console.log(peer._events)
+
+
         $scope.users = d.data;
 
         for(var j=0; j<$scope.users.length; j++){
@@ -330,16 +349,16 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $socketio, $chat
         online: false
     };
 
-    $socketio.on('my_mess', function(data){
-//        console.log('hey my mess control got it now', sender, jid, data);
-        console.log(data);
-//        console.log("here is your message : ", data);
-        $scope.addmybox (data.sender, data.sender);
-        $("#" + data.sender).chatbox("option", "boxManager").addMsg(data.sender,data.message);
-//        console.log(sender, jid)
-//        var divid = '#' + data.sender ;
-//        $(divid).append('<p>'+data.message+'</p>')  ;
-    });
+//    $socketio.on('my_mess', function(data){
+////        console.log('hey my mess control got it now', sender, jid, data);
+//        console.log(data);
+////        console.log("here is your message : ", data);
+//        $scope.addmybox (data.sender, data.sender);
+//        $("#" + data.sender).chatbox("option", "boxManager").addMsg(data.sender,data.message);
+////        console.log(sender, jid)
+////        var divid = '#' + data.sender ;
+////        $(divid).append('<p>'+data.message+'</p>')  ;
+//    });
 
 
     $scope.counter = 0;
@@ -425,36 +444,36 @@ app.directive('genderclick', function($timeout){
 //    }
 //})
 
-app.factory("$socketio", function($rootScope) {
-//    var WEB_SOCKET_SWF_LOCATION = '/static/js/socketio/WebSocketMain.swf';
-    var socket = io.connect('/chat') ;
-    return {
-        on: function(eventName, callback) {
-            socket.on(eventName, function() {
-                var args = arguments;
-                console.log("on:", arguments)   ;
-                $rootScope.$apply(function() {
-                    callback.apply(socket, args);
-                });
-            });
-        },
+//app.factory("$socketio", function($rootScope) {
+////    var WEB_SOCKET_SWF_LOCATION = '/static/js/socketio/WebSocketMain.swf';
+//    var socket = io.connect('/chat') ;
+//    return {
+//        on: function(eventName, callback) {
+//            socket.on(eventName, function() {
+//                var args = arguments;
+//                console.log("on:", arguments)   ;
+//                $rootScope.$apply(function() {
+//                    callback.apply(socket, args);
+//                });
+//            });
+//        },
+//
+//        emit: function (eventName, data, callback) {
+//            socket.emit(eventName, data, function() {
+//                var args = arguments;
+//                console.log("emit:", data)   ;
+//                $rootScope.$apply(function() {
+//                    if (callback) {
+//                        callback.apply(socket, data);
+//                    }
+//                });
+//            })
+//        }
+//    } ;
+//}) ;
 
-        emit: function (eventName, data, callback) {
-            socket.emit(eventName, data, function() {
-                var args = arguments;
-                console.log("emit:", data)   ;
-                $rootScope.$apply(function() {
-                    if (callback) {
-                        callback.apply(socket, data);
-                    }
-                });
-            })
-        }
-    } ;
-}) ;
 
-
-app.factory("$chatboxManager", function($rootScope, $socketio) {
+app.factory("$chatboxManager", function($rootScope) {
 
     if(!Array.indexOf){
         Array.prototype.indexOf = function(obj){
@@ -553,7 +572,7 @@ app.factory("$chatboxManager", function($rootScope, $socketio) {
     var messageSentCallback = function(id, user, msg) {
         var idx = boxList.indexOf(id);
         config.messageSent(id, nameList[idx], msg);
-        $socketio.emit('user_message', {message:msg, recipient:id});
+//        $socketio.emit('user_message', {message:msg, recipient:id});
 
     };
 
