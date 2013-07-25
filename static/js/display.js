@@ -51,6 +51,8 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager,
                 $scope.browser_incompatible = true;
             }
 
+            console.log('error in connecting to peer, trying jabber');
+
             $scope.chat_method = "bosh";
             $xmpp_plugin.connect($scope.jabber_url, $scope.fb_uid, $scope.fb_uid);
 
@@ -59,7 +61,7 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager,
         $scope.peer.on('connection', function(connection) {
 
             connection.on('data', function(data) {
-                $scope.addmybox (connection.peer, connection.peer);
+//                $scope.addmybox (connection.peer, connection.peer);
                 $("#" + connection.peer).chatbox("option", "boxManager").addMsg(connection.peer,data);
 //            $('#msgs').append('<p>'+data+'</p>');
             })
