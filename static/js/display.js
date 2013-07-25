@@ -14,7 +14,7 @@ app.factory('myService', function($http) {
     return myService;
 });
 
-function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager) {
+function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager, $xmpp_plugin) {
 
     $scope.users = [];
     $scope.page = 0;
@@ -26,6 +26,9 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager)
     $scope.isCollapsed = false;
     $scope.chatCollapsed = false;
     $scope.browser_incompatible = false;
+    $scope.chat_method = "p2p";
+    $scope.jabber_url = "http://ec2-54-218-10-57.us-west-2.compute.amazonaws.com:5280/http-bind";
+    $scope.fb_uid = '';
 
     $(document).bind('scroll', onScroll);
 
@@ -33,8 +36,9 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager)
 
     myService.async().then(function(d) {
 
-        var peer = new Peer(d.fb_uid, {host: 'ec2-54-218-10-57.us-west-2.compute.amazonaws.com', port: 9000});
-        console.log(peer);
+        $scope.fb_uid = d.fb_uid;
+        $scope.peer = new Peer(d.fb_uid, {host: 'ec2-54-218-10-57.us-west-2.compute.amazonaws.com', port: 9000});
+        console.log($scope.peer);
 
 //        peer.on('open', function(id, opts) {
 //            console.log(id);
@@ -42,13 +46,33 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager)
 //        })
 //
 //
-        peer.on('error', function(e) {
+        $scope.peer.on('error', function(e) {
             if (e.type=='browser-incompatible') {
                 $scope.browser_incompatible = true;
             }
+
+            $scope.chat_method = "bosh";
+            $xmpp_plugin.connect($scope.jabber_url, $scope.fb_uid, $scope.fb_uid);
+
         })
 
-//        console.log(peer._events)
+        $scope.peer.on('connection', function(connection) {
+
+            connection.on('data', function(data) {
+                $scope.addmybox (connection.peer, connection.peer);
+                $("#" + connection.peer).chatbox("option", "boxManager").addMsg(connection.peer,data);
+//            $('#msgs').append('<p>'+data+'</p>');
+            })
+        })
+
+        $scope.peer_send_msg = function(peerid, msg) {
+            var c = $scope.peer.connect(peerid);
+            c.on('open', function(id) {
+                c.send(msg);
+            }) ;
+        }
+
+        console.log($scope.fb_uid)
 
 
         $scope.users = d.data;
@@ -364,11 +388,14 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager)
 //    });
 
 
+
     $scope.counter = 0;
     $scope.idList = new Array();
 
     $scope.broadcastMessageCallback = function(id, from, msg) {
+        console.log('you saw me');
         $("#" + id).chatbox("option", "boxManager").addMsg(from, msg);
+        $scope.peer_send_msg(id, msg);
 
     }
 
@@ -476,6 +503,46 @@ app.directive('genderclick', function($timeout){
 //}) ;
 
 
+app.factory("$xmpp_plugin", function($rootScope) {
+
+    return {
+        connect: function(url, jid, password) {
+            $.xmpp.connect({url:url, jid: jid, password: password,
+
+
+
+                onMessage: function(message){
+                   console.log('i recieved a message , this is jabber');
+
+
+                }
+
+            });
+        }
+    } ;
+}) ;
+
+
+//app.factory("$peer", function($rootScope) {
+//
+//    return {
+//        connect: function(id) {
+//            $.xmpp.connect({url:url, jid: jid, password: password,
+//
+//
+//
+//                onMessage: function(message){
+//                    console.log('i recieved a message , this is jabber');
+//
+//
+//                }
+//
+//            });
+//        }
+//    } ;
+//}) ;
+
+
 app.factory("$chatboxManager", function($rootScope) {
 
     if(!Array.indexOf){
@@ -575,7 +642,7 @@ app.factory("$chatboxManager", function($rootScope) {
     var messageSentCallback = function(id, user, msg) {
         var idx = boxList.indexOf(id);
         config.messageSent(id, nameList[idx], msg);
-//        $socketio.emit('user_message', {message:msg, recipient:id});
+//        console.log(scope.peer);
 
     };
 
