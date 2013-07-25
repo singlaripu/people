@@ -14,8 +14,8 @@
 
         console.log(peer1);
 
-        peer1.on('error', function() {
-            console.log('error');
+        peer1.on('error', function(e) {
+            alert(e);
         })
 
 
