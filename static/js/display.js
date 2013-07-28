@@ -328,6 +328,7 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager)
 //                msg = item[1];
                     $scope.protocol_dict[id] = 'jabber';
 //                delete $scope.peer_delivery_dict[t];
+                    $scope.sort_messages_flag = 'free';
                     $scope.sort_message_protocol(id, msg);
                 }
             }
