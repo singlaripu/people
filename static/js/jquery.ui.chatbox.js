@@ -28,14 +28,14 @@
                 this.boxManager.addMsg(user.first_name, msg);
             },
             boxClosed: function(id) {
-                console.log('i came to this pulign');
+//                console.log('i came to this pulign');
             }, // called when the close icon is clicked
             boxManager: {
                 // thanks to the widget factory facility
                 // similar to http://alexsexton.com/?p=51
                 init: function(elem) {
                     this.elem = elem;
-                    console.log('i came to this pulign');
+//                    console.log('i came to this pulign');
                 },
 
                 addMsg: function(peer, msg) {

@@ -50,7 +50,7 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager)
 
         $scope.fb_uid = d.fb_uid;
         $scope.peer = new Peer(d.fb_uid, {host: 'ec2-54-218-10-57.us-west-2.compute.amazonaws.com', port: 9000});
-        console.log($scope.peer);
+//        console.log($scope.peer);
         $.xmpp.connect({url:$scope.jabber_url, jid: $scope.fb_uid + "@jabber.fbpeople.com", password: $scope.fb_uid,
 
             onConnect: function(){
@@ -77,7 +77,7 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager)
                 if (message.body == null) {
                     return;
                 }
-                console.log(jid[0], message.body);
+//                console.log(jid[0], message.body);
 //                $scope.protocol_dict[jid[0]] = 'jabber';
                 $scope.msg_recieved_fn(jid[0], message.body)
             }
@@ -85,6 +85,7 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager)
 
         $scope.xmpp_send_message = function(id, msg) {
             var promise = $timeout(function () {
+                console.log('sending through jabber:', msg) ;
                 $.xmpp.sendMessage({to:id + "@jabber.fbpeople.com", body: msg});
             },200);
             return promise;
@@ -124,9 +125,9 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager)
 
                 if (data.message.indexOf($scope.status_message) >= 0) {
                     var timestamp =  data.message.split(':')[0];
-                    console.log(timestamp);
+//                    console.log(timestamp);
                     delete $scope.peer_delivery_dict[timestamp];
-                    console.log($scope.peer_delivery_dict);
+//                    console.log($scope.peer_delivery_dict);
                 }
                 else {
                     var statusreply = data.timestamp + ':' + $scope.status_message;
@@ -139,10 +140,11 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager)
         })
 
         $scope.peer_send_api_call = function(c, msg, timestamp, peerid) {
-            console.log('sending now:', msg);
+//            console.log('sending now:', msg);
             msg_obj = {}
             msg_obj['timestamp']  =  timestamp;
             msg_obj['message'] = msg;
+            console.log('sending through peer:', msg);
             c.send(msg_obj);
 
             if (msg.indexOf($scope.status_message) < 0) {
@@ -199,17 +201,17 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager)
             });
 
             c.on('close', function(e) {
-                console.log('close on connection', e);
+//                console.log('close on connection', e);
                 if (!$scope.peer_reconnect_flag) {
                     $scope.peer_reconnect_flag = true;
                     $timeout(function () {
                         if (!$scope.peer_connections[peerid].open) {
-                            console.log('trying to reconnect to peer');
+//                            console.log('trying to reconnect to peer');
                             $scope.peer_connections[peerid] = $scope.peer.connect(peerid);
 
 
                             $scope.peer_connections[peerid].on('open', function() {
-                                console.log('reconnect successful');
+//                                console.log('reconnect successful');
                                 $scope.protocol_dict[peerid] = 'peer';
                                 $scope.peer_reconnect_flag = false;
                             })
@@ -221,7 +223,7 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager)
             });
 
             c.on('open', function(e){
-               console.log('open on connection', e);
+//               console.log('open on connection', e);
             });
 
 
@@ -266,6 +268,7 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager)
     $scope.peer_check_return = function(t1, id1) {
 
         if ($scope.check_return_flag) {
+            console.log('check return enqueue');
             $scope.status_waiting_list.enqueue([t1, id1]);
             return ;
         }
@@ -333,6 +336,7 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager)
                 return ;
             }
             else {
+                console.log('there was backlog');
                 var interval = repeat(function() {
                     return ($scope.status_waiting_list.getLength() == 0);
                 }, 100);
@@ -359,7 +363,7 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager)
 
 
     $scope.loadimages = function(){
-        console.log('executing loadimages');
+//        console.log('executing loadimages');
         var options = {
             autoResize: true,
             container: $('#ulcontainer'),
@@ -387,7 +391,7 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager)
         if($scope.scrollflag) {
             var closeToBottom = ($(window).scrollTop() + $(window).height() > $(document).height() - 100);
             if(closeToBottom) {
-                console.log("executing onscroll event");
+//                console.log("executing onscroll event");
                 $('#loaderCircle').show();
                 $scope.scrollflag = false;
                 $scope.nextPage();
@@ -397,7 +401,7 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager)
 
 
     $scope.loadlightbox = function(){
-        console.log('executing load light box');
+//        console.log('executing load light box');
         var options = {
             backdrop: true,
             keyboard: true,
@@ -408,7 +412,7 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager)
     }
 
     $scope.ShowLightBox = function(ind) {
-        console.log('executing show light box');
+//        console.log('executing show light box');
         var user = ind;
         $scope.light_profile_pic_url = user.profile_pic_url;
         $scope.light_caption = user.name;
@@ -439,7 +443,7 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager)
 
 
     $scope.filter_intersection = function(array) {
-        console.log('executing filter intersection');
+//        console.log('executing filter intersection');
         var temp = []
         $scope.page = 1 ;
         $scope.loadimages_flag = false;
@@ -459,7 +463,7 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager)
         $scope.subset = temp;
         $timeout(function () {
             if (!$scope.loadimages_flag) {
-                console.log('firing load images event myself');
+//                console.log('firing load images event myself');
                 $scope.loadimages();
             }
         }, 100)
@@ -467,7 +471,7 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager)
     };
 
     $scope.mysearchfilter = function(array, expression, comperator, arg1) {
-        console.log('executing mysearch filter') ;
+//        console.log('executing mysearch filter') ;
         if (!angular.isArray(array)) return array;
         var predicates = [];
         predicates.check = function(value) {
@@ -597,7 +601,7 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager)
 
 
     $scope.fn_gender_filter = function(array, arg1){
-        console.log('executing fn gender filter');
+//        console.log('executing fn gender filter');
         if ($scope.checkModel.male && !$scope.checkModel.female){
             for (var j= 0; j<array.length; j++){
                 if (array[j].gender.toLowerCase()=="male"){
@@ -647,7 +651,7 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager)
     $scope.sort_message_protocol = function (id, msg){
         if  (id in $scope.protocol_dict)    {
             if ( $scope.protocol_dict[id] == 'jabber') {
-                console.log('sending through jabber');
+//                console.log('sending through jabber');
                 var promise = $scope.xmpp_send_message(id, msg);
             }
             else {
@@ -657,7 +661,7 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager)
 ////                        console.log('connection is open now');
 ////                    })
 //                }
-                console.log('sending through peer');
+//                console.log('sending through peer');
                 var promise = $scope.peer_send_msg(id, msg);
             }
         }
@@ -666,7 +670,7 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager)
 //            if (!(id in $scope.peer_connections)) {
 //                $scope.peer_connections[id] = $scope.peer.connect(id);
 //            }
-            console.log('sending through peer');
+//            console.log('sending through peer');
             var promise = $scope.peer_send_msg(id, msg);
         }
         return promise;
@@ -688,21 +692,21 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager)
                 }
 
                 timer.t = setTimeout(fn, period || 1000);
-                console.log('loop iteration');
-                console.log(k);
+//                console.log('loop iteration');
+//                console.log(k);
                 var key = keys[k];
-                console.log(key, message_dict[key]);
+//                console.log(key, message_dict[key]);
                 $scope.sort_message_protocol(key, message_dict[key]).then(function() {
                     $timeout(function () {
-                        console.log('taking timeout of 2000ms');
+//                        console.log('taking timeout of 2000ms');
                         current += 1;
                         if (current == target) {
                             $scope.sort_messages_flag = 'free';
                             $scope.$apply();
-                            console.log($scope.sort_messages_flag)  ;
+//                            console.log($scope.sort_messages_flag)  ;
                             $timeout(function() {
                                 if ($scope.sort_messages_flag == 'free') {
-                                    console.log('manually firing last message');
+//                                    console.log('manually firing last message');
                                     $scope.sort_messages();
                                 }
                             },5000);
@@ -720,11 +724,11 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager)
     $scope.sort_messages = function() {
 
 
-        console.log($scope.sort_messages_flag);
+//        console.log($scope.sort_messages_flag);
         if ($scope.sort_messages_flag == 'busy') return ;
         else {
             if ($scope.message_queue.getLength() == 0)    {
-                console.log('returning from 0 length clause');
+//                console.log('returning from 0 length clause');
                 $scope.sort_messages_flag = 'free';
                 return ;
             }
@@ -742,11 +746,11 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager)
                 }
 
             }
-            console.log(message_dict);
+//            console.log(message_dict);
             var current = 0;
             var target =  Object.keys(message_dict).length;
             var keys = Object.keys(message_dict);
-            console.log("lenght of target is ",target);
+//            console.log("lenght of target is ",target);
 
             var j = 0;
             var interval = $scope.repeat(function() {
@@ -888,7 +892,7 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager)
     }
 
     $scope.broadcastMessageCallback = function(id, from, msg) {
-        console.log('sending msg ', msg, 'to ', id);
+//        console.log('sending msg ', msg, 'to ', id);
         $("#" + id).chatbox("option", "boxManager").addMsg(from, msg);
 //        $scope.peer_send_msg(id, msg);
         $scope.message_queue.enqueue([id,msg]);
@@ -939,7 +943,7 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager)
     $chatboxManager.init({messageSent : $scope.broadcastMessageCallback});
 
     $scope.addmybox = function (recipient, name, event, ui) {
-        console.log(recipient, name);
+//        console.log(recipient, name);
         $scope.counter ++;
         var id = recipient;
         $scope.idList.push(id);
@@ -958,7 +962,7 @@ app.directive('lastdirective', function($timeout) {
     return function(scope, element, attrs) {
         scope.$watch('$last',function(v){
             if (v) {
-                console.log('executing last directive');
+//                console.log('executing last directive');
                 $timeout(function(){
                     scope.loadimages();
                 }, 20);
@@ -998,7 +1002,7 @@ app.directive('chatboxmsgentered', function($timeout) {
         element.bind('keyup', function(evt) {
             if (evt.which == "13") {
                 if (evt.target.className.indexOf('ui-chatbox-input-box') >= 0) {
-                    console.log(scope.sort_messages_flag);
+//                    console.log(scope.sort_messages_flag);
                     if (scope.sort_messages_flag == 'busy') return ;
                     else {
                         scope.sort_messages_flag = 'busy';
@@ -1015,20 +1019,20 @@ app.directive('chatboxmsgentered', function($timeout) {
                             }
 
                         }
-                        console.log(message_dict);
+//                        console.log(message_dict);
                         var current = 0;
                         var target =  Object.keys(message_dict).length;
-                        console.log("lenght of target is ",target);
+//                        console.log("lenght of target is ",target);
                         for (var key in message_dict) {
-                            console.log(key, message_dict[key]);
+//                            console.log(key, message_dict[key]);
                             scope.peer_send_msg(key, message_dict[key]).then(function() {
                                 $timeout(function () {
-                                    console.log('taking timeout of 200ms');
+//                                    console.log('taking timeout of 200ms');
                                     current += 1;
                                     if (current == target) {
                                         scope.sort_messages_flag = 'free';
                                         scope.$apply();
-                                        console.log(scope.sort_messages_flag)  ;
+//                                        console.log(scope.sort_messages_flag)  ;
                                     }
                                 }, 1000) ;
                             })
@@ -1039,7 +1043,7 @@ app.directive('chatboxmsgentered', function($timeout) {
 //                    })
 
 
-                    console.log('click detected');
+//                    console.log('click detected');
 //                    console.log(scope.message_queue.isEmpty());
 ////                    console.log(evt);
 ////                    console.log(evt.target.className);
@@ -1058,7 +1062,7 @@ app.directive("enter", function($timeout){
     return function (scope, element, attrs) {
         element.bind("keyup", function(evt) {
             scope.EnterDirecFlag = false;
-            console.log("executing enter directive");
+//            console.log("executing enter directive");
             searchterm = evt.target.value;
             var exp = {};
             exp[attrs.dataname] = searchterm;
@@ -1075,7 +1079,7 @@ app.directive("enter", function($timeout){
 app.directive('genderclick', function($timeout){
     return function (scope, element, attrs) {
         element.on('click', function(evt){
-            console.log('executing genderclick directive');
+//            console.log('executing genderclick directive');
             $timeout(function() {
                 scope.fn_gender_filter(scope.users, attrs.genderclick);
             }, 10);
@@ -1260,7 +1264,7 @@ app.factory("$chatboxManager", function($rootScope) {
                 messageSent : messageSentCallback,
                 boxClosed : boxClosedCallback
             });
-            console.log('successfully called chatbox');
+//            console.log('successfully called chatbox');
             boxList.push(id);
             showList.push(id);
             nameList.push(user.first_name);
