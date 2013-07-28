@@ -36,6 +36,9 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager)
 //    $scope.message_queue_temp = new Queue();
     $scope.sort_messages_flag = "free";
     $scope.status_message = 'Status6387';
+    $scope.peer_reconnect_flag = false;
+    $scope.check_return_flag = false;
+    $scope.status_waiting_list = new Queue();
 //    $scope.msg_send_promise = undefined;
 //    $scope.msg_array = [];
 
@@ -135,12 +138,21 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager)
             })
         })
 
-        $scope.peer_send_api_call = function(c, msg, timestamp) {
+        $scope.peer_send_api_call = function(c, msg, timestamp, peerid) {
             console.log('sending now:', msg);
             msg_obj = {}
             msg_obj['timestamp']  =  timestamp;
             msg_obj['message'] = msg;
             c.send(msg_obj);
+
+            if (msg.indexOf($scope.status_message) < 0) {
+                $scope.peer_delivery_dict[timestamp] = [peerid, msg];
+                console.log($scope.peer_delivery_dict);
+
+                $timeout(function () {
+                    $scope.peer_check_return(timestamp, peerid);
+                }, 5000);
+            }
         }
 
         $scope.peer_send_msg = function(peerid, msg) {
@@ -153,14 +165,7 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager)
 //            console.log(c);
             var timestamp = new Date().getTime();
 
-            if (msg.indexOf($scope.status_message) < 0) {
-                $scope.peer_delivery_dict[timestamp] = [peerid, msg];
-                console.log($scope.peer_delivery_dict);
 
-                $timeout(function () {
-                    $scope.peer_check_return(timestamp);
-                }, 5000);
-            }
 
 //            console.log(new Date().getTime());
             if (!c.open) {
@@ -170,7 +175,7 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager)
                     c.on('open', function() {
 //                        console.log('sending now:', msg);
 //                        c.send(msg);
-                        $scope.peer_send_api_call(c, msg, timestamp);
+                        $scope.peer_send_api_call(c, msg, timestamp, peerid);
                     }) ;
                 },200);
             }
@@ -181,7 +186,7 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager)
 //                    c.on('open', function() {
 //                    console.log('sending now:', msg);
 //                    c.send(msg);
-                    $scope.peer_send_api_call(c, msg, timestamp);
+                    $scope.peer_send_api_call(c, msg, timestamp, peerid);
 
 //                    }) ;
                 },200);
@@ -193,15 +198,23 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager)
 
             c.on('close', function(e) {
                 console.log('close on connection', e);
+                if (!$scope.peer_reconnect_flag) {
+                    $scope.peer_reconnect_flag = true;
+                    $timeout(function () {
+                        if (!$scope.peer_connections[peerid].open) {
+                            console.log('trying to reconnect to peer');
+                            $scope.peer_connections[peerid] = $scope.peer.connect(peerid);
+                            $scope.protocol_dict[peerid] = 'peer';
 
-                $timeout(function () {
-                    if (!c.open) {
-                        console.log('trying to reconnect to peer');
-                        $scope.peer_connections[peerid] = $scope.peer.connect(peerid);
-                        $scope.protocol_dict[peerid] = 'peer';
-                    };
+                            $scope.peer_connections[peerid].on('open', function() {
+                                console.log('reconnect successful');
+                                $scope.peer_reconnect_flag = false;
+                            })
+                        };
 
-                }, 20000);
+                    }, 20000);
+                }
+
             });
 
             c.on('open', function(e){
@@ -247,17 +260,83 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager)
 //       }
 //    });
 
-    $scope.peer_check_return = function(t) {
-        if (t in $scope.peer_delivery_dict) {
-            console.log('status message was not returned, trying jabber');
+    $scope.peer_check_return = function(t1, id1) {
 
-            item = $scope.peer_delivery_dict[t];
-            id = item[0];
-            msg = item[1];
-            $scope.protocol_dict[id] = 'jabber';
-            delete $scope.peer_delivery_dict[t];
-            $scope.sort_message_protocol(id, msg);
+        if ($scope.check_return_flag) {
+            $scope.status_waiting_list.enqueue([t1, id1]);
+            return ;
         }
+
+        if (!$scope.check_return_flag)  {
+            $scope.check_return_flag = true;
+
+            var repeat = (function () {
+                return function repeat(cbWhileNotTrue, period) {
+                    /// <summary>Continuously repeats callback after a period has passed, until the callback triggers a stop by returning true.  Note each repetition only fires after the callback has completed.  Identifier returned is an object, prematurely stop like `timer = repeat(...); clearTimeout(timer.t);`</summary>
+//                console.log('loop iteration');
+                    var timer = {};
+                    var fn = function () {
+                        if (true === cbWhileNotTrue()) {
+                            return clearTimeout(timer.t); // no more repeat
+                        }
+                        timer.t = setTimeout(fn, period || 1000);
+                        var item = $scope.status_waiting_list.dequeue();
+                        var timestamp = item[0];
+                        var peerid = item[1];
+                        fn1(timestamp, peerid);
+                        if ($scope.status_waiting_list.getLength() == 0) {
+                            $scope.check_return_flag = false;
+                            return ;
+                        }
+                    };
+                    fn(); // engage
+                    return timer; // and expose stopper object
+                };
+            })();
+
+            var fn1 = function (t, id) {
+                if (t in $scope.peer_delivery_dict) {
+                    console.log('status message was not returned, trying jabber');
+
+                    var msg = '';
+                    for (key in $scope.peer_delivery_dict) {
+                        console.log(key);
+                        if ($scope.peer_delivery_dict[key][0] == id) {
+                            if (!(msg == '')){
+                                msg +=  ',' + $scope.peer_delivery_dict[key][1];
+                            }
+                            else {
+                                msg = $scope.peer_delivery_dict[key][1];
+                            }
+
+                            delete $scope.peer_delivery_dict[key];
+                        }
+                    }
+                    console.log('AGGREGATED MESSAGE:', msg);
+
+//                item = $scope.peer_delivery_dict[t];
+//                id = item[0];
+//                msg = item[1];
+                    $scope.protocol_dict[id] = 'jabber';
+//                delete $scope.peer_delivery_dict[t];
+                    $scope.sort_message_protocol(id, msg);
+                }
+            }
+
+            fn1(t1, id1);
+
+            if ($scope.status_waiting_list.getLength() == 0) {
+                $scope.check_return_flag = false;
+                return ;
+            }
+            else {
+                var interval = repeat(function() {
+                    return ($scope.status_waiting_list.getLength() == 0);
+                }, 100);
+            }
+
+        }
+
     }
 
     $scope.newhtml = function(){
@@ -580,7 +659,7 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager)
             }
         }
         else {
-            $scope.protocol_dict[id] == 'peer'
+            $scope.protocol_dict[id] == 'peer';
 //            if (!(id in $scope.peer_connections)) {
 //                $scope.peer_connections[id] = $scope.peer.connect(id);
 //            }
