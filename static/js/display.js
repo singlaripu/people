@@ -85,7 +85,7 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager)
 
         $scope.xmpp_send_message = function(id, msg) {
             var promise = $timeout(function () {
-                console.log('sending through jabber:', msg) ;
+                console.log('xmpp send message sending through jabber:', msg) ;
                 $.xmpp.sendMessage({to:id + "@jabber.fbpeople.com", body: msg});
             },200);
             return promise;
@@ -653,9 +653,10 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager)
 //    });
 
     $scope.sort_message_protocol = function (id, msg){
+        console.log('sort_message protocol:', msg);
         if  (id in $scope.protocol_dict)    {
             if ( $scope.protocol_dict[id] == 'jabber') {
-//                console.log('sending through jabber');
+                console.log('sort message protocol : sending through jabber');
                 var promise = $scope.xmpp_send_message(id, msg);
             }
             else {
@@ -665,7 +666,7 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager)
 ////                        console.log('connection is open now');
 ////                    })
 //                }
-//                console.log('sending through peer');
+                console.log('sort message protocol: sending through peer');
                 var promise = $scope.peer_send_msg(id, msg);
             }
         }
@@ -674,7 +675,7 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager)
 //            if (!(id in $scope.peer_connections)) {
 //                $scope.peer_connections[id] = $scope.peer.connect(id);
 //            }
-//            console.log('sending through peer');
+            console.log('sort message protocol : sending through peer');
             var promise = $scope.peer_send_msg(id, msg);
         }
         return promise;
@@ -702,9 +703,10 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager)
 //                console.log(key, message_dict[key]);
                 $scope.sort_message_protocol(key, message_dict[key]).then(function() {
                     $timeout(function () {
-//                        console.log('taking timeout of 2000ms');
+                        console.log('repeat function then clause');
                         current += 1;
                         if (current == target) {
+                            console.log('repeat function current equal target clause')
                             $scope.sort_messages_flag = 'free';
                             $scope.$apply();
 //                            console.log($scope.sort_messages_flag)  ;
@@ -750,7 +752,7 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager)
                 }
 
             }
-//            console.log(message_dict);
+            console.log('sort_message_dict:', message_dict);
             var current = 0;
             var target =  Object.keys(message_dict).length;
             var keys = Object.keys(message_dict);
@@ -899,6 +901,7 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager)
 //        console.log('sending msg ', msg, 'to ', id);
         $("#" + id).chatbox("option", "boxManager").addMsg(from, msg);
 //        $scope.peer_send_msg(id, msg);
+        console.log('broadcast message:', msg);
         $scope.message_queue.enqueue([id,msg]);
         $scope.sort_messages();
 //        $scope.msg_array.push([id, msg]);
