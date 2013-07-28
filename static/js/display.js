@@ -730,17 +730,19 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager)
     $scope.sort_messages = function() {
 
 
-//        console.log($scope.sort_messages_flag);
+        console.log($scope.sort_messages_flag);
         if ($scope.sort_messages_flag == 'busy') return ;
         else {
             if ($scope.message_queue.getLength() == 0)    {
-//                console.log('returning from 0 length clause');
+                console.log('returning from 0 length clause');
                 $scope.sort_messages_flag = 'free';
                 return ;
             }
             $scope.sort_messages_flag = 'busy';
             var message_dict = {};
+            console.log('before while loop');
             while ($scope.message_queue.getLength() != 0) {
+                console.log('in while loop');
                 item = $scope.message_queue.dequeue();
                 id = item[0];
                 msg = item[1];
@@ -899,6 +901,7 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager)
 
     $scope.broadcastMessageCallback = function(id, from, msg) {
 //        console.log('sending msg ', msg, 'to ', id);
+        console.log(JSON.stringify(msg));
         $("#" + id).chatbox("option", "boxManager").addMsg(from, msg);
 //        $scope.peer_send_msg(id, msg);
         console.log('broadcast message:', msg);
