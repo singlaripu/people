@@ -436,7 +436,7 @@
              if($.xmpp.onError != null){
 //                 $.xmpp.onError({error:"Network error"})
 //                 console.log("error: network error", $.xmpp.connected);
-                   pass;
+//                   pass;
 //                 if($.xmpp.connected == false){
 //                     console.log("error:Network error, connecting again")  ;
 //                     $.xmpp.connect()

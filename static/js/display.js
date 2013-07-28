@@ -14,7 +14,7 @@ app.factory('myService', function($http) {
     return myService;
 });
 
-function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager, $xmpp_plugin) {
+function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager) {
 
     $scope.users = [];
     $scope.page = 0;
@@ -29,6 +29,13 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager,
     $scope.chat_method = "p2p";
     $scope.jabber_url = "http://ec2-54-218-10-57.us-west-2.compute.amazonaws.com:5280/http-bind";
     $scope.fb_uid = '';
+    $scope.protocol_dict  = {};
+    $scope.peer_connections = {};
+    $scope.message_queue = new Queue();
+    $scope.message_queue_temp = new Queue();
+    $scope.sort_messages_flag = "free";
+    $scope.msg_send_promise = undefined;
+    $scope.msg_array = [];
 
     $(document).bind('scroll', onScroll);
 
@@ -39,6 +46,44 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager,
         $scope.fb_uid = d.fb_uid;
         $scope.peer = new Peer(d.fb_uid, {host: 'ec2-54-218-10-57.us-west-2.compute.amazonaws.com', port: 9000});
         console.log($scope.peer);
+        $.xmpp.connect({url:$scope.jabber_url, jid: $scope.fb_uid + "@jabber.fbpeople.com", password: $scope.fb_uid,
+
+            onConnect: function(){
+//                logContainer.html("Connected");
+                $.xmpp.setPresence(null);
+            },
+
+            onError:function(error){
+//                alert(error.error);
+                console.log('there was some error in xmpp plugin jabber');
+            },
+
+            onMessage: function(message){
+//                console.log('i recieved a message , this is jabber');
+                var jid = message.from.split("@");
+                var id = MD5.hexdigest(message.from);
+//                var conversation = $("#"+id);
+//                if(conversation.length == 0){
+//                    openChat({to:message.from});
+//                }
+//                conversation = $("#"+id);
+                //conversation.find(".conversation").append("<div>"+ jid[0] +": "+ message.body +"</div>");
+
+                if (message.body == null) {
+                    return;
+                }
+                console.log(jid[0], message.body);
+                $scope.protocol_dict[jid[0]] = 'jabber';
+                $scope.msg_recieved_fn(jid[0], message.body)
+            }
+        });
+
+        $scope.xmpp_send_message = function(id, msg) {
+            $timeout(function () {
+                $.xmpp.sendMessage({to:id + "@jabber.fbpeople.com", body: msg});
+            },50)
+
+        }
 
 //        peer.on('open', function(id, opts) {
 //            console.log(id);
@@ -54,28 +99,48 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager,
             console.log('error in connecting to peer, trying jabber');
             console.log(e.type);
 
-            $scope.chat_method = "bosh";
-            $xmpp_plugin.connect($scope.jabber_url, $scope.fb_uid, $scope.fb_uid);
+//            $scope.chat_method = "bosh";
+//            $xmpp_plugin.connect($scope.jabber_url, $scope.fb_uid, $scope.fb_uid);
 
         })
+
+
 
         $scope.peer.on('connection', function(connection) {
 
             connection.on('data', function(data) {
-                $scope.addmybox (connection.peer, connection.peer);
-                $("#" + connection.peer).chatbox("option", "boxManager").addMsg(connection.peer,data);
-//            $('#msgs').append('<p>'+data+'</p>');
+                $scope.protocol_dict[connection.peer] = 'peer';
+                $scope.msg_recieved_fn(connection.peer, data)
+
             })
         })
 
         $scope.peer_send_msg = function(peerid, msg) {
-            var c = $scope.peer.connect(peerid);
-            c.on('open', function(id) {
-                c.send(msg);
-            }) ;
+
+//            var c = $scope.peer.connections[peerid];
+//            console.log(c);
+
+
+
+                var promise = $timeout(function() {
+                    var c = $scope.peer.connect(peerid);
+                    c.on('open', function() {
+                        console.log('sending now:', msg);
+                        c.send(msg);
+                    }) ;
+                },200);
+                return promise;
+
+
+
+//            c.on('error', function(e) {
+//                console.log('peer is facing some difficulties in sending the msg, trying jabber');
+//                $scope.protocol_dict[id] = 'jabber';
+//                $scope.xmpp_send_message(peerid, msg);
+//            });
         }
 
-        console.log($scope.fb_uid)
+        console.log($scope.fb_uid);
 
 
         $scope.users = d.data;
@@ -101,6 +166,12 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager,
         }
         $scope.page += 1;
         return;
+    }
+
+    $scope.msg_recieved_fn = function(sender, msg){
+        $scope.addmybox (sender, sender);
+        $("#" + sender).chatbox("option", "boxManager").addMsg(sender, msg);
+//            $('#msgs').append('<p>'+data+'</p>');
     }
 
 
@@ -395,10 +466,264 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager,
     $scope.counter = 0;
     $scope.idList = new Array();
 
+
+    $scope.repeat = (function () {
+        return function repeat(cbWhileNotTrue, period, message_dict, current, target, keys) {
+            /// <summary>Continuously repeats callback after a period has passed, until the callback triggers a stop by returning true.  Note each repetition only fires after the callback has completed.  Identifier returned is an object, prematurely stop like `timer = repeat(...); clearTimeout(timer.t);`</summary>
+//                console.log('loop iteration');
+            var timer = {};
+            var k = 0;
+            var fn = function () {
+                if (true === cbWhileNotTrue()) {
+                    return clearTimeout(timer.t); // no more repeat
+                }
+
+                timer.t = setTimeout(fn, period || 1000);
+                console.log('loop iteration');
+                console.log(k);
+                var key = keys[k];
+                console.log(key, message_dict[key]);
+                $scope.peer_send_msg(key, message_dict[key]).then(function() {
+                    $timeout(function () {
+                        console.log('taking timeout of 2000ms');
+                        current += 1;
+                        if (current == target) {
+                            $scope.sort_messages_flag = 'free';
+                            $scope.$apply();
+                            console.log($scope.sort_messages_flag)  ;
+                            $timeout(function() {
+                                if ($scope.sort_messages_flag == 'free') {
+                                    console.log('manually firing last message');
+                                    $scope.sort_messages();
+                                }
+                            },5000);
+                        }
+                    }, 1000) ;
+                })
+                k ++;
+            };
+            fn(); // engage
+            return timer; // and expose stopper object
+        };
+    })();
+
+
+    $scope.sort_messages = function() {
+
+
+        console.log($scope.sort_messages_flag);
+        if ($scope.sort_messages_flag == 'busy') return ;
+        else {
+            if ($scope.message_queue.getLength() == 0)    {
+                console.log('returning from 0 length clause');
+                $scope.sort_messages_flag = 'free';
+                return ;
+            }
+            $scope.sort_messages_flag = 'busy';
+            var message_dict = {};
+            while ($scope.message_queue.getLength() != 0) {
+                item = $scope.message_queue.dequeue();
+                id = item[0];
+                msg = item[1];
+                if (id in message_dict) {
+                    message_dict[id] = message_dict[id] +  ',' + msg;
+                }
+                else {
+                    message_dict[id] = msg;
+                }
+
+            }
+            console.log(message_dict);
+            var current = 0;
+            var target =  Object.keys(message_dict).length;
+            var keys = Object.keys(message_dict);
+            console.log("lenght of target is ",target);
+
+            var j = 0;
+            var interval = $scope.repeat(function() {
+                j++;
+                return (j > target);
+            }, 2000, message_dict, current, target, keys);
+
+
+//            for (var key in message_dict) {
+//
+//            }
+        }
+
+
+//        var loop = true;
+//        var item = $scope.message_queue.dequeue();
+//        var id = item[0] ;
+//        var msg = item[1]
+//        var i = 1;
+//        var target = $scope.message_queue.getLength();
+//
+////        while (i<5) {
+//            i ++;
+////            if (promise) {
+////                item = $scope.message_queue.dequeue();
+////                id = item[0] ;
+////                msg = item[1] ;
+////                promise = $scope.peer_send_msg(id, msg);
+////            }
+//            console.log('loop is runing');
+////            $scope.peer_send_msg(id, msg).then(function(){
+////                item = $scope.message_queue.dequeue();
+////                if (item == undefined) {
+////                    $scope.sort_messages_flag = 'free';
+////                    loop = false;
+////                }
+////                id = item[0] ;
+////                msg = item[1] ;
+//
+////            });
+//        $scope.peer_send_msg(id, msg);
+//        $scope.sort_messages_flag = 'free';
+////        };
+//        return ;
+
+
+//
+//        if ($scope.sort_messages_flag == 'abrakadabra') return ;
+//
+//
+//
+//        else {
+//            console.log('executing sort_messages');
+//
+////            var item = $scope.message_queue.dequeue();
+////            var i = 1;
+//
+//            console.log($scope.message_queue.getLength());
+////            var target = $scope.message_queue.getLength();
+////            var current = 1;
+//            for(var j=0; j<$scope.message_queue.getLength(); j++) {
+////
+////                    i = i+1;
+////                $scope.sort_messages_flag = 'busy';
+//
+////                console.log(item);
+////                if (item != undefined) {
+////                    $timeout(function() {
+////
+////                        console.log(j, item);
+////                    },2000);
+//////                }
+//
+//
+//
+////                if (item!=undefined) {
+////                $timeout(function(){
+//                if ($scope.msg_send_promise == undefined)  {
+//                    item =  $scope.message_queue.dequeue();
+//                    var id = item[0];
+//                    var msg = item[1];
+//                    $scope.peer_send_msg(id, msg);
+//                }
+//                console.log($scope.msg_send_promise);
+//                $scope.msg_send_promise.then(function() {
+//
+//                    item =  $scope.message_queue.dequeue();
+//                    if (item == undefined) {
+//                        $scope.sort_messages_flag = "free";
+//                        return ;
+//                    }
+//                    var id = item[0];
+//                    var msg = item[1];
+//                    if  (id in $scope.protocol_dict)    {
+//                        if ( $scope.protocol_dict[id] = 'jabber') {
+//                            console.log('sending through jabber');
+//                            $scope.xmpp_send_message(id, msg);
+//                        }
+//                        else {
+//                            if (!(id in $scope.peer_connections)) {
+//                                $scope.peer_connections[id] = $scope.peer.connect(id);
+//                            }
+//                            console.log('sending through peer');
+//                            $scope.peer_send_msg(id, msg);
+//                            current += 1;
+//                            console.log('current is equal to', current);
+//
+//                        }
+//                    }
+//                    else {
+//                        if (!(id in $scope.peer_connections)) {
+//                            $scope.peer_connections[id] = $scope.peer.connect(id);
+//                        }
+//                        console.log('sending through peer');
+//                        $scope.peer_send_msg(id, msg);
+//                        current += 1;
+//                        console.log('current is equal to', current);
+//                    }
+//
+////                    console.log(j);
+//
+////                    item = $scope.message_queue.dequeue();
+////                },5000);
+//
+//                if ($scope.message_queue.peek() == undefined){
+//                    $scope.sort_messages_flag = "free";
+////                    $scope.message_queue = new Queue();
+//                }
+//                })
+//
+////                }
+//            }
+
+
+
+//        }
+
+
+    }
+
     $scope.broadcastMessageCallback = function(id, from, msg) {
-        console.log('you saw me');
+        console.log('sending msg ', msg, 'to ', id);
         $("#" + id).chatbox("option", "boxManager").addMsg(from, msg);
-        $scope.peer_send_msg(id, msg);
+//        $scope.peer_send_msg(id, msg);
+        $scope.message_queue.enqueue([id,msg]);
+        $scope.sort_messages();
+//        $scope.msg_array.push([id, msg]);
+//        console.log($scope.sort_messages_flag);
+//
+////        if ($scope.sort_messages_flag == 'free') {
+////            $scope.sort_messages_flag = 'busy';
+////            $timeout(function () {
+////                $scope.message_queue = $scope.message_queue_temp;
+////                $scope.message_queue_temp = new Queue();
+////                console.log($scope.message_queue.getLength());
+////                console.log($scope.message_queue_temp.getLength());
+//
+////                $scope.sort_messages();
+//
+//        if ($scope.sort_messages_flag == "busy") return ;
+//
+//        else if ($scope.sort_messages_flag == 'free') {
+//            $scope.sort_messages_flag = 'busy';
+//              $scope.sort_messages();
+//        }
+
+//        return ;
+
+//        var promise = $timeout(function() {
+//            console.log('it has been 1 second');
+//            item = $scope.message_queue.dequeue();
+//            console.log('calling send msg function');
+//            $scope.peer_send_msg(item[0], item[1]);
+//        },5000)   ;
+//
+//        promise.then(function() {
+////            item = $scope.message_queue.dequeue();
+////            console.log('calling send msg function');
+////            $scope.peer_send_msg(item[0], item[1]);
+//        })
+//        console.log(prom);
+
+
+//            },2000)
+//        }
+
 
     }
 
@@ -410,6 +735,11 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager,
         var id = recipient;
         $scope.idList.push(id);
         $chatboxManager.addBox(id,{dest:"dest" + $scope.counter, title: name,first_name: 'me'});
+
+        $timeout(function() {
+            $scope.$apply();
+        },1000)
+
     }
 
 }
@@ -424,6 +754,91 @@ app.directive('lastdirective', function($timeout) {
                     scope.loadimages();
                 }, 20);
             }
+        });
+
+    };
+});
+
+
+app.directive('chatboxmsgentered', function($timeout) {
+    return function(scope, element, attrs) {
+
+//        if (scope.m.isEmpty()) {
+//            console.log('hey i am calling from chatboxmsgentered')   ;
+//        }
+//        $timeout(function() {
+//            scope.$watch(function() {
+//                var len = scope.message_queue.getLength();
+//                console.log(len);
+//                return len;
+//            },function(v){
+//                if (v) {
+//                    console.log('change in message queue detected');
+////                $timeout(function(){
+////                    scope.loadimages();
+////                }, 20);
+//                }
+//            });
+//        }, 200)
+
+
+//        element.bind('keyup', function(evt) {
+//           console.log('key press detected in chatbox');
+//        });
+
+        element.bind('keyup', function(evt) {
+            if (evt.which == "13") {
+                if (evt.target.className.indexOf('ui-chatbox-input-box') >= 0) {
+                    console.log(scope.sort_messages_flag);
+                    if (scope.sort_messages_flag == 'busy') return ;
+                    else {
+                        scope.sort_messages_flag = 'busy';
+                        var message_dict = {};
+                        while (scope.message_queue.getLength() != 0) {
+                            item = scope.message_queue.dequeue();
+                            id = item[0];
+                            msg = item[1];
+                            if (id in message_dict) {
+                                message_dict[id] = message_dict[id] +  ',' + msg;
+                            }
+                            else {
+                                message_dict[id] = msg;
+                            }
+
+                        }
+                        console.log(message_dict);
+                        var current = 0;
+                        var target =  Object.keys(message_dict).length;
+                        console.log("lenght of target is ",target);
+                        for (var key in message_dict) {
+                            console.log(key, message_dict[key]);
+                            scope.peer_send_msg(key, message_dict[key]).then(function() {
+                                $timeout(function () {
+                                    console.log('taking timeout of 200ms');
+                                    current += 1;
+                                    if (current == target) {
+                                        scope.sort_messages_flag = 'free';
+                                        scope.$apply();
+                                        console.log(scope.sort_messages_flag)  ;
+                                    }
+                                }, 1000) ;
+                            })
+                        }
+                    }
+//                    scope.$watch('msg_send_promise', function(v) {
+//
+//                    })
+
+
+                    console.log('click detected');
+//                    console.log(scope.message_queue.isEmpty());
+////                    console.log(evt);
+////                    console.log(evt.target.className);
+////                    if (scope.)
+                }
+
+            }
+
         });
 
     };
@@ -506,24 +921,24 @@ app.directive('genderclick', function($timeout){
 //}) ;
 
 
-app.factory("$xmpp_plugin", function($rootScope) {
-
-    return {
-        connect: function(url, jid, password) {
-            $.xmpp.connect({url:url, jid: jid, password: password,
-
-
-
-                onMessage: function(message){
-                   console.log('i recieved a message , this is jabber');
-
-
-                }
-
-            });
-        }
-    } ;
-}) ;
+//app.factory("$xmpp_plugin", function($rootScope) {
+//
+//    return {
+//        connect: function(url, jid, password) {
+//            $.xmpp.connect({url:url, jid: jid, password: password,
+//
+//
+//
+//                onMessage: function(message){
+//                   console.log('i recieved a message , this is jabber');
+//
+//
+//                }
+//
+//            });
+//        }
+//    } ;
+//}) ;
 
 
 //app.factory("$peer", function($rootScope) {
@@ -626,6 +1041,7 @@ app.factory("$chatboxManager", function($rootScope) {
         else{
             var el = document.createElement('div');
             el.setAttribute('id', id);
+//            el.setAttribute('chatboxmsgentered');
             $(el).chatbox({id : id,
                 user : user,
                 title : user.title,
