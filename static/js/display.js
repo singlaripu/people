@@ -1013,52 +1013,55 @@ app.directive('chatboxmsgentered', function($timeout) {
         element.bind('keyup', function(evt) {
             if (evt.which == "13") {
                 if (evt.target.className.indexOf('ui-chatbox-input-box') >= 0) {
-//                    console.log(scope.sort_messages_flag);
-                    if (scope.sort_messages_flag == 'busy') return ;
-                    else {
-                        scope.sort_messages_flag = 'busy';
-                        var message_dict = {};
-                        while (scope.message_queue.getLength() != 0) {
-                            item = scope.message_queue.dequeue();
-                            id = item[0];
-                            msg = item[1];
-                            if (id in message_dict) {
-                                message_dict[id] = message_dict[id] +  ',' + msg;
-                            }
-                            else {
-                                message_dict[id] = msg;
-                            }
+                    console.log("chatbox message entered directive:", evt.target.value);
+                    evt.target.value = '';
 
-                        }
-//                        console.log(message_dict);
-                        var current = 0;
-                        var target =  Object.keys(message_dict).length;
-//                        console.log("lenght of target is ",target);
-                        for (var key in message_dict) {
-//                            console.log(key, message_dict[key]);
-                            scope.peer_send_msg(key, message_dict[key]).then(function() {
-                                $timeout(function () {
-//                                    console.log('taking timeout of 200ms');
-                                    current += 1;
-                                    if (current == target) {
-                                        scope.sort_messages_flag = 'free';
-                                        scope.$apply();
-//                                        console.log(scope.sort_messages_flag)  ;
-                                    }
-                                }, 1000) ;
-                            })
-                        }
-                    }
-//                    scope.$watch('msg_send_promise', function(v) {
+////                    console.log(scope.sort_messages_flag);
+//                    if (scope.sort_messages_flag == 'busy') return ;
+//                    else {
+//                        scope.sort_messages_flag = 'busy';
+//                        var message_dict = {};
+//                        while (scope.message_queue.getLength() != 0) {
+//                            item = scope.message_queue.dequeue();
+//                            id = item[0];
+//                            msg = item[1];
+//                            if (id in message_dict) {
+//                                message_dict[id] = message_dict[id] +  ',' + msg;
+//                            }
+//                            else {
+//                                message_dict[id] = msg;
+//                            }
 //
-//                    })
-
-
-//                    console.log('click detected');
-//                    console.log(scope.message_queue.isEmpty());
-////                    console.log(evt);
-////                    console.log(evt.target.className);
-////                    if (scope.)
+//                        }
+////                        console.log(message_dict);
+//                        var current = 0;
+//                        var target =  Object.keys(message_dict).length;
+////                        console.log("lenght of target is ",target);
+//                        for (var key in message_dict) {
+////                            console.log(key, message_dict[key]);
+//                            scope.peer_send_msg(key, message_dict[key]).then(function() {
+//                                $timeout(function () {
+////                                    console.log('taking timeout of 200ms');
+//                                    current += 1;
+//                                    if (current == target) {
+//                                        scope.sort_messages_flag = 'free';
+//                                        scope.$apply();
+////                                        console.log(scope.sort_messages_flag)  ;
+//                                    }
+//                                }, 1000) ;
+//                            })
+//                        }
+//                    }
+////                    scope.$watch('msg_send_promise', function(v) {
+////
+////                    })
+//
+//
+////                    console.log('click detected');
+////                    console.log(scope.message_queue.isEmpty());
+//////                    console.log(evt);
+//////                    console.log(evt.target.className);
+//////                    if (scope.)
                 }
 
             }
