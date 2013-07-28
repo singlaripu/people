@@ -335,6 +335,7 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager)
             fn1(t1, id1);
 
             if ($scope.status_waiting_list.getLength() == 0) {
+                console.log('turning flag on, returning from check return');
                 $scope.check_return_flag = false;
                 return ;
             }
