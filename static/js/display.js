@@ -330,6 +330,7 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager)
 //                delete $scope.peer_delivery_dict[t];
                     $scope.sort_messages_flag = 'free';
                     $scope.sort_message_protocol(id, msg);
+                    $scope.sort_messages();
                 }
             }
 
