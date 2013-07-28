@@ -169,6 +169,8 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager)
 
 //            console.log(new Date().getTime());
             if (!c.open) {
+                $scope.peer_connections[peerid] = $scope.peer.connect(peerid);
+                var c = $scope.peer_connections[peerid];
                 var promise = $timeout(function() {
 //                    console.log(c);
 //                    var c = $scope.peer.connect(peerid);
@@ -204,10 +206,11 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager)
                         if (!$scope.peer_connections[peerid].open) {
                             console.log('trying to reconnect to peer');
                             $scope.peer_connections[peerid] = $scope.peer.connect(peerid);
-                            $scope.protocol_dict[peerid] = 'peer';
+
 
                             $scope.peer_connections[peerid].on('open', function() {
                                 console.log('reconnect successful');
+                                $scope.protocol_dict[peerid] = 'peer';
                                 $scope.peer_reconnect_flag = false;
                             })
                         };
