@@ -250,10 +250,12 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager)
     $scope.peer_check_return = function(t) {
         if (t in $scope.peer_delivery_dict) {
             console.log('status message was not returned, trying jabber');
+
             item = $scope.peer_delivery_dict[t];
             id = item[0];
             msg = item[1];
             $scope.protocol_dict[id] = 'jabber';
+            delete $scope.peer_delivery_dict[t];
             $scope.sort_message_protocol(id, msg);
         }
     }
