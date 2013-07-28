@@ -75,7 +75,7 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager)
                     return;
                 }
                 console.log(jid[0], message.body);
-                $scope.protocol_dict[jid[0]] = 'jabber';
+//                $scope.protocol_dict[jid[0]] = 'jabber';
                 $scope.msg_recieved_fn(jid[0], message.body)
             }
         });
@@ -114,6 +114,10 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager)
 
             connection.on('data', function(data) {
                 $scope.protocol_dict[connection.peer] = 'peer';
+
+                if (data.message == null) {
+                    return;
+                }
 
                 if (data.message.indexOf($scope.status_message) >= 0) {
                     var timestamp =  data.message.split(':')[0];
