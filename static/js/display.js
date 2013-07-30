@@ -89,11 +89,20 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager)
                 console.log(data);
 
                 if (!(data instanceof Array)) {
+                   console.log('array not detected, creating array');
                    var dataarray = [];
                    dataarray.push(data);
                 }
+                else {
+                    console.log('array detected');
+                    var dataarray = data;
+                }
+
+
+                console.log(dataarray);
 
                 for (var j=0; j<dataarray.length; j++) {
+                    console.log(dataarray[j]);
                     var t_exists = $scope.fn_manage_timestamp_array(jid[0], dataarray[j].timestamp);
                     console.log(t_exists);
                     if (!t_exists) {
@@ -107,6 +116,7 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager)
         })
 
         $scope.xmpp_send_api_call = function(id, m) {
+            console.log('calling xmpp api');
             $.xmpp.sendMessage({to:id + "@jabber.fbpeople.com", body:m });
         }
 
@@ -223,7 +233,7 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager)
                 $timeout(function () {
                     console.log('ready for check return call');
                     $scope.peer_check_return(timestamp, peerid);
-                }, 20);
+                }, 5);
             }
             console.log('just before if');
 //            console.log(new Date().getTime());
@@ -384,7 +394,7 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager)
             var t_exists = false;
         }
         else {
-            console.log('saved you from show duplicate msg');
+            console.log('saved you from showing duplicate msg');
         }
 
         return t_exists;
@@ -464,6 +474,7 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager)
                     $scope.protocol_dict[id] = 'jabber';
 //                delete $scope.peer_delivery_dict[t];
 //                    $.xmpp.sendMessage({to:id + "@jabber.fbpeople.com", body:JSON().stringify(myobj) });
+                    console.log('sending jabber object:', myobj);
                     $scope.xmpp_send_api_call(id, JSON.stringify(myobj));
 //                    $scope.sort_message_protocol(id, msg);
                     $scope.sort_messages_flag = 'free';
