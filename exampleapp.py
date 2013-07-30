@@ -274,6 +274,7 @@ def getlist():
         json_results = to_json(users)
         my_user = current_user()
         json_results['fb_uid'] = my_user['fb_uid']
+        json_results['name'] = my_user['name']
         return jsonify(**json_results)
     return jsonify([])
 

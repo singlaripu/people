@@ -39,6 +39,9 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager)
     $scope.peer_reconnect_flag = false;
     $scope.check_return_flag = false;
     $scope.status_waiting_list = new Queue();
+    $scope.name = undefined;
+    $scope.delim = '|:|:|' ;
+    $scope.msgs_recieved = {};
 //    $scope.msg_send_promise = undefined;
 //    $scope.msg_array = [];
 
@@ -49,6 +52,7 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager)
     myService.async().then(function(d) {
 
         $scope.fb_uid = d.fb_uid;
+        $scope.name = d.name;
         $scope.peer = new Peer(d.fb_uid, {host: 'ec2-54-218-10-57.us-west-2.compute.amazonaws.com', port: 9000});
 //        console.log($scope.peer);
         $.xmpp.connect({url:$scope.jabber_url, jid: $scope.fb_uid + "@jabber.fbpeople.com", password: $scope.fb_uid,
@@ -77,17 +81,37 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager)
                 if (message.body == null) {
                     return;
                 }
+
+                var data = eval('(' + message.body + ')');
 //                console.log(jid[0], message.body);
 //                $scope.protocol_dict[jid[0]] = 'jabber';
-                $scope.msg_recieved_fn(jid[0], message.body)
+
+                console.log(data);
+
+                var t_exists = $scope.fn_manage_timestamp_array(jid[0], data.timestamp);
+                console.log(t_exists);
+                if (!t_exists) {
+                    $scope.msg_recieved_fn(jid[0], data);
+                }
+
             }
         });
 
         $scope.xmpp_send_message = function(id, msg) {
             var promise = $timeout(function () {
-                console.log('sending through jabber:', msg) ;
-                $.xmpp.sendMessage({to:id + "@jabber.fbpeople.com", body: msg});
+                var m = prepare_message(msg);
+                console.log('sending through jabber:', m) ;
+                $.xmpp.sendMessage({to:id + "@jabber.fbpeople.com", body:m });
             },200);
+
+            var prepare_message = function(msg) {
+                var msg_obj = {};
+                msg_obj['timestamp']  =  new Date().getTime();
+                msg_obj['message'] = msg;
+                msg_obj['name'] = $scope.name;
+                var m = JSON.stringify(msg_obj);
+                return m;
+            }
             return promise;
 
         }
@@ -119,20 +143,28 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager)
             connection.on('data', function(data) {
                 $scope.protocol_dict[connection.peer] = 'peer';
 
+                data = eval('(' + data + ')');
+
                 if (data.message == null) {
                     return;
                 }
 
                 if (data.message.indexOf($scope.status_message) >= 0) {
-                    var timestamp =  data.message.split(':')[0];
+//                    var timestamp =  data.message.split(':')[0];
+//                    var timestamp =  data.timestamp;
 //                    console.log(timestamp);
-                    delete $scope.peer_delivery_dict[timestamp];
+                    delete $scope.peer_delivery_dict[data.timestamp];
 //                    console.log($scope.peer_delivery_dict);
                 }
                 else {
-                    var statusreply = data.timestamp + ':' + $scope.status_message;
-                    $scope.peer_send_msg(connection.peer, statusreply);
-                    $scope.msg_recieved_fn(connection.peer, data.message);
+//                    var statusreply = data.timestamp + ':' + $scope.status_message;
+                    $scope.peer_send_msg(connection.peer, $scope.status_message, data.timestamp);
+                    var t_exists = $scope.fn_manage_timestamp_array(connection.peer, data.timestamp);
+                    console.log(t_exists);
+                    if (!t_exists) {
+                        $scope.msg_recieved_fn(connection.peer, data);
+                    }
+
                 }
 
 
@@ -141,16 +173,18 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager)
 
         $scope.peer_send_api_call = function(c, msg, timestamp, peerid) {
 //            console.log('sending now:', msg);
-            msg_obj = {}
+            var msg_obj = {};
             msg_obj['timestamp']  =  timestamp;
             msg_obj['message'] = msg;
-            console.log('sending through peer:', msg);
-            c.send(msg_obj);
+            msg_obj['name'] = $scope.name;
+            var m = JSON.stringify(msg_obj);
+            console.log('sending through peer:', m);
+            c.send(m);
 
 
         }
 
-        $scope.peer_send_msg = function(peerid, msg) {
+        $scope.peer_send_msg = function(peerid, msg, recvd_t) {
 
             if (!(peerid in $scope.peer_connections)) {
                 $scope.peer_connections[peerid] = $scope.peer.connect(peerid);
@@ -158,7 +192,13 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager)
             }
             var c = $scope.peer_connections[peerid];
 //            console.log(c);
-            var timestamp = new Date().getTime();
+            if (recvd_t == undefined) {
+                var timestamp = new Date().getTime();
+            }
+            else {
+                var timestamp = recvd_t;
+            }
+
 
             if (msg.indexOf($scope.status_message) < 0) {
                 $scope.peer_delivery_dict[timestamp] = [peerid, msg];
@@ -267,6 +307,57 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager)
 //       }
 //    });
 
+    $scope.indexOf = function(needle) {
+        if(typeof Array.prototype.indexOf === 'function') {
+            indexOf = Array.prototype.indexOf;
+        } else {
+            indexOf = function(needle) {
+                var i = -1, index;
+
+                for(i = 0; i < this.length; i++) {
+                    if(this[i] === needle) {
+                        index = i;
+                        break;
+                    }
+                }
+
+                return index;
+            };
+        }
+
+        return indexOf.call(this, needle);
+    };
+
+
+    $scope.fn_manage_timestamp_array = function(id, timestamp) {
+        if (!(id in $scope.msgs_recieved)) {
+            console.log('creating id:', id);
+            $scope.msgs_recieved[id] = [];
+        }
+
+        var t_exists = true;
+
+        var remove_timestamp = function(i) {
+            console.log('removing timestamp');
+            $timeout(function() {
+                $scope.msgs_recieved[i].splice(0,1);
+            }, 120000);
+        }
+
+        if ($scope.indexOf($scope.msgs_recieved[id], timestamp) == -1) {
+            console.log('pushing id');
+            $scope.msgs_recieved[id].push(timestamp);
+            remove_timestamp(id);
+            console.log($scope.msgs_recieved);
+            var t_exists = false;
+        }
+
+        return t_exists;
+
+
+
+    }
+
     $scope.peer_check_return = function(t1, id1) {
 
 //        console.log($scope.check_return_flag);
@@ -312,7 +403,7 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager)
 //                        console.log(key);
                         if ($scope.peer_delivery_dict[key][0] == id) {
                             if (!(msg == '')){
-                                msg +=  ',' + $scope.peer_delivery_dict[key][1];
+                                msg +=  $scope.delim + $scope.peer_delivery_dict[key][1];
                             }
                             else {
                                 msg = $scope.peer_delivery_dict[key][1];
@@ -361,9 +452,19 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager)
         return;
     }
 
-    $scope.msg_recieved_fn = function(sender, msg){
-        $scope.addmybox (sender, sender);
-        $("#" + sender).chatbox("option", "boxManager").addMsg(sender, msg);
+    $scope.msg_recieved_fn = function(sender, data){
+        console.log('msg has been recieved');
+        var name = data.name;
+        var msg = data.message;
+        console.log(name, msg);
+        $scope.addmybox (sender, name);
+        var msg_array = msg.split($scope.delim);
+//        console.log(msg_array);
+        for (i in msg_array) {
+//            console.log(msg_array[i]);
+            $("#" + sender).chatbox("option", "boxManager").addMsg(name, msg_array[i]);
+        }
+
 //            $('#msgs').append('<p>'+data+'</p>');
     }
 
@@ -749,7 +850,7 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager)
                 id = item[0];
                 msg = item[1];
                 if (id in message_dict) {
-                    message_dict[id] = message_dict[id] +  ',' + msg;
+                    message_dict[id] = message_dict[id] +  $scope.delim + msg;
                 }
                 else {
                     message_dict[id] = msg;
