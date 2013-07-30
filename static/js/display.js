@@ -102,11 +102,12 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager)
                 console.log(dataarray);
 
                 for (var j=0; j<dataarray.length; j++) {
-                    console.log(dataarray[j]);
-                    var t_exists = $scope.fn_manage_timestamp_array(jid[0], dataarray[j].timestamp);
+                    var data = eval('(' + dataarray[j] + ')');
+                    console.log(data);
+                    var t_exists = $scope.fn_manage_timestamp_array(jid[0], data.timestamp);
                     console.log(t_exists);
                     if (!t_exists) {
-                        $scope.msg_recieved_fn(jid[0], dataarray[j]);
+                        $scope.msg_recieved_fn(jid[0], data);
                     }
                 }
 
@@ -163,6 +164,8 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager)
                 $scope.protocol_dict[connection.peer] = 'peer';
 
                 data = eval('(' + data + ')');
+                console.log(data);
+
 
                 if (data.message == null) {
                     return;
@@ -456,11 +459,11 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager)
 //                            else {
 //                                msg = $scope.peer_delivery_dict[key][1];
 //                            }
-//                            var m = $scope.prepare_message($scope.peer_delivery_dict[key][1], key) ;
-                            var msg_obj = {};
-                            msg_obj['timestamp']  =  key;
-                            msg_obj['message'] = $scope.peer_delivery_dict[key][1];
-                            msg_obj['name'] = $scope.name;
+                            var msg_obj = $scope.prepare_message($scope.peer_delivery_dict[key][1], key) ;
+//                            var msg_obj = {};
+//                            msg_obj['timestamp']  =  key;
+//                            msg_obj['message'] = $scope.peer_delivery_dict[key][1];
+//                            msg_obj['name'] = $scope.name;
                             myobj.push(msg_obj);
 
                             delete $scope.peer_delivery_dict[key];
