@@ -446,8 +446,12 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager)
 //                            else {
 //                                msg = $scope.peer_delivery_dict[key][1];
 //                            }
-                            var m = $scope.prepare_message($scope.peer_delivery_dict[key][1], key) ;
-                            myobj.push(m);
+//                            var m = $scope.prepare_message($scope.peer_delivery_dict[key][1], key) ;
+                            var msg_obj = {};
+                            msg_obj['timestamp']  =  timestamp;
+                            msg_obj['message'] = msg;
+                            msg_obj['name'] = $scope.name;
+                            myobj.push(msg_obj);
 
                             delete $scope.peer_delivery_dict[key];
                         }
