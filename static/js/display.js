@@ -88,30 +88,38 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager)
 
                 console.log(data);
 
-                var t_exists = $scope.fn_manage_timestamp_array(jid[0], data.timestamp);
-                console.log(t_exists);
-                if (!t_exists) {
-                    $scope.msg_recieved_fn(jid[0], data);
+                if (!(data instanceof Array)) {
+                   var dataarray = [];
+                   dataarray.push(data);
                 }
 
+                for (var j=0; j<dataarray.length; j++) {
+                    var t_exists = $scope.fn_manage_timestamp_array(jid[0], dataarray[j].timestamp);
+                    console.log(t_exists);
+                    if (!t_exists) {
+                        $scope.msg_recieved_fn(jid[0], dataarray[j]);
+                    }
+                }
+
+
+
             }
-        });
+        })
+
+        $scope.xmpp_send_api_call = function(id, m) {
+            $.xmpp.sendMessage({to:id + "@jabber.fbpeople.com", body:m });
+        }
 
         $scope.xmpp_send_message = function(id, msg) {
             var promise = $timeout(function () {
-                var m = prepare_message(msg);
+                var m = $scope.prepare_message(msg, new Date().getTime());
                 console.log('sending through jabber:', m) ;
-                $.xmpp.sendMessage({to:id + "@jabber.fbpeople.com", body:m });
+//                $.xmpp.sendMessage({to:id + "@jabber.fbpeople.com", body:m });
+                $scope.xmpp_send_api_call(id, m);
+
             },200);
 
-            var prepare_message = function(msg) {
-                var msg_obj = {};
-                msg_obj['timestamp']  =  new Date().getTime();
-                msg_obj['message'] = msg;
-                msg_obj['name'] = $scope.name;
-                var m = JSON.stringify(msg_obj);
-                return m;
-            }
+
             return promise;
 
         }
@@ -133,6 +141,7 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager)
 
 //            $scope.chat_method = "bosh";
 //            $xmpp_plugin.connect($scope.jabber_url, $scope.fb_uid, $scope.fb_uid);
+             console.log('error in peer:', e.type);
 
         })
 
@@ -171,14 +180,15 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager)
             })
         })
 
-        $scope.peer_send_api_call = function(c, msg, timestamp, peerid) {
-//            console.log('sending now:', msg);
+        $scope.peer_send_api_call = function(c, msg, timestamp) {
+            console.log('creating msg object for peer');
             var msg_obj = {};
             msg_obj['timestamp']  =  timestamp;
             msg_obj['message'] = msg;
             msg_obj['name'] = $scope.name;
             var m = JSON.stringify(msg_obj);
             console.log('sending through peer:', m);
+
             c.send(m);
 
 
@@ -186,31 +196,39 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager)
 
         $scope.peer_send_msg = function(peerid, msg, recvd_t) {
 
+            console.log('landed in peer send msg');
+
             if (!(peerid in $scope.peer_connections)) {
+                console.log('peerid was not in peer connections, creating one.')
                 $scope.peer_connections[peerid] = $scope.peer.connect(peerid);
 
             }
             var c = $scope.peer_connections[peerid];
-//            console.log(c);
+            console.log(c);
             if (recvd_t == undefined) {
+                console.log('timestamp was not recieved, this is a general msg.');
                 var timestamp = new Date().getTime();
             }
             else {
+                console.log('timestamp was recieved, status msg');
                 var timestamp = recvd_t;
             }
 
 
             if (msg.indexOf($scope.status_message) < 0) {
                 $scope.peer_delivery_dict[timestamp] = [peerid, msg];
+                console.log('status msg not found, saving timestamp for check return')  ;
 //                console.log($scope.peer_delivery_dict);
 
                 $timeout(function () {
+                    console.log('ready for check return call');
                     $scope.peer_check_return(timestamp, peerid);
-                }, 5000);
+                }, 20);
             }
-
+            console.log('just before if');
 //            console.log(new Date().getTime());
             if (!c.open) {
+                console.log('connection was not open, creating new one..might be old connection');
                 $scope.peer_connections[peerid] = $scope.peer.connect(peerid);
                 var conn = $scope.peer_connections[peerid];
                 var promise = $timeout(function() {
@@ -218,21 +236,23 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager)
 //                    var c = $scope.peer.connect(peerid);
 //                    console.log('waiting for connection to open');
                     conn.on('open', function() {
+                        console.log('connection is now open');
 //                        console.log('it opened');
 //                        console.log('sending now:', msg);
 //                        c.send(msg);
-                        $scope.peer_send_api_call(conn, msg, timestamp, peerid);
+                        $scope.peer_send_api_call(conn, msg, timestamp);
                     }) ;
                 },200);
             }
             else {
+                console.log('connection is open and working already.');
                 var promise = $timeout(function() {
 //                    console.log(c);
 //                    var c = $scope.peer.connect(peerid);
 //                    c.on('open', function() {
 //                    console.log('sending now:', msg);
 //                    c.send(msg);
-                    $scope.peer_send_api_call(c, msg, timestamp, peerid);
+                    $scope.peer_send_api_call(c, msg, timestamp);
 
 //                    }) ;
                 },200);
@@ -270,7 +290,7 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager)
 
 
 
-                return promise;
+            return promise;
 
 
 
@@ -299,6 +319,16 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager)
         $scope.subset = $scope.users;
         $scope.newhtml();
     });
+
+
+    $scope.prepare_message = function(msg, timestamp) {
+        var msg_obj = {};
+        msg_obj['timestamp']  =  timestamp;
+        msg_obj['message'] = msg;
+        msg_obj['name'] = $scope.name;
+        var m = JSON.stringify(msg_obj);
+        return m;
+    }
 
 
 //    $scope.$watch('peer_delivery_dict', function(v) {
@@ -335,6 +365,8 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager)
             $scope.msgs_recieved[id] = [];
         }
 
+        console.log($scope.msgs_recieved);
+
         var t_exists = true;
 
         var remove_timestamp = function(i) {
@@ -351,6 +383,9 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager)
             console.log($scope.msgs_recieved);
             var t_exists = false;
         }
+        else {
+            console.log('saved you from show duplicate msg');
+        }
 
         return t_exists;
 
@@ -359,6 +394,8 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager)
     }
 
     $scope.peer_check_return = function(t1, id1) {
+
+        console.log('checking return');
 
 //        console.log($scope.check_return_flag);
         if ($scope.check_return_flag) {
@@ -398,16 +435,19 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager)
                 if (t in $scope.peer_delivery_dict) {
 //                    console.log('status message was not returned, trying jabber');
 
-                    var msg = '';
+//                    var msg = '';
+                    var myobj = [];
                     for (key in $scope.peer_delivery_dict) {
 //                        console.log(key);
                         if ($scope.peer_delivery_dict[key][0] == id) {
-                            if (!(msg == '')){
-                                msg +=  $scope.delim + $scope.peer_delivery_dict[key][1];
-                            }
-                            else {
-                                msg = $scope.peer_delivery_dict[key][1];
-                            }
+//                            if (!(msg == '')){
+//                                msg +=  $scope.delim + $scope.peer_delivery_dict[key][1];
+//                            }
+//                            else {
+//                                msg = $scope.peer_delivery_dict[key][1];
+//                            }
+                            var m = $scope.prepare_message($scope.peer_delivery_dict[key][1], key) ;
+                            myobj.push(m);
 
                             delete $scope.peer_delivery_dict[key];
                         }
@@ -419,7 +459,9 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager)
 //                msg = item[1];
                     $scope.protocol_dict[id] = 'jabber';
 //                delete $scope.peer_delivery_dict[t];
-                    $scope.sort_message_protocol(id, msg);
+//                    $.xmpp.sendMessage({to:id + "@jabber.fbpeople.com", body:JSON().stringify(myobj) });
+                    $scope.xmpp_send_api_call(id, JSON.stringify(myobj));
+//                    $scope.sort_message_protocol(id, msg);
                     $scope.sort_messages_flag = 'free';
                     $scope.sort_messages();
                 }
