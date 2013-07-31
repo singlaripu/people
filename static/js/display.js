@@ -352,10 +352,11 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager)
 //       }
 //    });
 
-    $scope.indexOf = function(needle) {
+    $scope.timestamp_recieved_fn = function(needle) {
         if(typeof Array.prototype.indexOf === 'function') {
             indexOf = Array.prototype.indexOf;
-        } else {
+        }
+        else {
             indexOf = function(needle) {
                 var i = -1, index;
 
@@ -391,7 +392,12 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager)
             }, 120000);
         }
 
-        if ($scope.indexOf($scope.msgs_recieved[id], timestamp) == -1) {
+
+        console.log($scope.msgs_recieved[id], timestamp);
+        var bool = $scope.timestamp_recieved_fn.call($scope.msgs_recieved[id], timestamp);
+        console.log(bool);
+
+        if ($scope.timestamp_recieved_fn.call($scope.msgs_recieved[id], timestamp) == -1) {
             console.log('pushing id');
             $scope.msgs_recieved[id].push(timestamp);
             remove_timestamp(id);
