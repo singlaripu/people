@@ -260,7 +260,7 @@ def login():
         return redirect('/wookmark')
 
     users = UserComplete.query.all()
-    users = users[300:340]
+    users = users[0:40]
 
 
     return render_template('dummy_login.html', users=users)
