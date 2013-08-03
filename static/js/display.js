@@ -146,11 +146,11 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager)
                     }
 
                     else if (data.status == 101) {
-                        console.log('replying with peer ids');
+//                        console.log('replying with peer ids');
                         $scope.xmpp_send_message(jid[0], $scope.mypeerid, 102);
                     }
                     else if (data.status == 102) {
-                        console.log('got the peerid of chatter');
+//                        console.log('got the peerid of chatter');
 //                        console.log(data.message);
                         if (!(jid[0] in $scope.peerids)) {
                             $scope.peerids[jid[0]] = [];
@@ -244,7 +244,7 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager)
                 }
 
                 if ($scope.timestamp_recieved_fn.call($scope.peerids[data.fb_uid], connection.peer) == -1) {
-                    console.log('adding new peer connection');
+//                    console.log('adding new peer connection');
                     $scope.peerids[data.fb_uid].push(connection.peer);
                     var conn = $scope.peer.connect(connection.peer);
                     $scope.peer_connections[data.fb_uid].push(conn);
@@ -263,21 +263,21 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager)
                     return;
                 }
 
-                console.log('status message status', data.status);
+//                console.log('status message status', data.status);
                 if (data.status == 103) {
 //                    var timestamp =  data.message.split(':')[0];
 //                    var timestamp =  data.timestamp;
 //                    console.log(timestamp);
-                    console.log('i am status 103');
+//                    console.log('i am status 103');
                     if (!(data.fb_uid in $scope.peer_primary) || $scope.peer_primary[data.fb_uid] == connection.peer){
                         delete $scope.peer_delivery_dict[data.timestamp];
-                        console.log('got answer from primary id');
+//                        console.log('got answer from primary id');
                     }
 
 //                    console.log($scope.peer_delivery_dict);
                 }
                 else {
-                    console.log('got a normal message through peer, will try to reply', data.message);
+//                    console.log('got a normal message through peer, will try to reply', data.message);
                     $scope.peer_primary[data.fb_uid] = connection.peer;
 //                    var statusreply = data.timestamp + ':' + $scope.status_message;
                     $scope.peer_send_msg(data.fb_uid, $scope.status_message, data.timestamp, 103);
@@ -343,13 +343,13 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager)
 //                console.log($scope.peer_delivery_dict);
 
                 $timeout(function () {
-                    console.log('ready for check return call');
+//                    console.log('ready for check return call');
                     $scope.peer_check_return(timestamp, peerid);
                 }, 6000);
             }
 
             var proceed_with_sending = function() {
-                console.log('landed in peer send msg');
+//                console.log('landed in peer send msg');
 
 
 //                console.log('after the if condition, tyring to send');
@@ -366,7 +366,7 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager)
 //                    console.log('just before if');
                     //            console.log(new Date().getTime());
                     if (!c.open) {
-                        console.log('connection was not open, creating new one..might be old connection');
+//                        console.log('connection was not open, creating new one..might be old connection');
 //                    $scope.peer_connections[peerid] = $scope.peer.connect(peerid);
 //                    var conn = $scope.peer_connections[peerid];
                         var promise = $timeout(function() {
@@ -384,7 +384,7 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager)
 
                     }
                     else {
-                        console.log('connection is open and working already.');
+//                        console.log('connection is open and working already.');
                         var promise = $timeout(function() {
                             //                    console.log(c);
                             //                    var c = $scope.peer.connect(peerid);
@@ -457,7 +457,7 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager)
                     },
                     function () {
 
-                        console.log('finished sending');
+//                        console.log('finished sending');
 //                        console.log(p);
 //                        return p;
                     }
@@ -1338,41 +1338,41 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager)
         $scope.xmpp_send_message(id, m, 101);
     }
 
-    $scope.recheck_peer_connections = function() {
-        var j = 0;
-        var k = 0;
-        console.log('rebuilding peer connections');
-
-        $scope.genric_repeat(
-            function() {
-               j++;
-               return (j>$scope.peer_possible.length);
-            },
-            2000,
-            function(){
-                var fb_uid = $scope.peer_possible[k];
-                var bool = $scope.protocol_dict[fb_uid];
-
-                if (bool == 'jabber'){
-                    $scope.get_peerids($scope.peer_possible[k]);
-                }
-
-                k++;
-            },
-            function (){
-                $timeout(function(){
-                  $scope.recheck_peer_connections();
-                },60000) ;
-            }
-        );
-    }
+//    $scope.recheck_peer_connections = function() {
+//        var j = 0;
+//        var k = 0;
+//        console.log('rebuilding peer connections');
+//
+//        $scope.genric_repeat(
+//            function() {
+//               j++;
+//               return (j>$scope.peer_possible.length);
+//            },
+//            2000,
+//            function(){
+//                var fb_uid = $scope.peer_possible[k];
+//                var bool = $scope.protocol_dict[fb_uid];
+//
+//                if (bool == 'jabber'){
+//                    $scope.get_peerids($scope.peer_possible[k]);
+//                }
+//
+//                k++;
+//            },
+//            function (){
+//                $timeout(function(){
+//                  $scope.recheck_peer_connections();
+//                },60000) ;
+//            }
+//        );
+//    }
 
     $scope.broadcastMessageCallback = function(id, from, msg) {
 //        console.log('sending msg ', msg, 'to ', id);
 //        console.log(JSON.stringify(msg));
         $("#" + id).chatbox("option", "boxManager").addMsg(from, msg);
 //        $scope.peer_send_msg(id, msg);
-        console.log('broadcast message:', msg);
+//        console.log('broadcast message:', msg);
         $scope.message_queue.enqueue([id,msg]);
 
         if (id in $scope.peerids)   {
@@ -1385,7 +1385,7 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager)
                 $timeout(function() {
                     if  (!(id in $scope.peerids)) {
                         $scope.peerids[id] = [];
-                        console.log('shifting to jabber manually');
+//                        console.log('shifting to jabber manually');
                         $scope.protocol_dict[id] = 'jabber';
                         $scope.sort_messages();
                     }
