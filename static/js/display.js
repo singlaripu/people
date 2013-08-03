@@ -1312,10 +1312,13 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager)
                 $scope.peerids_bool[id] = true;
                 $scope.get_peerids(id);
                 $timeout(function() {
-                    $scope.peerids[id] = [];
-                    console.log('shifting to jabber manually');
-                    $scope.protocol_dict[id] = 'jabber';
-                    $scope.sort_messages();
+                    if  (!(id in $scope.peerids)) {
+                        $scope.peerids[id] = [];
+                        console.log('shifting to jabber manually');
+                        $scope.protocol_dict[id] = 'jabber';
+                        $scope.sort_messages();
+                    }
+
                 }, 5000);
             }
 
