@@ -104,7 +104,7 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager)
 
 //                console.log(data);
 
-                if (data.browser != Peer.browser) {
+                if ($scope.protocol_dict[jid[0]] = 'peer' && data.browser != Peer.browser) {
                    $scope.protocol_dict[jid[0]] = 'jabber';
                 }
 
@@ -406,8 +406,8 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager)
                     c.on('close', function(e) {
                         console.log('close on connection', e);
 //                        var index =  $scope.timestamp_recieved_fn.call($scope.peerids[peerid], timestamp)
-                        $scope.peerids[peerid].splice(j,1);
-                        $scope.peer_connections[peerid].splice(j,1);
+//                        $scope.peerids[peerid].splice(j,1);
+//                        $scope.peer_connections[peerid].splice(j,1);
 
 
 
@@ -447,7 +447,7 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager)
                         j++ ;
                         return (j>$scope.peer_connections[peerid].length) ;
                     },
-                    50,
+                    100,
                     function() {
                         p = peer_exec_fn(k);
 
@@ -491,7 +491,7 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager)
                             return (j>$scope.peerids[peerid].length) ;
 
                         },
-                        50,
+                        100,
                         function () {
                             var key =  $scope.peerids[peerid][k];
                             var conn = $scope.peer.connect(key);
