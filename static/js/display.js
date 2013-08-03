@@ -35,7 +35,7 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager)
     $scope.peer_delivery_dict = {};
 //    $scope.message_queue_temp = new Queue();
     $scope.sort_messages_flag = "free";
-    $scope.status_message = 'Status6387';
+    $scope.status_message = 'DeliveryConfirmation';
     $scope.peer_reconnect_flag = false;
     $scope.check_return_flag = false;
     $scope.status_waiting_list = new Queue();
@@ -46,7 +46,7 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager)
     $scope.peerids_bool = {};
     $scope.mypeerid = undefined;
     $scope.peer_primary = {};
-    $scope.peer_possible = [];
+//    $scope.peer_possible = [];
     $scope.browser_status = undefined;
 //    $scope.msg_send_promise = undefined;
 //    $scope.msg_array = [];
