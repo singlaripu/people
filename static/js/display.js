@@ -219,9 +219,14 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager)
                 }
 
                 if ($scope.timestamp_recieved_fn.call($scope.peerids[data.fb_uid], connection.peer) == -1) {
+                    console.log('adding new peer connection');
                     $scope.peerids[data.fb_uid].push(connection.peer);
 
                 }
+
+//                if (data.status == 100) {
+//
+//                }
 
 
 //                console.log(data);
@@ -231,10 +236,12 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager)
                     return;
                 }
 
+                console.log('status message status', data.status);
                 if (data.status == 103) {
 //                    var timestamp =  data.message.split(':')[0];
 //                    var timestamp =  data.timestamp;
 //                    console.log(timestamp);
+                    console.log('i am status 103');
                     if (!(data.fb_uid in $scope.peer_primary) || $scope.peer_primary[data.fb_uid] == connection.peer){
                         delete $scope.peer_delivery_dict[data.timestamp];
                         console.log('got answer from primary id');
