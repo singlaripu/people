@@ -598,7 +598,10 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager,
             $scope.users[j].workfilter = 1;
             $scope.users[j].educationfilter = 1;
             $scope.users[j].likesfilter = 1;
+            $scope.users[j].onlinefilter = 1;
+            $scope.users[j].online_flag = false;
             $scope.presence_ids.push($scope.users[j].fb_uid) ;
+
 //            $scope.users[j].dummyurl = '/static/images/placeholder1.gif';
         }
 
@@ -612,9 +615,7 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager,
 
 //        var mydata1 = ['101', '102'];
 
-        myStatusService.async($scope.presence_ids).then(function(d) {
-            console.log(d);
-        })
+        $scope.refresh_online_status();
 //        makeCorsRequest();
 //        myStatusService.async(mydata1);
 
@@ -624,6 +625,18 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager,
 
 
 
+    $scope.refresh_online_status = function (){
+        myStatusService.async($scope.presence_ids).then(function(d) {
+            console.log('Refreshing online status');
+            for (var j=0; j<$scope.users.length; j++) {
+                $scope.users[j].online_flag = d.data[j]
+            }
+            $timeout(function() {
+                $scope.refresh_online_status();
+            },300000);
+        });
+
+    }
 
 
 
@@ -942,12 +955,13 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager,
         for ( var j = 0; j < array.length; j++) {
             if (
                 array[j].namefilter &&
-                    array[j].genderfilter &&
-                    array[j].locationfilter &&
-                    array[j].hometownfilter &&
-                    array[j].workfilter &&
-                    array[j].educationfilter &&
-                    array[j].likesfilter
+                array[j].genderfilter &&
+                array[j].locationfilter &&
+                array[j].hometownfilter &&
+                array[j].workfilter &&
+                array[j].educationfilter &&
+                array[j].likesfilter &&
+                array[j].onlinefilter
                 ) {
                 temp.push(array[j]);
             }
@@ -1119,6 +1133,25 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager,
                 array[j]["genderfilter"] = 1;
             }
         }
+
+        if ($scope.checkModel.online) {
+//            console.log('checking online model');
+            for (var j= 0; j<array.length; j++){
+                if (array[j].online_flag){
+                    array[j]["onlinefilter"] = 1;
+                }
+                else {
+                    array[j]["onlinefilter"] = 0;
+                }
+            }
+        }
+        else {
+//            console.log('unclick online model');
+            for (var j= 0; j<array.length; j++){
+                array[j]["onlinefilter"] = 1;
+            }
+        }
+
         return ;
     }
 
