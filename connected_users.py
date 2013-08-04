@@ -8,3 +8,8 @@ def get_online_users():
 	result = server.connected_users().get('connected_users')
 	jids =  [i.get('sessions').split('@')[0] for i in result]
 	return jids
+
+
+if __name__ == '__main__':
+	jids = get_online_users()
+	print jids

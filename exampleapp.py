@@ -19,7 +19,7 @@ from datetime import datetime as dt
 #import redis
 # import flask
 
-from socketio import socketio_manage
+# from socketio import socketio_manage
 import facebook
 
 #!/usr/bin/env python
@@ -35,8 +35,8 @@ if sys.version_info < (3, 0):
 else:
     raw_input = input
 
-from socketio_chat import ChatNamespace
-from socketio_chat import EchoBot
+# from socketio_chat import ChatNamespace
+# from socketio_chat import EchoBot
 
 FB_APP_ID = os.environ.get('FACEBOOK_APP_ID')
 FB_APP_SECRET = os.environ.get('FACEBOOK_SECRET')
@@ -277,6 +277,33 @@ def getlist():
         json_results['name'] = my_user['name']
         return jsonify(**json_results)
     return jsonify([])
+
+
+import urlparse
+import redis
+import time
+import simplejson as simplejson
+REDISCLOUD_URL = os.environ.get('REDISCLOUD_URL')
+# REDISCLOUD_URL='redis://rediscloud:YvIYrEH6Ph4j9HU9@pub-redis-14845.us-east-1-3.1.ec2.garantiadata.com:14845'
+url = urlparse.urlparse(REDISCLOUD_URL)
+r = redis.Redis(host=url.hostname, port=url.port, password=url.password)
+pipe = r.pipeline()
+
+
+@app.route('/getstatus', methods=['POST'])
+def getstatus():
+    if flask.request.method == 'POST':
+        users = simplejson.loads(flask.request.data)['ids']
+        if len(users) <= 500:
+            for user in users:
+                pipe.sismember('online', user)
+            res = pipe.execute()
+            d = {'data':res}
+        else:
+            d = {'data':[]}
+        return jsonify(**d)
+    return jsonify([])    
+
 
 
 @app.route('/test', methods=['GET'])

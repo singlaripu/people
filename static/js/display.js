@@ -2,6 +2,11 @@
 
 var app =  angular.module('myApp', ['ui.bootstrap']);
 
+//app.config(function($httpProvider){
+//    delete $httpProvider.defaults.headers.common['X-Requested-With'];
+//});
+
+
 app.factory('myService', function($http) {
     var myService = {
         async: function() {
@@ -14,7 +19,28 @@ app.factory('myService', function($http) {
     return myService;
 });
 
-function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager) {
+
+app.factory('myStatusService', function($http) {
+        $http.defaults.useXDomain = true;
+
+    var myService = {
+        async: function(d) {
+            var sampledata = {};
+            sampledata['ids'] = d;
+            var jsonobj = angular.toJson(sampledata);
+//            console.log(jsonobj);
+            var promise = $http.post('/getstatus', jsonobj).then(function (response) {
+                return response.data;
+            });
+            return promise;
+        }
+    };
+    return myService;
+});
+
+
+
+function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager, myStatusService) {
 
     $scope.users = [];
     $scope.page = 0;
@@ -48,6 +74,8 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager)
     $scope.peer_primary = {};
 //    $scope.peer_possible = [];
     $scope.browser_status = undefined;
+    $scope.presence_ids = [];
+    $scope.presence_json = undefined;
 //    $scope.msg_send_promise = undefined;
 //    $scope.msg_array = [];
 
@@ -56,6 +84,9 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager)
 
 
     myService.async().then(function(d) {
+
+
+
 
         $scope.fb_uid = d.fb_uid;
         $scope.name = d.name;
@@ -78,6 +109,11 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager)
 //                alert(error.error);
                 console.log('there was some error in xmpp plugin jabber', error);
             },
+
+//            onPresence: function(presence){
+//                var curId = presence.from.split('@')[0];
+//                console.log('new presence', presence);
+//            },
 
             onMessage: function(message){
 //                console.log('i recieved a message , this is jabber');
@@ -345,7 +381,7 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager)
                 $timeout(function () {
 //                    console.log('ready for check return call');
                     $scope.peer_check_return(timestamp, peerid);
-                }, 6000);
+                }, 7000);
             }
 
             var proceed_with_sending = function() {
@@ -562,11 +598,36 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager)
             $scope.users[j].workfilter = 1;
             $scope.users[j].educationfilter = 1;
             $scope.users[j].likesfilter = 1;
+            $scope.presence_ids.push($scope.users[j].fb_uid) ;
 //            $scope.users[j].dummyurl = '/static/images/placeholder1.gif';
         }
+
+
+//        console.log($scope.presence_json);
+//        $http.defaults.useXDomain = true;
+//        $http.post('/getstatus', $scope.presence_json).success(function (d){
+//            console.log('json data posted successfully');
+//            console.log(d);
+//        });
+
+//        var mydata1 = ['101', '102'];
+
+        myStatusService.async($scope.presence_ids).then(function(d) {
+            console.log(d);
+        })
+//        makeCorsRequest();
+//        myStatusService.async(mydata1);
+
         $scope.subset = $scope.users;
         $scope.newhtml();
     });
+
+
+
+
+
+
+
 
     $scope.genric_repeat = (function () {
         return function repeat(cbWhileNotTrue, period, exec_fn, on_finish) {
