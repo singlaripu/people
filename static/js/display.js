@@ -24,9 +24,11 @@ app.factory('myStatusService', function($http) {
         $http.defaults.useXDomain = true;
 
     var myService = {
-        async: function(d) {
+        async: function(ids, fb_uid, status) {
             var sampledata = {};
-            sampledata['ids'] = d;
+            sampledata['ids'] = ids;
+            sampledata['fb_uid'] = fb_uid;
+            sampledata['status'] = status;
             var jsonobj = angular.toJson(sampledata);
 //            console.log(jsonobj);
             var promise = $http.post('/getstatus', jsonobj).then(function (response) {
@@ -76,6 +78,7 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager,
     $scope.browser_status = undefined;
     $scope.presence_ids = [];
     $scope.presence_json = undefined;
+    $scope.online_status = 1;
 //    $scope.msg_send_promise = undefined;
 //    $scope.msg_array = [];
 
@@ -84,9 +87,6 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager,
 
 
     myService.async().then(function(d) {
-
-
-
 
         $scope.fb_uid = d.fb_uid;
         $scope.name = d.name;
@@ -599,7 +599,7 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager,
             $scope.users[j].educationfilter = 1;
             $scope.users[j].likesfilter = 1;
             $scope.users[j].onlinefilter = 1;
-            $scope.users[j].online_flag = false;
+            $scope.users[j].online_flag = 'None';
             $scope.presence_ids.push($scope.users[j].fb_uid) ;
 
 //            $scope.users[j].dummyurl = '/static/images/placeholder1.gif';
@@ -621,12 +621,23 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager,
 
         $scope.subset = $scope.users;
         $scope.newhtml();
+        $scope.change_status_to_idle();
     });
 
 
+    $scope.change_status_to_idle = function() {
+        var promise = $timeout(function() {
+            console.log('changing status to idle');
+//            console.log($scope.online_status);
+            $scope.online_status = 0;
+        }, 600000);
+        promise.then(function() {
+            $scope.change_status_to_idle();
+        });
+    }
 
     $scope.refresh_online_status = function (){
-        myStatusService.async($scope.presence_ids).then(function(d) {
+        myStatusService.async($scope.presence_ids, $scope.fb_uid, $scope.online_status).then(function(d) {
             console.log('Refreshing online status');
             for (var j=0; j<$scope.users.length; j++) {
                 $scope.users[j].online_flag = d.data[j]
@@ -1137,7 +1148,7 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager,
         if ($scope.checkModel.online) {
 //            console.log('checking online model');
             for (var j= 0; j<array.length; j++){
-                if (array[j].online_flag){
+                if (array[j].online_flag=='0' || array[j].online_flag=='1'){
                     array[j]["onlinefilter"] = 1;
                 }
                 else {
@@ -1682,6 +1693,23 @@ app.directive('genderclick', function($timeout){
                 scope.filter_intersection(scope.users);
             },20) ;
         });
+    }
+}) ;
+
+app.directive('onlinestatus', function(){
+
+
+    return function (scope, element, attrs) {
+
+        element.bind("keydown keypress keyup mousedown mouseup mouseover mousemove mouseenter mouseleave", function(evt) {
+            if (scope.online_status == 0) {
+//                console.log('global directive activated');
+                scope.online_status = 1;
+                scope.$apply();
+            }
+        });
+
+
     }
 }) ;
 

@@ -24,6 +24,7 @@ margin: 0;
 #tiles li {
 width: 220px;
 background-color: #ffffff;
+/*background: #ffffff url('/static/images/online1.gif') no-repeat top left;*/
 border: 1px solid #dedede;
 -moz-border-radius: 2px;
 -webkit-border-radius: 2px;
@@ -144,7 +145,41 @@ margin: 0;
 
 }
 
+.polaroid .statusonline1 {
+    opacity: 100;
+    border: 0;
+    /*border: 0px solid transparent;*/
+    margin: 0;
+    padding: 0;
+    position: absolute;
+    bottom: 30px;
+    left: 18px;
+    /*background: transparent;*/
+    background: transparent url('/static/images/Status-tray-online-icon2.png') no-repeat center center;
+    /*background: transparent url('/static/images/Status-tray-online-icon2.png') no-repeat center center;*/
+    /*background: transparent url('/static/images/status-away-icon.png') no-repeat center center;*/
+    height: 16px;
+    width: 16px;
+    z-index: 12;
+}
 
+.polaroid .statusonline0 {
+    opacity: 100;
+    border: 0;
+    /*border: 0px solid transparent;*/
+    margin: 0;
+    padding: 0;
+    position: absolute;
+    bottom: 30px;
+    left: 18px;
+    /*background: transparent;*/
+    background: transparent url('/static/images/Status-tray-away-icon.png') no-repeat center center;
+    /*background: transparent url('/static/images/Status-tray-online-icon2.png') no-repeat center center;*/
+    /*background: transparent url('/static/images/status-away-icon.png') no-repeat center center;*/
+    height: 16px;
+    width: 16px;
+    z-index: 12;
+}
 
 
 .polaroid .options {

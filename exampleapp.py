@@ -293,14 +293,16 @@ pipe = r.pipeline()
 @app.route('/getstatus', methods=['POST'])
 def getstatus():
     if flask.request.method == 'POST':
-        users = simplejson.loads(flask.request.data)['ids']
+        data = simplejson.loads(flask.request.data)
+        users = data['ids']
+        status = data['status']
+        userid = data['fb_uid']
+        pipe.set(userid, status).expire(userid, 360)
         if len(users) <= 500:
             for user in users:
-                pipe.sismember('online', user)
-            res = pipe.execute()
-            d = {'data':res}
-        else:
-            d = {'data':[]}
+                pipe.get(user)
+        res = pipe.execute()
+        d = {'data':res[2:]}        
         return jsonify(**d)
     return jsonify([])    
 

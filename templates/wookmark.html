@@ -58,7 +58,7 @@
 
 </head>
 
-<body chatboxmsgentered ng-controller="DispCtrl">
+<body chatboxmsgentered ng-controller="DispCtrl" onlinestatus>
 
 
 
@@ -124,7 +124,10 @@
                  <ul id="tiles">
                      <li ng-repeat="image in subset | orderBy:'-score' | limitTo:page*incr" lastdirective ng-cloak class="ng-cloak">
                          <div class="polaroid">
+                             <div class="statusonline{{image.online_flag}}" ></div>
+                             <!--<img src="/static/images/online.ico" width="15">-->
                              <div class="options">
+
                                  <div class="comment" title="Pin">
                                      <a href="#"><em><i class="icon-tag"></i></em><span>Pin</span></a>
                                  </div>
@@ -142,7 +145,7 @@
                                  <!--<img  width="200" height="{{image.height}}" fallbackimage>-->
                                  <img ng-src="{{image.profile_pic_url}}" width="200" height="{{image.height}}">
                              </a>
-                             <p> {{image.name}}</p>
+                             <p> {{image.name}} {{image.online_flag}}</p>
                          </div>
                      </li>
                  </ul>
