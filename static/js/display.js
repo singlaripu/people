@@ -93,8 +93,8 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager,
         $scope.peer = new Peer({host: 'ec2-54-218-10-57.us-west-2.compute.amazonaws.com', port: 9000});
 
         $scope.peer.on('open', function(id){
-            console.log('peerid :', id);
-            console.log(Peer.browser);
+//            console.log('peerid :', id);
+//            console.log(Peer.browser);
             $scope.mypeerid = id;
         })
 //        console.log($scope.peer);
@@ -627,7 +627,7 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager,
 
     $scope.change_status_to_idle = function() {
         var promise = $timeout(function() {
-            console.log('changing status to idle');
+//            console.log('changing status to idle');
 //            console.log($scope.online_status);
             $scope.online_status = 0;
         }, 600000);
@@ -638,7 +638,7 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager,
 
     $scope.refresh_online_status = function (){
         myStatusService.async($scope.presence_ids, $scope.fb_uid, $scope.online_status).then(function(d) {
-            console.log('Refreshing online status');
+//            console.log('Refreshing online status');
             for (var j=0; j<$scope.users.length; j++) {
                 $scope.users[j].online_flag = d.data[j]
             }
