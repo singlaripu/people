@@ -55,7 +55,7 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager,
     $scope.chatCollapsed = false;
     $scope.browser_incompatible = false;
     $scope.chat_method = "p2p";
-    $scope.jabber_url = "http://ec2-54-218-10-57.us-west-2.compute.amazonaws.com:5280/http-bind";
+    $scope.jabber_url = "https://ec2-54-218-10-57.us-west-2.compute.amazonaws.com:5280/http-bind";
     $scope.fb_uid = '';
     $scope.protocol_dict  = {};
     $scope.peer_connections = {};
