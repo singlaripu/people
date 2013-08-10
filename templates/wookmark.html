@@ -10,12 +10,18 @@
     <!--<link rel="stylesheet"href="/static/css/sidenav.css" >-->
     <link rel="stylesheet"href="/static/css/bootstrap-combined.min.css" >
     <link rel="stylesheet"href="/static/css/bootstrap-responsive.css" >
+    <!--<link rel="stylesheet"href="/static/css/bootstrap-combined.no-icons.min.css" >-->
+    <!--<link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.no-icons.min.css" rel="stylesheet">-->
+    <!--<link href="//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css" rel="stylesheet">-->
+
+    <!--<link href="/static/css/font-awesome.css" rel="stylesheet">-->
     <!--<link rel="stylesheet"href="/static/css/bootstrap3.css" >-->
 
     <link rel="stylesheet" href="/static/css/jquery-ui-1.8.2.custom.css" type="text/css" media="screen" />
     <link rel="stylesheet" type="text/css" href="/static/css/jquery.ui.chatbox.css"  />
     <link rel="stylesheet" href="/static/css/reset.css">
     <link rel="stylesheet" href="/static/css/style.css">
+
 
 
 
@@ -77,9 +83,35 @@
                   <div class="span7 row-fluid">
                       <a class="brand span3" href="#"><strong>People</strong><i class="icon-leaf"></i></a>
 
-                      <form class="navbar-form pull-left span9 form-search" style="margin-left: -5%">
-                          <input type="search" class="input-xxlarge" placeholder="Search anyone..." fieldname="name" dataname="name">
+                      <!--<div class="control-group span9">-->
+                          <!--<label class="control-label" for="inputIcon"></label>-->
+                          <!--<div class="controls">-->
+                              <!--<div class="input-prepend">-->
+
+                                  <!--<input class="input-xxlarge" type="search" id="inputIcon" placeholder="Search anyone">-->
+                                  <!--<span class="add-on"><i class="icon-search"  ></i></span>-->
+                              <!--</div>-->
+                          <!--</div>-->
+                      <!--</div>-->
+                      <!--<div class=>-->
+                      <form class="navbar-form pull-left form-search span9" style="margin-left: -5%">
+                          <input type="search" class="input-xxlarge" placeholder="Search anyone..."  searchenter style="width: 95%">
+                          <span class="fornav"><a href="#" ><i class="icon-search" searchenter></i></a> </span>
+
+
+                          <!--<button type="submit" class="inline"><i class="icon icon-search" tabindex="-1"></i> </button>-->
+                           <!--<span class="search-icon" style="z-index: 3;">-->
+                                <!--<button type="submit" class="icon-search" tabindex="-1">-->
+                                    <!--&lt;!&ndash;<span class="visuallyhidden">&ndash;&gt;-->
+
+                                        <!--&lt;!&ndash;Search&ndash;&gt;-->
+                                    <!--&lt;!&ndash;</span>&ndash;&gt;-->
+                                <!--</button>-->
+                           <!--</span>-->
                       </form>
+                          <!--<a href="#"><i class="icon-search inline" style="z-index: 120"></i></a>-->
+                      <!--</div>-->
+
                   </div>
 
 
@@ -94,7 +126,7 @@
                               <li><a href="#" class="ng-cloak">{{name}}</a></li>
                               <li class="dropdown">
                                   <a class="dropdown-toggle" id="drop1" role="button" data-toggle="dropdown" href="#">
-                                      <i class=icon-cog></i>
+                                      <i class="icon-cog"></i>
                                       <b class="caret"></b>
                                   </a>
                                   <ul class="dropdown-menu" role="menu" aria-labelledby="drop1" style="min-width: 80px;">

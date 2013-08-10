@@ -441,3 +441,12 @@ only screen and (min-device-pixel-ratio: 1.5) {
 }
 
 /*.righticonclass {font-size: 14px; font-weight: }*/
+
+.fornav {
+    position:relative;
+    margin-left:-22px;
+    top:2px;
+    z-index:2;
+    vertical-align: middle;
+}
+

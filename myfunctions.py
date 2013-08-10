@@ -1,4 +1,4 @@
-from models import db, User, ProfileData
+from models import db, User, ProfileData, UserComplete
 import requests, json
 from dateutil import parser
 from datetime import datetime as dt
@@ -37,7 +37,7 @@ def get_user(uid):
 	return User.query.filter_by(fb_uid=uid).first() 
 
 def get_data(my_user):
-	return ProfileData.query.filter_by(user_id=my_user.id).first()
+	return UserComplete.query.filter_by(id=my_user.id).first()
 
 
 def convert_sqlobj_to_dict(obj, restrict_to_keys):
@@ -302,7 +302,7 @@ def search_index(token, form, fetch_fields=['docid']):
 	#kwargs.keys() = ['user', 'query', 'filters', 'fetch_fields']
 	#query = {'name':'ripu',  'current_location_city':'bangalore', 'likes_dummy':'sachin'}
 	#filters = {'age':[20, 24], 'distance':10}
-	#fetch_fields=['fb_uid', 'name']
+	fetch_fields=['fb_uid', 'name']
 	#global_query = 'hathi'
 
 	form = {key:value for key,value in form.iteritems() if value}
@@ -347,15 +347,21 @@ def search_index(token, form, fetch_fields=['docid']):
 	if not q:
 		return []
 
-	res = handle.search(q, 
-			scoring_function=0, 
-			function_filters=function_filters, 
-			docvar_filters=docvar_filters,
-			fetch_fields=fetch_fields,
-			# match_any_field=match_any_field,
-			variables=variables)['results']
+	# q = 'text:'+form['text']
+	q = form['text']
 
+	# res = handle.search(q, 
+	# 		scoring_function=0, 
+	# 		function_filters=function_filters, 
+	# 		docvar_filters=docvar_filters,
+	# 		fetch_fields=fetch_fields,
+	# 		# match_any_field=match_any_field,
+	# 		variables=variables)['results']
+	res = handle.search(q, length=600)['results']
+
+	# print res
 	search_results = []
+
 	for i in res:
 		d = {}
 		user = get_user_by_id(i['docid'])
@@ -364,12 +370,12 @@ def search_index(token, form, fetch_fields=['docid']):
 			d = dict( convert_sqlobj_to_dict(user, ('name','fb_uid', 'id')) + convert_sqlobj_to_dict(data, ('relationship_status', 'profile_pic_url', 'gender', 'current_location_name') ) )
 			d['age'] = get_age(data.birthday)
 			d['uid'] = '.'.join(user.name.split()).lower()
-			search_results.append(d)
+			search_results.append(user)
 
 	return search_results
 
 def get_user_by_id(user_id):
-	return User.query.get(int(user_id))
+	return UserComplete.query.get(int(user_id))
 
 
 def get_parsed_birthday(b):
@@ -402,4 +408,4 @@ def to_json(users):
 	 	res.append(a)
 	# start = int(random()*100)
 	# end = start + 100
-	return {'data':res[0:100]}
+	return {'data':res[0:600]}

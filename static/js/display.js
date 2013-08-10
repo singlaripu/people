@@ -19,6 +19,18 @@ app.factory('myService', function($http) {
     return myService;
 });
 
+app.factory('mySearchService', function($http) {
+    var myService = {
+        async: function(q) {
+            var promise = $http.get('/searchquery/'+q).then(function (response) {
+                return response.data;
+            });
+            return promise;
+        }
+    };
+    return myService;
+});
+
 
 app.factory('myStatusService', function($http) {
         $http.defaults.useXDomain = true;
@@ -79,17 +91,15 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager,
     $scope.presence_ids = [];
     $scope.presence_json = undefined;
     $scope.online_status = 1;
+    $scope.searchvalue = undefined;
+    $scope.backupdata = undefined;
 //    $scope.msg_send_promise = undefined;
 //    $scope.msg_array = [];
 
     $(document).bind('scroll', onScroll);
 
-
-
-    myService.async().then(function(d) {
-
-        $scope.fb_uid = d.fb_uid;
-        $scope.name = d.name;
+    $scope.connect_to_chat_protocols = function() {
+//        console.log('connect to chat protocols');
         $scope.peer = new Peer({host: 'ec2-54-218-10-57.us-west-2.compute.amazonaws.com', port: 9000});
 
         $scope.peer.on('open', function(id){
@@ -141,7 +151,7 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager,
 //                console.log(data);
 
                 if ($scope.protocol_dict[jid[0]] = 'peer' && data.browser != Peer.browser) {
-                   $scope.protocol_dict[jid[0]] = 'jabber';
+                    $scope.protocol_dict[jid[0]] = 'jabber';
                 }
 
 //                if (data == 'Status5683:EstablishConnection')  {
@@ -252,7 +262,7 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager,
 
 //            $scope.chat_method = "bosh";
 //            $xmpp_plugin.connect($scope.jabber_url, $scope.fb_uid, $scope.fb_uid);
-             console.log('error in peer:', e);
+            console.log('error in peer:', e);
 //            $scope.
 
         })
@@ -276,7 +286,7 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager,
                 }
 
                 if (!(data.fb_uid in $scope.peer_connections)) {
-                   $scope.peer_connections[data.fb_uid] = [];
+                    $scope.peer_connections[data.fb_uid] = [];
                 }
 
                 if ($scope.timestamp_recieved_fn.call($scope.peerids[data.fb_uid], connection.peer) == -1) {
@@ -538,7 +548,7 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager,
                             k++;
                         },
                         function () {
-                          tic1 = proceed_with_sending();
+                            tic1 = proceed_with_sending();
 //                          return tic1
                         }
 
@@ -586,9 +596,13 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager,
         }
 
         console.log($scope.fb_uid, $scope.name);
+    }
 
+    $scope.on_arrival_of_data = function (d) {
 
+//        console.log('on arrival of data');
         $scope.users = d.data;
+        $scope.presence_ids = [];
 
         for(var j=0; j<$scope.users.length; j++){
             $scope.users[j].namefilter = 1;
@@ -621,7 +635,22 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager,
 
         $scope.subset = $scope.users;
         $scope.newhtml();
+
+    }
+
+
+
+    myService.async().then(function(d) {
+
+//        console.log('i am in my service then');
+
+        $scope.fb_uid = d.fb_uid;
+        $scope.name = d.name;
+        $scope.backupdata = d;
+        $scope.connect_to_chat_protocols();
+        $scope.on_arrival_of_data(d);
         $scope.change_status_to_idle();
+
     });
 
 
@@ -638,12 +667,13 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager,
 
     $scope.refresh_online_status = function (){
         myStatusService.async($scope.presence_ids, $scope.fb_uid, $scope.online_status).then(function(d) {
-//            console.log('Refreshing online status');
+            console.log('Refreshing online status');
             for (var j=0; j<$scope.users.length; j++) {
                 $scope.users[j].online_flag = d.data[j]
             }
             $timeout(function() {
                 $scope.refresh_online_status();
+
             },300000);
         });
 
@@ -1680,6 +1710,64 @@ app.directive("enter", function($timeout){
         });
     }
 });
+
+app.directive("searchenter", function($timeout, mySearchService, myService){
+    return function (scope, element, attrs) {
+
+        var search_fn = function() {
+            scope.subset = [];
+            scope.$apply();
+            $('#loaderCircle').show();
+            mySearchService.async(scope.searchvalue).then(function(d) {
+//            console.log('i am in my service then');
+            scope.on_arrival_of_data(d);
+            });
+        }
+
+        var search_default = function (){
+            scope.subset = [];
+            scope.$apply();
+            $('#loaderCircle').show();
+//            myService.async().then(function(d) {
+//            console.log('i am in my service then');
+                scope.on_arrival_of_data(scope.backupdata);
+//            });
+        }
+
+        element.bind("keyup", function(evt) {
+            scope.searchvalue = evt.target.value;
+            scope.$apply();
+            if (evt.which == 13){
+                if (evt.target.value)  {
+                    console.log('search term: ', evt.target.value);
+                    search_fn();
+                }
+                else {
+                    search_default();
+                }
+
+            }
+
+        });
+
+        element.on("click", function(evt) {
+//            console.log(evt.target.className) ;
+            if (evt.target.className == "icon-search") {
+                if (scope.searchvalue) {
+                    console.log('search term: ', scope.searchvalue)   ;
+                    search_fn();
+                }
+                else {
+                    search_default();
+                }
+
+            }
+        });
+
+
+    }
+});
+
 
 
 app.directive('genderclick', function($timeout){

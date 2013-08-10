@@ -206,9 +206,29 @@ def search():
             return redirect(url_for('index'))
     else:
        return render_template('base.html', app_id=FB_APP_ID, token=access_token, name=FB_APP_NAME) 
-  
-  
 
+@app.route('/searchquery/<query>', methods=['GET'])
+def searchquery(query):
+    # if access_token:
+    if request.method == 'GET':
+        # print query
+        d = {'text':query}
+        search_results = search_index('', d)
+        # print len(search_results)
+        json_results = to_json(search_results)
+        my_user = current_user()
+        json_results['fb_uid'] = my_user['fb_uid']
+        json_results['name'] = my_user['name']
+        return jsonify(**json_results)
+        # return render_template('search.html', app_id=FB_APP_ID, search_results=search_results, form_values=dict(request.form) )
+        
+    # else:
+    #     return redirect(url_for('index'))
+    # else:
+    # return render_template('base.html', app_id=FB_APP_ID, token=access_token, name=FB_APP_NAME) 
+    
+
+  
 @app.route('/user/<username>/<int:user_id>', methods=['GET', 'POST'])
 def get_profile(username, user_id):
     my_user = get_user_by_id(user_id/1347)
