@@ -9,6 +9,8 @@
     <link rel="shortcut icon" href="/static/images/favicon2.ico">
     <!--<link rel="stylesheet"href="/static/css/sidenav.css" >-->
     <link rel="stylesheet"href="/static/css/bootstrap-combined.min.css" >
+    <link rel="stylesheet"href="/static/css/bootstrap-responsive.css" >
+    <!--<link rel="stylesheet"href="/static/css/bootstrap3.css" >-->
 
     <link rel="stylesheet" href="/static/css/jquery-ui-1.8.2.custom.css" type="text/css" media="screen" />
     <link rel="stylesheet" type="text/css" href="/static/css/jquery.ui.chatbox.css"  />
@@ -21,6 +23,7 @@
     <script type="text/javascript" src="/static/js/jquery-ui-1.8.2.custom.min.js"></script>
     <script type="text/javascript" src="/static/js/jquery.ui.chatbox.js"></script>
     <script src="/static/js/html5.js"></script>
+    <!--<script src="/static/js/bootstrap3.js"></script>-->
     <script src="/static/js/bootstrap.min.js"></script>
     <script src="/static/js/angular.min.js"></script>
 
@@ -65,14 +68,53 @@
   <div id="container" >
 
 
+
+
       <div class="navbar navbar-fixed-top" >
-          <div class="navbar-inner" style="padding-left: 12px;">
-              <a class="brand" href="#"><strong>People</strong><i class="icon-leaf"></i></a>
-              <ul class="nav">
-                  <li ><a  href="#">Stream</a></li>
-                  <li><a href="#">Pin Board</a></li>
-                  <li><a href="#">Account</a></li>
-              </ul>
+          <div class="navbar-inner" >
+              <div class="container row-fluid">
+
+                  <div class="span7 row-fluid">
+                      <a class="brand span3" href="#"><strong>People</strong><i class="icon-leaf"></i></a>
+
+                      <form class="navbar-form pull-left span9 form-search" style="margin-left: -5%">
+                          <input type="search" class="input-xxlarge" placeholder="Search anyone..." fieldname="name" dataname="name">
+                      </form>
+                  </div>
+
+
+
+                  <div class="collapse nav-collapse nav-collapse-scrollable span5">
+                  <!--<div class="nav-collapse collapse navbar-responsive-collapse">-->
+                      <div class="pull-right">
+                          <ul class="nav">
+                              <!--<li></li>-->
+                              <li class="active" ><a  href="#">Stream</a></li>
+                              <li><a href="#">Pin Board</a></li>
+                              <li><a href="#" class="ng-cloak">{{name}}</a></li>
+                              <li class="dropdown">
+                                  <a class="dropdown-toggle" id="drop1" role="button" data-toggle="dropdown" href="#">
+                                      <i class=icon-cog></i>
+                                      <b class="caret"></b>
+                                  </a>
+                                  <ul class="dropdown-menu" role="menu" aria-labelledby="drop1" style="min-width: 80px;">
+                                      <li role="presentation">
+                                          <a role="menuitem" tabindex="-1" href="#">Log Out</a>
+                                      </li>
+                                  </ul>
+                              </li>
+                          </ul>
+                          <!--<p class="navbar-text pull-right">Signed in as Ripu Singla</p>-->
+                          <!--<p class="navbar-text pull-right">Signed in as <a href="#" class="navbar-link">Mark Otto</a></p>-->
+                          <!--<div class="dropdown">-->
+
+                          <!--</div>-->
+
+                      </div>
+
+                  </div>
+
+              </div>
           </div>
       </div>
 
@@ -119,7 +161,7 @@
 
 
           <div class="row-fluid">
-             <div id="ulcontainer" class="span9">
+             <div id="ulcontainer" class="span10">
 
                  <ul id="tiles">
                      <li ng-repeat="image in subset | orderBy:'-score' | limitTo:page*incr" lastdirective ng-cloak class="ng-cloak">
@@ -155,7 +197,7 @@
 
              </div>
 
-              <div class="span3" >
+              <div class="span2" style="margin-left: -3%;" >
 
                   <div class="nav nav-list affix" style="float: right; height: 500px; overflow: auto">
                       <div class="righticonclass" ng-click="isCollapsed = !isCollapsed">
@@ -165,12 +207,12 @@
                       <hr>
 
                       <div collapse="isCollapsed">
-                          <input type="text" enter placeholder="Name" fieldname="name" dataname="name">  <br>
-                          <input type="text" enter placeholder="Current City" fieldname="location" dataname="current_location_name">    <br>
-                          <input type="text" enter placeholder="Employer" fieldname="work" dataname="work_name"><br>
-                          <input type="text" enter placeholder="School" fieldname="education" dataname="education_name">  <br>
-                          <input type="text" enter placeholder="Hometown" fieldname="hometown" dataname="hometown_location_name"> <br>
-                          <input type="text" enter placeholder="Likes" fieldname="likes" dataname="likes_name"> <br>
+                          <input class=" form-horizontal " type="text" enter placeholder="Name" fieldname="name" dataname="name">
+                          <input class=" form-horizontal " type="text" enter placeholder="Current City" fieldname="location" dataname="current_location_name">
+                          <input class=" form-horizontal " type="text" enter placeholder="Employer" fieldname="work" dataname="work_name">
+                          <input class=" form-horizontal " type="text" enter placeholder="School" fieldname="education" dataname="education_name">
+                          <input class=" form-horizontal " type="text" enter placeholder="Hometown" fieldname="hometown" dataname="hometown_location_name">
+                          <input class=" form-horizontal " type="text" enter placeholder="Likes" fieldname="likes" dataname="likes_name">
 
                           <div class="form-inline">
                               <label class="checkbox"><input type=checkbox ng-model="checkModel.male" genderclick>Male</label>
