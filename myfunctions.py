@@ -340,10 +340,10 @@ def sqlobj_to_dict(users, maps):
 		# a = {c.name: getattr(user, c.name) for c in user.__table__.columns if c.name in keys}
 		a = {c: getattr(user, keys[c]) for c in keys.keys() if getattr(user, keys[c])}
 		a[17] = maps[user.id]
-		# if user.height and user.width:
-		# 	a['height'] = round((float(user.height)/float(user.width))*200)
-		# else:
-		# 	a['height'] = 200
+		if user.height and user.width:
+			a[19] = round((float(user.height)/float(user.width))*200)
+		else:
+			a[19] = 200
 		age = get_age(user.birthday_dformat)
 		if age:
 			a[18] = age

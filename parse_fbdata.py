@@ -7,10 +7,12 @@ from datetime import datetime as dt
 import re
 import unidecode
 
-def slugify(str):
+def slugify_unicode(str):
 	if type(str) == unicode:
-		str = unidecode.unidecode(str).lower()
-	return re.sub(r'\W+','-',str)
+		# str = unidecode.unidecode(str).lower()
+		str = unidecode.unidecode(str)
+	# return re.sub(r'\W+','-',str)
+	return str
 
 
 def parse_education(listobj):
@@ -323,7 +325,7 @@ def parse_name(n):
 	if not n:
 		return ''
 
-	return slugify(n)
+	return slugify_unicode(n)
 
 
 

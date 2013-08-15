@@ -19,4 +19,4 @@ def getsizes(uri):
     return size, None
 
 if __name__ == '__main__':
-    print getsizes("https://fbcdn-profile-a.akamaihd.net/hprofile-ak-ash3/623968_578906311_1907781456_n.jpg")
+    print getsizes("https://fbcdn-profile-a.akamaihd.net/hprofile-ak-prn2/371270_100004589467725_941874697_n.jpg")

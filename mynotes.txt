@@ -6,6 +6,10 @@ sudo pip install greenlet
 sudo pip install gevent
 sudo apt-get install python-tk
 
+install pil
+http://stackoverflow.com/questions/8915296/decoder-jpeg-not-available-pil
+http://stackoverflow.com/questions/12555831/decoder-jpeg-not-available-error-when-following-django-photo-app-tutorial
+
 install postgres
 	sudo apt-get install postgresql-common -t raring
 	sudo apt-get install postgresql-9.1
