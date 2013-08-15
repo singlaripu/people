@@ -33,7 +33,7 @@ app.factory('mySearchService', function($http) {
 
 
 app.factory('myStatusService', function($http) {
-        $http.defaults.useXDomain = true;
+//        $http.defaults.useXDomain = true;
 
     var myService = {
         async: function(ids, fb_uid, status) {
@@ -93,6 +93,7 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager,
     $scope.online_status = 1;
     $scope.searchvalue = undefined;
     $scope.backupdata = undefined;
+    $scope.passwd = undefined;
 //    $scope.msg_send_promise = undefined;
 //    $scope.msg_array = [];
 
@@ -108,7 +109,7 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager,
             $scope.mypeerid = id;
         })
 //        console.log($scope.peer);
-        $.xmpp.connect({url:$scope.jabber_url, jid: $scope.fb_uid + "@jabber.fbpeople.com", password: $scope.fb_uid,
+        $.xmpp.connect({url:$scope.jabber_url, jid: $scope.fb_uid + "@jabber.fbpeople.com", password: $scope.passwd,
 
             onConnect: function(){
 //                logContainer.html("Connected");
@@ -645,7 +646,8 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager,
 
 //        console.log('i am in my service then');
 
-        $scope.fb_uid = d.userid;
+        $scope.fb_uid = d.username;
+        $scope.passwd = d.userid;
         $scope.name = d.name;
         $scope.backupdata = d;
         $scope.connect_to_chat_protocols();
@@ -1812,7 +1814,7 @@ app.directive("searchenter", function($timeout, mySearchService, myService){
                 }
             }
             else {
-                console.log('default search');
+//                console.log('default search');
                 search_default();
             }
 

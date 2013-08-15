@@ -317,7 +317,7 @@ def sqlobj_to_dict(users, maps):
 
 	keys = {
 			0: 'name',
-			1: 'user_key',
+			1: 'fb_uid',
 			2: 'gender',
 			3: 'profile_pic_url',
 			4: 'work',
@@ -373,131 +373,135 @@ def search_index(query, cuser=None):
 		match_any_field='true'
 		)['results']
 
-	res1 = {int(i['docid']):i['query_relevance_score'] for i in res}
+	search_results = {'data':[]}
+	if res:
 
-	clauses = or_( *[UserComplete.id==key for key in res1.keys()] )
-	users = UserComplete.query.filter(clauses).all()
-	search_results = sqlobj_to_dict(users, res1)
+		res1 = {int(i['docid']):i['query_relevance_score'] for i in res}
+
+		clauses = or_( *[UserComplete.id==key for key in res1.keys()] )
+		users = UserComplete.query.filter(clauses).all()
+		search_results = sqlobj_to_dict(users, res1)
 	search_results['name'] = cuser['name']
 	# search_results['fb_uid'] = cuser['user_key']
 	search_results['latlong'] = cuser['latlong']
 	user = get_user(cuser['fb_uid'])
 	search_results['userid'] = user.user_key
+	search_results['username'] = user.fb_uid
 
 	return search_results
 
 
-def push_data_mass(uid, access_token):
+# def push_data_mass(uid, access_token):
 
-	me = fb_call(uid + '/?fields=name,picture,gender,work,education,birthday,interested_in,email,relationship_status,username', args={'access_token': access_token})
+# 	me = fb_call(uid + '/?fields=name,picture,gender,work,education,birthday,interested_in,email,relationship_status,username', args={'access_token': access_token})
 
-	name = parse_name(me.get('name'))
-	email = me.get('email')
-	fb_uid = me.get('id')
-	username = me.get('username')
-	gender = parse_gender(me.get('gender'))
-	relationship_status = parse_status(me.get('relationship_status'))
-	education, education_index = parse_education(me.get('education'))
-	work, work_index = parse_work(me.get('work'))
-	birthday, birthday_index = parse_birthday(me.get('birthday'))
-	interested_in, interested_in_index = parse_interested_in(me.get('interested_in'))
-	profile_pic_url = parse_picture(me.get('picture'))
+# 	name = parse_name(me.get('name'))
+# 	email = me.get('email')
+# 	fb_uid = me.get('id')
+# 	username = me.get('username')
+# 	gender = parse_gender(me.get('gender'))
+# 	relationship_status = parse_status(me.get('relationship_status'))
+# 	education, education_index = parse_education(me.get('education'))
+# 	work, work_index = parse_work(me.get('work'))
+# 	birthday, birthday_index = parse_birthday(me.get('birthday'))
+# 	interested_in, interested_in_index = parse_interested_in(me.get('interested_in'))
+# 	profile_pic_url = parse_picture(me.get('picture'))
 
 
-	# profile_pic_url = fb_call('me/picture/?type=large&redirect=false',args={'access_token': access_token})
-	# try:
-	#     profile_pic_url = profile_pic_url['data']['url']
-	# except Exception, e:
-	#     profile_pic_url = ''
-	#     print "FACEBOOK_DATAPULL: profile_pic_url ::", e
+# 	# profile_pic_url = fb_call('me/picture/?type=large&redirect=false',args={'access_token': access_token})
+# 	# try:
+# 	#     profile_pic_url = profile_pic_url['data']['url']
+# 	# except Exception, e:
+# 	#     profile_pic_url = ''
+# 	#     print "FACEBOOK_DATAPULL: profile_pic_url ::", e
 
-	loc = fql('select current_location, hometown_location from user where uid=' + uid, access_token)
-	c1,c2,c3,c4,h1,h2,h3,h4 = parse_location_main(loc)
+# 	loc = fql('select current_location, hometown_location from user where uid=' + uid, access_token)
+# 	c1,c2,c3,c4,h1,h2,h3,h4 = parse_location_main(loc)
 
-	vw = fb_call(uid + '/video.watches/?fields=data',args={'access_token': access_token})
-	vw = parse_videos(vw)
+# 	vw = fb_call(uid + '/video.watches/?fields=data',args={'access_token': access_token})
+# 	vw = parse_videos(vw)
 
-	vww = fb_call(uid + '/video.wants_to_watch/?fields=data',args={'access_token': access_token})
-	vww = parse_videos(vww)
+# 	vww = fb_call(uid + '/video.wants_to_watch/?fields=data',args={'access_token': access_token})
+# 	vww = parse_videos(vww)
 
-	br = fb_call(uid + '/books.reads/?fields=data',args={'access_token': access_token})
-	br = parse_videos(br)
+# 	br = fb_call(uid + '/books.reads/?fields=data',args={'access_token': access_token})
+# 	br = parse_videos(br)
 
-	bwr = fb_call(uid + '/books.wants_to_read/?fields=data',args={'access_token': access_token})
-	bwr = parse_videos(bwr)
+# 	bwr = fb_call(uid + '/books.wants_to_read/?fields=data',args={'access_token': access_token})
+# 	bwr = parse_videos(bwr)
 
-	likes = fql(
-	"select type, page_id, name from page where page_id in (select page_id from page_fan where uid=" + uid + ") limit 1000",
-	access_token
-	)
-	likes = parse_likes(likes)
+# 	likes = fql(
+# 	"select type, page_id, name from page where page_id in (select page_id from page_fan where uid=" + uid + ") limit 1000",
+# 	access_token
+# 	)
+# 	likes = parse_likes(likes)
 
-	# try:
-	# 	likes = likes.encode('ascii', 'ignore')
-	# except Exception:
-	# 	newlikes = 't'
+# 	# try:
+# 	# 	likes = likes.encode('ascii', 'ignore')
+# 	# except Exception:
+# 	# 	newlikes = 't'
 
-	# likes_dummy = likes + ', ' + vw + ', ' + vww + ', ' + br + ', ' + bwr
-	# likes_dummy = ', '.join([i for i in (likes, vw, vww, br, bwr) if i])
-	# likes_dummy = likes_dummy[:3000]
+# 	# likes_dummy = likes + ', ' + vw + ', ' + vww + ', ' + br + ', ' + bwr
+# 	# likes_dummy = ', '.join([i for i in (likes, vw, vww, br, bwr) if i])
+# 	# likes_dummy = likes_dummy[:3000]
 
-	likes_dummy = join_likes(likes, vw, vww, br, bwr)
+# 	likes_dummy = join_likes(likes, vw, vww, br, bwr)
 
-	# maxid = db.session.execute('select max(id) from usercomplete').fetchall()[0][0]
-	try:
-		maxid = db.session.execute('select max(id) from usercomplete').fetchall()[0][0]
-		if not maxid:
-			maxid = 0
-	except Exception:
-		maxid = 0
+# 	# maxid = db.session.execute('select max(id) from usercomplete').fetchall()[0][0]
+# 	try:
+# 		maxid = db.session.execute('select max(id) from usercomplete').fetchall()[0][0]
+# 		if not maxid:
+# 			maxid = 0
+# 	except Exception:
+# 		maxid = 0
 
-	user_key = obfuscate(fb_uid)
-	c_latlong = parse_latlong(c3, c4)
-	h_latlong = parse_latlong(h3, h4)
+# 	user_key = obfuscate(fb_uid)
+# 	c_latlong = parse_latlong(c3, c4)
+# 	h_latlong = parse_latlong(h3, h4)
 
-	uc = UserComplete(
-		id = maxid + 1,
-	    name = name,
-	    email = email,
-	    fb_uid = fb_uid,
-	    user_key = user_key,
-	    username = username,
-	    profile_pic_url = profile_pic_url,
-	    # profile_album = profile_album,
-	    gender = gender,
-	    work = work,
-	    current_location_name = c1,
-	    current_location_dummy = c2,
-	    current_location_latlong = c_latlong,
-	    hometown_location_name = h1,
-	    hometown_location_dummy = h2,
-	    hometown_location_latlong = h_latlong,
-	    birthday = birthday,
-	    birthday_dformat = birthday_index,
-	    education = education,
-	    likes_dummy = likes_dummy,
-	    relationship_status=relationship_status,
-	    interested_in = interested_in
-	    # votes = 1
-	    )
+# 	uc = UserComplete(
+# 		id = maxid + 1,
+# 	    name = name,
+# 	    email = email,
+# 	    fb_uid = fb_uid,
+# 	    user_key = user_key,
+# 	    username = username,
+# 	    profile_pic_url = profile_pic_url,
+# 	    # profile_album = profile_album,
+# 	    gender = gender,
+# 	    work = work,
+# 	    current_location_name = c1,
+# 	    current_location_dummy = c2,
+# 	    current_location_latlong = c_latlong,
+# 	    hometown_location_name = h1,
+# 	    hometown_location_dummy = h2,
+# 	    hometown_location_latlong = h_latlong,
+# 	    birthday = birthday,
+# 	    birthday_dformat = birthday_index,
+# 	    education = education,
+# 	    likes_dummy = likes_dummy,
+# 	    relationship_status=relationship_status,
+# 	    interested_in = interested_in
+# 	    # votes = 1
+# 	    )
 
-	db.session.add(uc)
-	db.session.commit()
+# 	db.session.add(uc)
+# 	db.session.commit()
 
-	push_to_index(
-		docid = maxid+1,
-		itf1 = name,
-		itf2 = gender,
-		itf3 = relationship_status,
-		itf4 = education_index,
-		itf5 = work_index,
-		itf6 = c2,
-		itf7 = h2,
-		itf8 = likes_dummy,
-		birthday = birthday_index,
-		c3 = c3,
-		c4 = c4,
-		h3 = h3,
-		h4 = h4,
-		iii = interested_in_index
-		)
+# 	push_to_index(
+# 		docid = maxid+1,
+# 		itf1 = name,
+# 		itf2 = gender,
+# 		itf3 = relationship_status,
+# 		itf4 = education_index,
+# 		itf5 = work_index,
+# 		itf6 = c2,
+# 		itf7 = h2,
+# 		itf8 = likes_dummy,
+# 		birthday = birthday_index,
+# 		c3 = c3,
+# 		c4 = c4,
+# 		h3 = h3,
+# 		h4 = h4,
+# 		iii = interested_in_index
+# 		)
