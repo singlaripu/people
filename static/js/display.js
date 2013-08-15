@@ -1804,15 +1804,16 @@ app.directive("searchenter", function($timeout, mySearchService, myService){
         element.bind("keyup", function(evt) {
             scope.searchvalue = evt.target.value;
             scope.$apply();
-            if (evt.which == 13){
-                if (evt.target.value)  {
+
+            if (evt.target.value) {
+                if (evt.which == 13){
                     console.log('search term: ', evt.target.value);
                     search_fn();
                 }
-                else {
-                    search_default();
-                }
-
+            }
+            else {
+                console.log('default search');
+                search_default();
             }
 
         });
