@@ -94,6 +94,7 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager,
     $scope.searchvalue = undefined;
     $scope.backupdata = undefined;
     $scope.passwd = undefined;
+    $scope.flag_to_display_default = false;
 //    $scope.msg_send_promise = undefined;
 //    $scope.msg_array = [];
 
@@ -1809,13 +1810,26 @@ app.directive("searchenter", function($timeout, mySearchService, myService){
 
             if (evt.target.value) {
                 if (evt.which == 13){
+
                     console.log('search term: ', evt.target.value);
                     search_fn();
+                    scope.flag_to_display_default = true;
+
                 }
             }
             else {
 //                console.log('default search');
-                search_default();
+//                $timeout(function () {
+//                    if (!evt.target.value) {
+//                        search_default();
+//                    }
+//
+//                },100);
+                if (scope.flag_to_display_default) {
+                    search_default();
+                    scope.flag_to_display_default = false;
+                }
+
             }
 
         });

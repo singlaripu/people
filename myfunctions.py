@@ -367,7 +367,7 @@ def search_index(query, cuser=None):
 
 	res = handle.search(
 		query, 
-		length=50, 
+		length=200, 
 		scoring_function=0, 
 		fetch_fields=fetch_fields, 
 		match_any_field='true'
