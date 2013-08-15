@@ -157,7 +157,9 @@
           <div id="myModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" >
               <div class="modal-header">
                   <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-                  <h3 id="myModalLabel" class="lead">{{light_caption}} (25 yr)</h3>
+                  <h3 id="myModalLabel" class="lead">{{light_caption}}
+                      <span ng-show="light_age">({{light_age}} yr) </span>
+                  </h3>
               </div>
               <div class="modal-body">
                   <div class="row-fluid">
@@ -196,7 +198,7 @@
              <div id="ulcontainer" class="span10">
 
                  <ul id="tiles">
-                     <li ng-repeat="image in subset | orderBy:'-score' | limitTo:page*incr" lastdirective ng-cloak class="ng-cloak">
+                     <li ng-repeat="image in subset | orderBy:'-17' | limitTo:page*incr" lastdirective ng-cloak class="ng-cloak">
                          <div class="polaroid">
                              <div class="statusonline{{image.online_flag}}" ></div>
                              <!--<img src="/static/images/online.ico" width="15">-->
@@ -212,14 +214,15 @@
                                      <a href="#"><em><i class="icon-user"></i></em><span>Profile</span></a>
                                  </div>
                                  <div class="magnify"  title="Chat">
-                                     <a  href="#" ng-click="addmybox(image.fb_uid, image.name)"><em><i class=" icon-comment"></i></em><span>Chat</span></a>
+                                     <a  href="#" ng-click="addmybox(image.1, image.0)"><em><i class=" icon-comment"></i></em><span>Chat</span></a>
                                  </div>
                              </div>
                              <a ng-click="ShowLightBox(image)">
                                  <!--<img  width="200" height="{{image.height}}" fallbackimage>-->
-                                 <img ng-src="{{image.profile_pic_url}}" width="200" height="{{image.height}}">
+                                 <!--<img ng-src="{{image.profile_pic_url}}" width="200" height="{{image.height}}">-->
+                                 <img ng-src="{{image.3}}" width="200">
                              </a>
-                             <p> {{image.name}}</p>
+                             <p> {{image.0}}</p>
                          </div>
                      </li>
                  </ul>

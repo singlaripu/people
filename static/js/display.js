@@ -22,7 +22,7 @@ app.factory('myService', function($http) {
 app.factory('mySearchService', function($http) {
     var myService = {
         async: function(q) {
-            var promise = $http.get('/searchquery/'+q).then(function (response) {
+            var promise = $http.get('/search/'+q).then(function (response) {
                 return response.data;
             });
             return promise;
@@ -598,6 +598,7 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager,
         console.log($scope.fb_uid, $scope.name);
     }
 
+
     $scope.on_arrival_of_data = function (d) {
 
 //        console.log('on arrival of data');
@@ -614,7 +615,7 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager,
             $scope.users[j].likesfilter = 1;
             $scope.users[j].onlinefilter = 1;
             $scope.users[j].online_flag = 'None';
-            $scope.presence_ids.push($scope.users[j].fb_uid) ;
+            $scope.presence_ids.push($scope.users[j][1]) ;
 
 //            $scope.users[j].dummyurl = '/static/images/placeholder1.gif';
         }
@@ -644,7 +645,7 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager,
 
 //        console.log('i am in my service then');
 
-        $scope.fb_uid = d.fb_uid;
+        $scope.fb_uid = d.userid;
         $scope.name = d.name;
         $scope.backupdata = d;
         $scope.connect_to_chat_protocols();
@@ -960,18 +961,84 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager,
     $scope.ShowLightBox = function(ind) {
 //        console.log('executing show light box');
         var user = ind;
-        $scope.light_profile_pic_url = user.profile_pic_url;
-        $scope.light_caption = user.name;
-        $scope.light_work_name = user.work_name;
-        $scope.light_education_name = user.education_name;
-        $scope.light_current_location_name = user.current_location_name;
-        $scope.light_hometown_location_name = user.hometown_location_name;
-        $scope.light_relationship_status = user.relationship_status;
-        $scope.light_birthday = user.birthday;
-        $scope.light_interested_in = user.interested_in;
-        $scope.light_likes_name = user.likes_name;
-        $scope.light_username = user.username;
-        $scope.light_thumbnails = user.profile_album;
+        if (3 in user) {
+            $scope.light_profile_pic_url = user[3];
+        }
+        else {
+            $scope.light_profile_pic_url = undefined;
+        }
+        if (0 in user) {
+            $scope.light_caption = user[0];
+        }
+        else {
+            $scope.light_caption = undefined;
+        }
+        if (4 in user) {
+            $scope.light_work_name = user[4][0];
+        }
+        else {
+            $scope.light_work_name = undefined;
+        }
+        if (5 in user) {
+            $scope.light_education_name = user[5][0];
+        }
+        else {
+            $scope.light_education_name = undefined;
+        }
+        if (6 in user) {
+            $scope.light_current_location_name = user[6];
+        }
+        else {
+            $scope.light_current_location_name = undefined;
+        }
+        if (7 in user) {
+            $scope.light_hometown_location_name = user[7];
+        }
+        else {
+            $scope.light_hometown_location_name = undefined;
+        }
+        if (8 in user) {
+            $scope.light_relationship_status = user[8];
+        }
+        else {
+            $scope.light_relationship_status = undefined;
+        }
+        if (14 in user) {
+            $scope.light_birthday = user[14];
+        }
+        else {
+            $scope.light_birthday = undefined;
+        }
+        if (9 in user) {
+            $scope.light_interested_in = user[9];
+        }
+        else {
+            $scope.light_interested_in = undefined;
+        }
+        if (10 in user) {
+            $scope.light_likes_name = user[10].split(',').splice(0,3).join();
+        }
+        else {
+            $scope.light_likes_name = undefined;
+        }
+        if (12 in user) {
+            $scope.light_username = user[12];
+        }
+        else {
+            $scope.light_username = undefined;
+        }
+        if (11 in user) {
+            $scope.light_thumbnails = user[11];
+        }
+        else {
+            $scope.light_thumbnails = undefined;
+        }
+        if (18 in user)  {
+            $scope.light_age = user[18];
+        }
+        else {
+            $scope.light_age = undefined;
+        }
         $timeout(function(){
             $scope.loadlightbox();
         }, 50);
@@ -1151,7 +1218,7 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager,
 //        console.log('executing fn gender filter');
         if ($scope.checkModel.male && !$scope.checkModel.female){
             for (var j= 0; j<array.length; j++){
-                if (array[j].gender.toLowerCase()=="male"){
+                if (array[j][2].toLowerCase()=="male"){
                     array[j]["genderfilter"] = 1;
                 }
                 else {
@@ -1161,7 +1228,7 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager,
         }
         else if (!$scope.checkModel.male && $scope.checkModel.female){
             for (var j= 0; j<array.length; j++){
-                if (array[j].gender.toLowerCase()=="female"){
+                if (array[j][2].toLowerCase()=="female"){
                     array[j]["genderfilter"] = 1;
                 }
                 else {

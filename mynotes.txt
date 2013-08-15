@@ -4,6 +4,7 @@ sudo pip install virtualenv
 sudo apt-get install libevent-dev
 sudo pip install greenlet
 sudo pip install gevent
+sudo apt-get install python-tk
 
 install postgres
 	sudo apt-get install postgresql-common -t raring

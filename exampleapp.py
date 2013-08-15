@@ -8,8 +8,8 @@ import hmac
 import json
 import hashlib
 from base64 import urlsafe_b64decode, urlsafe_b64encode
-from models import User, ProfileData, UserComplete
-
+# from models import User, ProfileData, UserComplete
+from models import UserComplete
 import requests
 from flask import Flask, request, redirect, render_template, url_for, Response, session, jsonify, send_file, make_response
 import flask
@@ -29,11 +29,11 @@ import sys
 # by default. To ensure that Unicode is handled properly
 # throughout SleekXMPP, we will set the default encoding
 # ourselves to UTF-8.
-if sys.version_info < (3, 0):
-    reload(sys)
-    sys.setdefaultencoding('utf8')
-else:
-    raw_input = input
+# if sys.version_info < (3, 0):
+#     reload(sys)
+#     sys.setdefaultencoding('utf8')
+# else:
+#     raw_input = input
 
 # from socketio_chat import ChatNamespace
 # from socketio_chat import EchoBot
@@ -54,7 +54,7 @@ FB_APP_NAME = json.loads(requests.get(app_url).content).get('name')
 app = Flask(__name__)
 app.config.from_object(__name__)
 app.config.from_object('conf.Config')
-app.secret_key = 'asdf'
+app.secret_key = 'DBaMlk3TGxHRW91SWhTYUlLVktZTk'
 
 
 
@@ -99,7 +99,9 @@ def current_user():
             session["user"] = dict(
                 name=user.name,
                 fb_uid=user.fb_uid,
+                user_key=user.user_key,
                 id=user.id,
+                latlong=user.current_location_latlong,
                 access_token=cookie["access_token"]
             )
             return session.get("user")
@@ -150,23 +152,23 @@ def wookmark():
         session['user'] = None
     return redirect('/')
 
-@app.route('/wookmark1', methods=['GET', 'POST'])
-def wookmark1():
-    return send_file('templates/wookmark1.html')
-    # remove the username from the session if it's there
-    print "i came to logout function"
-    if session.get("user") is not None:
-        session['user'] = None
-    return redirect('/')
+# @app.route('/wookmark1', methods=['GET', 'POST'])
+# def wookmark1():
+#     return send_file('templates/wookmark1.html')
+#     # remove the username from the session if it's there
+#     print "i came to logout function"
+#     if session.get("user") is not None:
+#         session['user'] = None
+#     return redirect('/')
 
-@app.route('/wookmark2', methods=['GET', 'POST'])
-def wookmark2():
-    return make_response(open('templates/wookmark_div.html').read())
-    # remove the username from the session if it's there
-    print "i came to logout function"
-    if session.get("user") is not None:
-        session['user'] = None
-    return redirect('/')
+# @app.route('/wookmark2', methods=['GET', 'POST'])
+# def wookmark2():
+#     return make_response(open('templates/wookmark_div.html').read())
+#     # remove the username from the session if it's there
+#     print "i came to logout function"
+#     if session.get("user") is not None:
+#         session['user'] = None
+#     return redirect('/')
 
 
 
@@ -188,38 +190,39 @@ def get_channel():
 def close():
     return render_template('close.html')
 
-@app.route('/about')
-def about():
-    return render_template('about.html') 
+# @app.route('/about')
+# def about():
+#     return render_template('about.html') 
 
 
 
-@app.route('/search', methods=['GET', 'POST'])
-def search():
-    # print request.form
-    access_token, channel_url = get_channel_token()
-    if access_token:
-        if request.method == 'POST':
-            search_results = search_index(access_token, request.form)
-            return render_template('search.html', app_id=FB_APP_ID, search_results=search_results, form_values=dict(request.form) )
-        else:
-            return redirect(url_for('index'))
-    else:
-       return render_template('base.html', app_id=FB_APP_ID, token=access_token, name=FB_APP_NAME) 
+# @app.route('/search', methods=['GET', 'POST'])
+# def search():
+#     # print request.form
+#     access_token, channel_url = get_channel_token()
+#     if access_token:
+#         if request.method == 'POST':
+#             search_results = search_index(access_token, request.form)
+#             return render_template('search.html', app_id=FB_APP_ID, search_results=search_results, form_values=dict(request.form) )
+#         else:
+#             return redirect(url_for('index'))
+#     else:
+#        return render_template('base.html', app_id=FB_APP_ID, token=access_token, name=FB_APP_NAME) 
 
-@app.route('/searchquery/<query>', methods=['GET'])
-def searchquery(query):
+@app.route('/search/<query>', methods=['GET'])
+def search(query):
     # if access_token:
     if request.method == 'GET':
         # print query
-        d = {'text':query}
-        search_results = search_index('', d)
-        # print len(search_results)
-        json_results = to_json(search_results)
+        # d = {'text':query}
         my_user = current_user()
-        json_results['fb_uid'] = my_user['fb_uid']
-        json_results['name'] = my_user['name']
-        return jsonify(**json_results)
+        search_results = search_index(query, my_user)
+        # print len(search_results)
+        # json_results = to_json(search_results)
+        # my_user = current_user()
+        # json_results['fb_uid'] = my_user['fb_uid']
+        # json_results['name'] = my_user['name']
+        return jsonify(**search_results)
         # return render_template('search.html', app_id=FB_APP_ID, search_results=search_results, form_values=dict(request.form) )
         
     # else:
@@ -229,39 +232,39 @@ def searchquery(query):
     
 
   
-@app.route('/user/<username>/<int:user_id>', methods=['GET', 'POST'])
-def get_profile(username, user_id):
-    my_user = get_user_by_id(user_id/1347)
-    user_data = get_data(my_user)
-    age = get_age(user_data.birthday)
+# @app.route('/user/<username>/<int:user_id>', methods=['GET', 'POST'])
+# def get_profile(username, user_id):
+#     my_user = get_user_by_id(user_id/1347)
+#     user_data = get_data(my_user)
+#     age = get_age(user_data.birthday)
 
-    return render_template('index.html', app_id=FB_APP_ID, me = my_user, resp = user_data, age = age )
-
-
-
-@app.route('/online/<recipient>', methods=['GET', 'POST'])
-def online(recipient):
-    recipient = request.form['recipient']
-    return render_template('room.html', recipient=recipient)
+#     return render_template('index.html', app_id=FB_APP_ID, me = my_user, resp = user_data, age = age )
 
 
 
-@app.route('/socket.io/<path:remaining>')
-def socketio(remaining):
-    try:
-        # jid = flask.session['jid']
-        # password = flask.session['jidpass']
-        # xmpp, ans = xmpp_connect(jid, password)
-        # if ans: 
-        #     print "xmpp connection successfull"
-        # else:
-        #     print "xmpp connection Failed"
-        data = {'jid': flask.session['jid'], 'jidpass':flask.session['jidpass']}
-        socketio_manage(request.environ, {'/chat': ChatNamespace}, data)
-    except:
-        app.logger.error("Exception while handling socketio connection",
-                         exc_info=True)
-    return Response()
+# @app.route('/online/<recipient>', methods=['GET', 'POST'])
+# def online(recipient):
+#     recipient = request.form['recipient']
+#     return render_template('room.html', recipient=recipient)
+
+
+
+# @app.route('/socket.io/<path:remaining>')
+# def socketio(remaining):
+#     try:
+#         # jid = flask.session['jid']
+#         # password = flask.session['jidpass']
+#         # xmpp, ans = xmpp_connect(jid, password)
+#         # if ans: 
+#         #     print "xmpp connection successfull"
+#         # else:
+#         #     print "xmpp connection Failed"
+#         data = {'jid': flask.session['jid'], 'jidpass':flask.session['jidpass']}
+#         socketio_manage(request.environ, {'/chat': ChatNamespace}, data)
+#     except:
+#         app.logger.error("Exception while handling socketio connection",
+#                          exc_info=True)
+#     return Response()
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -273,6 +276,8 @@ def login():
         session["user"] = dict(
                 name=flask.request.form['user'],
                 fb_uid=flask.request.form['password'],
+                user_key=flask.request.form['password'],
+                latlong=[0,0]
                 # id=user.id,
                 # access_token=cookie["access_token"]
             )
@@ -290,12 +295,13 @@ def login():
 @app.route('/getlist', methods=['GET'])
 def getlist():
     if flask.request.method == 'GET':# and session.get('user'):
-        users = UserComplete.query.all()
-        json_results = to_json(users)
+        # users = UserComplete.query.all()
+        # json_results = to_json(users)
         my_user = current_user()
-        json_results['fb_uid'] = my_user['fb_uid']
-        json_results['name'] = my_user['name']
-        return jsonify(**json_results)
+        # json_results['fb_uid'] = my_user['fb_uid']
+        # json_results['name'] = my_user['name']
+        search_results = search_index('DBaMlk3TGxHRW91SWhTYUlLVktZTk', my_user)
+        return jsonify(**search_results)
     return jsonify([])
 
 
@@ -328,9 +334,9 @@ def getstatus():
 
 
 
-@app.route('/test', methods=['GET'])
-def peerstest():
-    return render_template('test2.html')
+# @app.route('/test', methods=['GET'])
+# def peerstest():
+#     return render_template('test2.html')
        
 
 

@@ -1,9 +1,19 @@
-from models import db, User, ProfileData, UserComplete
+from models import db, UserComplete
 import requests, json
 from dateutil import parser
 from datetime import datetime as dt
 from indextank1.client import ApiClient as itc
 import os
+from sqlalchemy import or_
+# from sqlalchemy import create_engine
+# from sqlalchemy.orm import sessionmaker
+from parse_fbdata import *
+from slugify import obfuscate
+
+
+
+# session = sessionmaker(bind = db.engine, autocommit = True)()
+
 
 
 def fql(fql, token, args=None):
@@ -24,24 +34,24 @@ def fb_call(call, args=None):
     return json.loads(r.content)
 
 
-def get_location_for_dump(loc, key1, key2):
-	try:
-	    res = loc[0].get(key1).get(key2)
-	except Exception, e:
-	    print "FACEBOOK_DATAPULL: get_location_for_dump ::", key1, key2, e
-	    res = ''
-	return res
+# def get_location_for_dump(loc, key1, key2):
+# 	try:
+# 	    res = loc[0].get(key1).get(key2)
+# 	except Exception, e:
+# 	    print "FACEBOOK_DATAPULL: get_location_for_dump ::", key1, key2, e
+# 	    res = ''
+# 	return res
 
 
 def get_user(uid):
-	return User.query.filter_by(fb_uid=uid).first() 
+	return UserComplete.query.filter_by(fb_uid=uid).first() 
 
-def get_data(my_user):
-	return UserComplete.query.filter_by(id=my_user.id).first()
+# def get_data(my_user):
+# 	return UserComplete.query.filter_by(id=my_user.id).first()
 
 
-def convert_sqlobj_to_dict(obj, restrict_to_keys):
-	return [(c.name, getattr(obj, c.name)) for c in obj.__table__.columns if c.name in restrict_to_keys]
+# def convert_sqlobj_to_dict(obj, restrict_to_keys):
+# 	return [(c.name, getattr(obj, c.name)) for c in obj.__table__.columns if c.name in restrict_to_keys]
 
 
 def get_index_handle():
@@ -51,226 +61,134 @@ def get_index_handle():
 	return people_index
 
 
-def push_to_index(user):
+def push_to_index(**kwargs):
 	
 	handle = get_index_handle()
-	data = get_data(user)
 
-	keys = ['name', 'gender', 'work_dummy', 'education_dummy', 'likes_dummy']
+	keys = ['itf1', 'itf2', 'itf3', 'itf4', 'itf5', 'itf6', 'itf7', 'itf8']
 
-	doc = dict(convert_sqlobj_to_dict(user, keys) + convert_sqlobj_to_dict(data, keys))
-	doc['current_location_dummy'] = ' '.join((data.current_location_name, data.current_location_city, data.current_location_state, data.current_location_country))
-	doc['hometown_location_dummy'] = ' '.join((data.hometown_location_name, data.hometown_location_city, data.hometown_location_state, data.hometown_location_country))
-	doc['text'] = ','.join([value for key,value in doc.iteritems()])
+	doc = {}
+	doc['text'] = ', '.join([kwargs[key] for key in keys])
 	doc['shauniqueid'] = 'DBaMlk3TGxHRW91SWhTYUlLVktZTk'
+	for key in keys:
+		doc[key] = kwargs[key]
 
-	latitude = data.current_location_latlong.get('latitude')
-	longitude = data.current_location_latlong.get('longitude')
-	birthyear = data.birthday.year
+	try:
+		birthyear = kwargs['birthday'].year
+	except Exception:
+		birthyear = 1900
 	
-	variables = {0: data.votes, 1:birthyear, 2:latitude, 3:longitude}
-
-	handle.add_document(user.id, doc, variables)
+	variables = {0:1, 1:birthyear, 2:kwargs['c3'], 3:kwargs['c4'], 4:kwargs['h3'], 5:kwargs['h4'], 6:kwargs['iii']}
+	handle.add_document(kwargs['docid'], doc, variables)
 
 
 
 def push_data(access_token, only_data=False):
 
-	me = fb_call('me/?fields=name,gender,work,education,birthday,interested_in,email,relationship_status,username', args={'access_token': access_token})
+	me = fb_call('me/?fields=name,picture,gender,work,education,birthday,interested_in,email,relationship_status,username', args={'access_token': access_token})
 
-	if not only_data:
-		user = User(name=me.get('name'), email=me.get('email'), fb_uid=me.get('id'))
-		db.session.add(user)
-		db.session.commit()	
-
-	# username = me.get('username')
-	user = get_user(me.get('id'))
-	user_id = user.id
-	profile_pic_url = fb_call('me/picture/?type=large&redirect=false',args={'access_token': access_token})
-	try:
-	    profile_pic_url = profile_pic_url['data']['url']
-	except Exception, e:
-	    profile_pic_url = ''
-	    print "FACEBOOK_DATAPULL: profile_pic_url ::", e
+	name = parse_name(me.get('name'))
+	email = me.get('email')
+	fb_uid = me.get('id')
+	username = me.get('username')
+	gender = parse_gender(me.get('gender'))
+	relationship_status = parse_status(me.get('relationship_status'))
+	education, education_index = parse_education(me.get('education'))
+	work, work_index = parse_work(me.get('work'))
+	birthday, birthday_index = parse_birthday(me.get('birthday'))
+	interested_in, interested_in_index = parse_interested_in(me.get('interested_in'))
+	profile_pic_url = parse_picture(me.get('picture'))
 
 
-	profile_album = fql(
-	"select src_small, src_big from photo where album_object_id in (select object_id from album where owner=me() and type='profile')",
-	access_token
-	)
-
-	gender = me.get('gender')
-	if gender:
-		gender = gender.title()
-
-	relationship_status = me.get('relationship_status')
-
-	try:
-	    work_dummy = ','.join([i.get('employer').get('name') for i in me.get('work')])
-	except Exception, e:
-	    print "FACEBOOK_DATAPULL: work_dummy ::", e
-	    work_dummy = ''
-
-	work = me.get('work')
-	try:
-		work[0]['start_date'] = parser.parse(work[0]['start_date']).strftime('%b %Y')
-	except Exception, e:
-		print "FACEBOOK_DATAPULL: work.start_date ::", e
-
-	# work_name = work[0]['position']['name'] + " at " + work[0]['employer']['name'] + " - " + work[0]['start_date'] + ' to present'	
-
+	# profile_pic_url = fb_call('me/picture/?type=large&redirect=false',args={'access_token': access_token})
+	# try:
+	#     profile_pic_url = profile_pic_url['data']['url']
+	# except Exception, e:
+	#     profile_pic_url = ''
+	#     print "FACEBOOK_DATAPULL: profile_pic_url ::", e
 
 	loc = fql('select current_location, hometown_location from user where uid=me()', access_token)
+	c1,c2,c3,c4,h1,h2,h3,h4 = parse_location_main(loc)
 
-	current_location_name = get_location_for_dump(loc, 'current_location', 'name')
-	current_location_city = get_location_for_dump(loc, 'current_location', 'city')
-	current_location_state = get_location_for_dump(loc, 'current_location', 'state')
-	current_location_country = get_location_for_dump(loc, 'current_location', 'country')
-	current_location_latlong = dict((k, get_location_for_dump(loc, 'current_location', k)) for k in ('latitude', 'longitude'))
+	vw = fb_call('me/video.watches/?fields=data',args={'access_token': access_token})
+	vw = parse_videos(vw)
 
-	hometown_location_name = get_location_for_dump(loc, 'hometown_location', 'name')
-	hometown_location_city = get_location_for_dump(loc, 'hometown_location', 'city')
-	hometown_location_state = get_location_for_dump(loc, 'hometown_location', 'state')
-	hometown_location_country = get_location_for_dump(loc, 'hometown_location', 'country')
-	hometown_location_latlong = dict((k, get_location_for_dump(loc, 'hometown_location', k)) for k in ('latitude', 'longitude'))            
+	vww = fb_call('me/video.wants_to_watch/?fields=data',args={'access_token': access_token})
+	vww = parse_videos(vww)
 
-	#current_location_dummy = ' '.join([get_location_for_dump(loc, 'current_location', key) for key in ('name', 'city', 'state', 'country')])
-	#hometown_location_dummy = ' '.join([get_location_for_dump(loc, 'hometown_location', key) for key in ['name', 'city', 'state', 'country')])
+	br = fb_call('me/books.reads/?fields=data',args={'access_token': access_token})
+	br = parse_videos(br)
 
-	birthday = me.get('birthday')
-	if birthday:
-	    try:
-	        birthday = parser.parse(birthday)
-	    except Exception, e:
-	        birthday = None
-	        print "FACEBOOK_DATAPULL: birthday ::", birthday, e
-
-	interested_in = me.get('interested_in')
-	if interested_in:
-		interested_in = map(unicode.title, interested_in)
-		try:
-		    interested_in = ' and '.join(interested_in)
-		except Exception, e:
-		    interested_in = None
-		    print "FACEBOOK_DATAPULL: interested_in ::", interested_in, e            
-
-	try:
-	    education_dummy = ','.join([i.get('school').get('name') for i in me.get('education')])
-	except Exception, e:
-	    print "FACEBOOK_DATAPULL: education_dummy ::", e
-	    education_dummy = ''
-
-	education = me.get('education')
-
-	# education_name = education[2]['school']['name']
-
-	video_watched_dict = {'TV Shows':[], 'Movies':[]}
-	video_watched = fb_call('me/video.watches/?fields=data',args={'access_token': access_token})
-	for vid in video_watched['data']:
-	    if 'tv_show' in vid['data'].keys():
-	        video_watched_dict['TV Shows'].append({'url':vid['data']['tv_show']['url'], 'title':vid['data']['tv_show']['title'], 'id':vid['data']['tv_show']['id']})
-	    elif 'movie' in vid['data'].keys():
-	        video_watched_dict['Movies'].append({'url':vid['data']['movie']['url'], 'title':vid['data']['movie']['title'], 'id':vid['data']['movie']['id']})
-
-	video_want_to_watch_dict = {'TV Shows':[], 'Movies':[]}
-	video_want_to_watch = fb_call('me/video.wants_to_watch/?fields=data',args={'access_token': access_token})
-	for vid in video_want_to_watch['data']:
-	    if 'tv_show' in vid['data'].keys():
-	        video_want_to_watch_dict['TV Shows'].append({'url':vid['data']['tv_show']['url'], 'title':vid['data']['tv_show']['title'], 'id':vid['data']['tv_show']['id']})
-	    elif 'movie' in vid['data'].keys():
-	        video_want_to_watch_dict['Movies'].append({'url':vid['data']['movie']['url'], 'title':vid['data']['movie']['title'], 'id':vid['data']['movie']['id']})
-
-	video_watched_dict['Books'] = []
-	books_read = fb_call('me/books.reads/?fields=data',args={'access_token': access_token})
-	for vid in books_read['data']:
-	    if 'book' in vid['data'].keys():
-	        video_watched_dict['Books'].append({'url':vid['data']['book']['url'], 'title':vid['data']['book']['title'], 'id':vid['data']['book']['id']})
-
-	video_watched_dict = [(key, value) for key, value in video_watched_dict.iteritems()]
-	video_watched_dict = sorted(video_watched_dict, key =lambda x: len(x[1]), reverse=True)
-
-
-	video_want_to_watch_dict['Books'] = []
-	books_wants_to_read = fb_call('me/books.wants_to_read/?fields=data',args={'access_token': access_token})
-	for vid in books_wants_to_read['data']:
-	    if 'book' in vid['data'].keys():
-	        video_want_to_watch_dict['Books'].append({'url':vid['data']['book']['url'], 'title':vid['data']['book']['title'], 'id':vid['data']['book']['id']})
-
-	video_want_to_watch_dict = [(key, value) for key, value in video_want_to_watch_dict.iteritems()]
-	video_want_to_watch_dict = sorted(video_want_to_watch_dict, key =lambda x: len(x[1]), reverse=True)   
+	bwr = fb_call('me/books.wants_to_read/?fields=data',args={'access_token': access_token})
+	bwr = parse_videos(bwr)
 
 	likes = fql(
 	"select type, page_id, name from page where page_id in (select page_id from page_fan where uid=me()) limit 1000",
 	access_token
 	)
+	likes = parse_likes(likes)
 
-	likes_dict = {}
-	for like in likes:
-	    try:
-	        likes_dict[like['type']].append({'title':like['name'], 'id':like['page_id']})
-	    except KeyError:
-	        likes_dict[like['type']] = []
-	        likes_dict[like['type']].append({'title':like['name'], 'id':like['page_id']})
-	likes_dict = [(key, value) for key, value in likes_dict.iteritems()]
-	likes_dict = sorted(likes_dict, key =lambda x: len(x[1]), reverse=True)
+	# likes_dummy = likes + ', ' + vw + ', ' + vww + ', ' + br + ', ' + bwr
+	# likes_dummy = ', '.join([i for i in (likes, vw, vww, br, bwr) if i])
+	# likes_dummy = likes_dummy[:3000]
+	likes_dummy = join_likes(likes, vw, vww, br, bwr)
 
-	# likes_name = likes[0][1][0]['title'] + ", " + likes[0][1][2]['title'] + ", " + likes[10][1][0]['title']
+	try:
+		maxid = db.session.execute('select max(id) from usercomplete').fetchall()[0][0]
+		if not maxid:
+			maxid = 0
+	except Exception:
+		maxid = 0
+	user_key = obfuscate(fb_uid)
+	c_latlong = parse_latlong(c3, c4)
+	h_latlong = parse_latlong(h3, h4)
 
-	watched = video_watched_dict
-	wants_to = video_want_to_watch_dict
-	likes = likes_dict
-
-	likes_dummy = ','.join([k.get('title') for i,j in watched+wants_to+likes for k in j])
-
-	#fb_app = fb_call(FB_APP_ID, args={'access_token': access_token})
-	#photos = fb_call('me/photos',args={'access_token': access_token, 'limit': 16})
-    #POST_TO_WALL = ("https://www.facebook.com/dialog/feed?redirect_uri=%s&"
-    #                "display=popup&app_id=%s" % (redir, FB_APP_ID))
-
-    #app_friends = fql(
-    #    "SELECT uid, name, is_app_user, pic_square "
-    #    "FROM user "
-    #    "WHERE uid IN (SELECT uid2 FROM friend WHERE uid1 = me()) AND "
-    #    "  is_app_user = 1", access_token)
-
-    #SEND_TO = ('https://www.facebook.com/dialog/send?'
-    #           'redirect_uri=%s&display=popup&app_id=%s&link=%s'
-    #           % (redir, FB_APP_ID, get_home()))
-
-	
-	pd = ProfileData(
-	    user_id = user_id,
+	uc = UserComplete(
+		id = maxid + 1,
+	    name = name,
+	    email = email,
+	    fb_uid = fb_uid,
+	    user_key = user_key,
+	    username = username,
 	    profile_pic_url = profile_pic_url,
-	    profile_album = profile_album,
+	    # profile_album = profile_album,
 	    gender = gender,
-	    work_dummy = work_dummy,
 	    work = work,
-	    current_location_name = current_location_name,
-	    current_location_city = current_location_city,
-	    current_location_state = current_location_state,
-	    current_location_country = current_location_country,
-	    current_location_latlong = current_location_latlong,
-	    hometown_location_name = hometown_location_name,
-	    hometown_location_city = hometown_location_city,
-	    hometown_location_state = hometown_location_state,
-	    hometown_location_country = hometown_location_country,
-	    hometown_location_latlong = hometown_location_latlong,
+	    current_location_name = c1,
+	    current_location_dummy = c2,
+	    current_location_latlong = c_latlong,
+	    hometown_location_name = h1,
+	    hometown_location_dummy = h2,
+	    hometown_location_latlong = h_latlong,
 	    birthday = birthday,
-	    interested_in = interested_in,
-	    education_dummy = education_dummy,
+	    birthday_dformat = birthday_index,
 	    education = education,
 	    likes_dummy = likes_dummy,
-	    watched = watched,
-	    wants_to = wants_to,
-	    likes = likes,
 	    relationship_status=relationship_status,
-	    votes = 1
+	    interested_in = interested_in
+	    # votes = 1
 	    )
 
-	db.session.add(pd)
+	db.session.add(uc)
 	db.session.commit()
 
-	push_to_index(user)
+	push_to_index(
+		docid = maxid+1,
+		itf1 = name,
+		itf2 = gender,
+		itf3 = relationship_status,
+		itf4 = education_index,
+		itf5 = work_index,
+		itf6 = c2,
+		itf7 = h2,
+		itf8 = likes_dummy,
+		birthday = birthday_index,
+		c3 = c3,
+		c4 = c4,
+		h3 = h3,
+		h4 = h4,
+		iii = interested_in_index
+		)
 
 
 
@@ -286,126 +204,300 @@ def get_or_create(access_token):
 
 
 def get_age(b):
+	if not b:
+		return ''
+
 	try:
 		age = int(round((dt.now() - b).days/365.0))
 		if not 13<=age<=100:
 			age = ''
 	except Exception, e:
-		print "FACEBOOK_DATAPULL: get_age ::", b, e
+		# print "FACEBOOK_DATAPULL: get_age ::", b, e
 		age = ''
 	return str(age)
 
 
 
-def search_index(token, form, fetch_fields=['docid']):
-	handle = get_index_handle()
-	#kwargs.keys() = ['user', 'query', 'filters', 'fetch_fields']
-	#query = {'name':'ripu',  'current_location_city':'bangalore', 'likes_dummy':'sachin'}
-	#filters = {'age':[20, 24], 'distance':10}
-	fetch_fields=['fb_uid', 'name']
-	#global_query = 'hathi'
+# def search_index(token, form, fetch_fields=['docid']):
+# 	handle = get_index_handle()
+# 	#kwargs.keys() = ['user', 'query', 'filters', 'fetch_fields']
+# 	#query = {'name':'ripu',  'current_location_city':'bangalore', 'likes_dummy':'sachin'}
+# 	#filters = {'age':[20, 24], 'distance':10}
+# 	fetch_fields=['fb_uid', 'name']
+# 	#global_query = 'hathi'
 
-	form = {key:value for key,value in form.iteritems() if value}
+# 	form = {key:value for key,value in form.iteritems() if value}
 
-	function_filters = {}
-	docvar_filters = {1:[[None, None]]}
-	variables = {}
-	# match_any_field=None
-	# global_query = ''
+# 	function_filters = {}
+# 	docvar_filters = {1:[[None, None]]}
+# 	variables = {}
+# 	# match_any_field=None
+# 	# global_query = ''
 
-	if 'distance' in form:
-		function_filters[1] = [[ None, int(form['distance']) ]]
-		user = get_or_create(token)
-		data = get_data(user)
-		#latitude = data.current_location_latlong.get('latitude')
-		#longitude = data.current_location_latlong.get('longitude')
-		#if latitude and longitude:
-		variables[0] = data.current_location_latlong.get('latitude')
-		variables[1] = data.current_location_latlong.get('longitude')
+# 	if 'distance' in form:
+# 		function_filters[1] = [[ None, int(form['distance']) ]]
+# 		user = get_or_create(token)
+# 		data = get_data(user)
+# 		#latitude = data.current_location_latlong.get('latitude')
+# 		#longitude = data.current_location_latlong.get('longitude')
+# 		#if latitude and longitude:
+# 		variables[0] = data.current_location_latlong.get('latitude')
+# 		variables[1] = data.current_location_latlong.get('longitude')
 
-	if 'age_high' in form:
-		docvar_filters[1][0][0] = dt.now().year-int(form['age_high'])
+# 	if 'age_high' in form:
+# 		docvar_filters[1][0][0] = dt.now().year-int(form['age_high'])
 
-	if 'age_low' in form:
-		docvar_filters[1][0][1] = dt.now().year-int(form['age_low'])
+# 	if 'age_low' in form:
+# 		docvar_filters[1][0][1] = dt.now().year-int(form['age_low'])
 
-	keys = ['name', 'gender', 'current_location_dummy', 'hometown_location_dummy', 'work_dummy', 'education_dummy', 'likes_dummy', 'text']
-
-
-	q = ' AND '.join([key+":("+' AND '.join(value.split())+")" for key, value in form.iteritems() if key in keys] )
-
-	# if 'global_query' in form:
-	# 	q1 = "(" + form['global_query'] + ')'
-	# 	if q:
-	# 		q = ' AND '.join((q1, q))
-	# 	else:
-	# 		q = q1
-	# 	match_any_field = 'true'
-
-	# print q
-
-	if not q:
-		return []
-
-	# q = 'text:'+form['text']
-	q = form['text']
-
-	# res = handle.search(q, 
-	# 		scoring_function=0, 
-	# 		function_filters=function_filters, 
-	# 		docvar_filters=docvar_filters,
-	# 		fetch_fields=fetch_fields,
-	# 		# match_any_field=match_any_field,
-	# 		variables=variables)['results']
-	res = handle.search(q, length=600)['results']
-
-	# print res
-	search_results = []
-
-	for i in res:
-		d = {}
-		user = get_user_by_id(i['docid'])
-		if user:
-			data = get_data(user)
-			d = dict( convert_sqlobj_to_dict(user, ('name','fb_uid', 'id')) + convert_sqlobj_to_dict(data, ('relationship_status', 'profile_pic_url', 'gender', 'current_location_name') ) )
-			d['age'] = get_age(data.birthday)
-			d['uid'] = '.'.join(user.name.split()).lower()
-			search_results.append(user)
-
-	return search_results
-
-def get_user_by_id(user_id):
-	return UserComplete.query.get(int(user_id))
+# 	keys = ['name', 'gender', 'current_location_dummy', 'hometown_location_dummy', 'work_dummy', 'education_dummy', 'likes_dummy', 'text']
 
 
-def get_parsed_birthday(b):
-	if b:
-		return b.strftime('%B %d')
-	else:
-		return ''
+# 	q = ' AND '.join([key+":("+' AND '.join(value.split())+")" for key, value in form.iteritems() if key in keys] )
 
-def to_json(users):
+# 	# if 'global_query' in form:
+# 	# 	q1 = "(" + form['global_query'] + ')'
+# 	# 	if q:
+# 	# 		q = ' AND '.join((q1, q))
+# 	# 	else:
+# 	# 		q = q1
+# 	# 	match_any_field = 'true'
+
+# 	# print q
+
+# 	if not q:
+# 		return []
+
+# 	# q = 'text:'+form['text']
+# 	q = form['text']
+
+# 	# res = handle.search(q, 
+# 	# 		scoring_function=0, 
+# 	# 		function_filters=function_filters, 
+# 	# 		docvar_filters=docvar_filters,
+# 	# 		fetch_fields=fetch_fields,
+# 	# 		# match_any_field=match_any_field,
+# 	# 		variables=variables)['results']
+# 	res = handle.search(q, length=600)['results']
+
+# 	# print res
+# 	search_results = []
+
+# 	for i in res:
+# 		d = {}
+# 		user = get_user_by_id(i['docid'])
+# 		if user:
+# 			data = get_data(user)
+# 			d = dict( convert_sqlobj_to_dict(user, ('name','fb_uid', 'id')) + convert_sqlobj_to_dict(data, ('relationship_status', 'profile_pic_url', 'gender', 'current_location_name') ) )
+# 			d['age'] = get_age(data.birthday)
+# 			d['uid'] = '.'.join(user.name.split()).lower()
+# 			search_results.append(user)
+
+# 	return search_results
+
+
+
+# def get_user_by_id(user_id):
+# 	return UserComplete.query.get(int(user_id))
+
+
+# def get_parsed_birthday(b):
+# 	if b:
+# 		return b.strftime('%B %d')
+# 	else:
+# 		return ''
+
+def sqlobj_to_dict(users, maps):
 	# import simplejson as json
-	from random import random
-	keys = ('name', 'fb_uid', 'gender', 'profile_pic_url', 'work_name', 'education_name','current_location_name',
-			'hometown_location_name', 'relationship_status', 'interested_in', 'likes_name', 'profile_album', 'username'
-			)
+	# from random import random
+	# keys = ('name', 'user_key', 'gender', 'profile_pic_url', 'work', 'education','current_location_name',
+	# 		'hometown_location_name', 'relationship_status', 'interested_in', 'likes_dummy', 'profile_album', 
+	# 		'username', 'current_location_dummy', 'birthday', 'hometown_location_dummy', 'current_location_latlong'
+	# 		)
+
+	keys = {
+			0: 'name',
+			1: 'user_key',
+			2: 'gender',
+			3: 'profile_pic_url',
+			4: 'work',
+			5: 'education',
+			6: 'current_location_name',
+			7: 'hometown_location_name',
+			8: 'relationship_status',
+			9: 'interested_in',
+			10: 'likes_dummy',
+			11: 'profile_album',
+			12: 'username',
+			13: 'current_location_dummy',
+			14: 'birthday',
+			15: 'hometown_location_dummy',
+			16: 'current_location_latlong'
+			}
+
 	res = []
 	for user in users:
-		a = {c.name: getattr(user, c.name) for c in user.__table__.columns if c.name in keys}
-		a['score'] = random()
-		if user.height and user.width:
-			a['height'] = round((float(user.height)/float(user.width))*200)
-		else:
-			a['height'] = 200
-		a['age'] = get_age(user.birthday)
-		a['birthday'] = get_parsed_birthday(user.birthday)
-		if a['profile_album']:
-			a['profile_album'] = a['profile_album'][:4]
+		# a = {c.name: getattr(user, c.name) for c in user.__table__.columns if c.name in keys}
+		a = {c: getattr(user, keys[c]) for c in keys.keys() if getattr(user, keys[c])}
+		a[17] = maps[user.id]
+		# if user.height and user.width:
+		# 	a['height'] = round((float(user.height)/float(user.width))*200)
+		# else:
+		# 	a['height'] = 200
+		age = get_age(user.birthday_dformat)
+		if age:
+			a[18] = age
+		# a['birthday'] = get_parsed_birthday(user.birthday)
+		# if a['profile_album']:
+		# 	a['profile_album'] = a['profile_album'][:4]
 
 		# a['work_name'] = "Founder at People (June 2013 to present)"
 		# a['likes'] = user.likes[:3]
 	 	res.append(a)
 	# start = int(random()*100)
 	# end = start + 100
-	return {'data':res[0:600]}
+	return {'data':res}
+
+
+def search_index(query, cuser=None):
+	
+	handle = get_index_handle()
+
+	fetch_fields=['docid', 'query_relevance_score']
+
+	res = handle.search(
+		query, 
+		length=50, 
+		scoring_function=0, 
+		fetch_fields=fetch_fields, 
+		match_any_field='true'
+		)['results']
+
+	res1 = {int(i['docid']):i['query_relevance_score'] for i in res}
+
+	clauses = or_( *[UserComplete.id==key for key in res1.keys()] )
+	users = UserComplete.query.filter(clauses).all()
+	search_results = sqlobj_to_dict(users, res1)
+	search_results['name'] = cuser['name']
+	# search_results['fb_uid'] = cuser['user_key']
+	search_results['latlong'] = cuser['latlong']
+	user = get_user(cuser['fb_uid'])
+	search_results['userid'] = user.user_key
+
+	return search_results
+
+
+def push_data_mass(uid, access_token):
+
+	me = fb_call(uid + '/?fields=name,picture,gender,work,education,birthday,interested_in,email,relationship_status,username', args={'access_token': access_token})
+
+	name = parse_name(me.get('name'))
+	email = me.get('email')
+	fb_uid = me.get('id')
+	username = me.get('username')
+	gender = parse_gender(me.get('gender'))
+	relationship_status = parse_status(me.get('relationship_status'))
+	education, education_index = parse_education(me.get('education'))
+	work, work_index = parse_work(me.get('work'))
+	birthday, birthday_index = parse_birthday(me.get('birthday'))
+	interested_in, interested_in_index = parse_interested_in(me.get('interested_in'))
+	profile_pic_url = parse_picture(me.get('picture'))
+
+
+	# profile_pic_url = fb_call('me/picture/?type=large&redirect=false',args={'access_token': access_token})
+	# try:
+	#     profile_pic_url = profile_pic_url['data']['url']
+	# except Exception, e:
+	#     profile_pic_url = ''
+	#     print "FACEBOOK_DATAPULL: profile_pic_url ::", e
+
+	loc = fql('select current_location, hometown_location from user where uid=' + uid, access_token)
+	c1,c2,c3,c4,h1,h2,h3,h4 = parse_location_main(loc)
+
+	vw = fb_call(uid + '/video.watches/?fields=data',args={'access_token': access_token})
+	vw = parse_videos(vw)
+
+	vww = fb_call(uid + '/video.wants_to_watch/?fields=data',args={'access_token': access_token})
+	vww = parse_videos(vww)
+
+	br = fb_call(uid + '/books.reads/?fields=data',args={'access_token': access_token})
+	br = parse_videos(br)
+
+	bwr = fb_call(uid + '/books.wants_to_read/?fields=data',args={'access_token': access_token})
+	bwr = parse_videos(bwr)
+
+	likes = fql(
+	"select type, page_id, name from page where page_id in (select page_id from page_fan where uid=" + uid + ") limit 1000",
+	access_token
+	)
+	likes = parse_likes(likes)
+
+	# try:
+	# 	likes = likes.encode('ascii', 'ignore')
+	# except Exception:
+	# 	newlikes = 't'
+
+	# likes_dummy = likes + ', ' + vw + ', ' + vww + ', ' + br + ', ' + bwr
+	# likes_dummy = ', '.join([i for i in (likes, vw, vww, br, bwr) if i])
+	# likes_dummy = likes_dummy[:3000]
+
+	likes_dummy = join_likes(likes, vw, vww, br, bwr)
+
+	# maxid = db.session.execute('select max(id) from usercomplete').fetchall()[0][0]
+	try:
+		maxid = db.session.execute('select max(id) from usercomplete').fetchall()[0][0]
+		if not maxid:
+			maxid = 0
+	except Exception:
+		maxid = 0
+
+	user_key = obfuscate(fb_uid)
+	c_latlong = parse_latlong(c3, c4)
+	h_latlong = parse_latlong(h3, h4)
+
+	uc = UserComplete(
+		id = maxid + 1,
+	    name = name,
+	    email = email,
+	    fb_uid = fb_uid,
+	    user_key = user_key,
+	    username = username,
+	    profile_pic_url = profile_pic_url,
+	    # profile_album = profile_album,
+	    gender = gender,
+	    work = work,
+	    current_location_name = c1,
+	    current_location_dummy = c2,
+	    current_location_latlong = c_latlong,
+	    hometown_location_name = h1,
+	    hometown_location_dummy = h2,
+	    hometown_location_latlong = h_latlong,
+	    birthday = birthday,
+	    birthday_dformat = birthday_index,
+	    education = education,
+	    likes_dummy = likes_dummy,
+	    relationship_status=relationship_status,
+	    interested_in = interested_in
+	    # votes = 1
+	    )
+
+	db.session.add(uc)
+	db.session.commit()
+
+	push_to_index(
+		docid = maxid+1,
+		itf1 = name,
+		itf2 = gender,
+		itf3 = relationship_status,
+		itf4 = education_index,
+		itf5 = work_index,
+		itf6 = c2,
+		itf7 = h2,
+		itf8 = likes_dummy,
+		birthday = birthday_index,
+		c3 = c3,
+		c4 = c4,
+		h3 = h3,
+		h4 = h4,
+		iii = interested_in_index
+		)
