@@ -77,8 +77,15 @@ def push_to_index(**kwargs):
 		birthyear = kwargs['birthday'].year
 	except Exception:
 		birthyear = 1900
+
+	c_lat = kwargs['c3'] if kwargs['c3'] else 0
+	c_lng = kwargs['c4'] if kwargs['c4'] else 0
+	h_lat = kwargs['h3'] if kwargs['h3'] else 0
+	h_lng = kwargs['h4'] if kwargs['h4'] else 0
+	g = 0 if kwargs['gender']=='Female' else 1
+		
 	
-	variables = {0:1, 1:birthyear, 2:kwargs['c3'], 3:kwargs['c4'], 4:kwargs['h3'], 5:kwargs['h4'], 6:kwargs['iii']}
+	variables = {0:1, 1:birthyear, 2:c_lat, 3:c_lng, 4:h_lat, 5:h_lng, 6:kwargs['iii'], 7:g}
 	handle.add_document(kwargs['docid'], doc, variables)
 
 
@@ -139,7 +146,9 @@ def push_data(access_token, only_data=False):
 			maxid = 0
 	except Exception:
 		maxid = 0
+
 	user_key = obfuscate(fb_uid)
+
 	c_latlong = parse_latlong(c3, c4)
 	h_latlong = parse_latlong(h3, h4)
 
@@ -187,7 +196,8 @@ def push_data(access_token, only_data=False):
 		c4 = c4,
 		h3 = h3,
 		h4 = h4,
-		iii = interested_in_index
+		iii = interested_in_index,
+		gender = gender
 		)
 
 
@@ -339,7 +349,7 @@ def sqlobj_to_dict(users, maps):
 	for user in users:
 		# a = {c.name: getattr(user, c.name) for c in user.__table__.columns if c.name in keys}
 		a = {c: getattr(user, keys[c]) for c in keys.keys() if getattr(user, keys[c])}
-		a[17] = maps[user.id]
+		a['scr'] = maps[user.id]
 		if user.height and user.width:
 			a[19] = round((float(user.height)/float(user.width))*200)
 		else:
@@ -359,32 +369,53 @@ def sqlobj_to_dict(users, maps):
 	return {'data':res}
 
 
+def get_field_boost(query):
+	return '(itf1:' + query + '^10 OR ' + \
+			'itf2:' + query + '^15 OR ' + \
+			'itf3:' + query + '^9 OR ' + \
+			'itf4:' + query + '^3 OR ' + \
+			'itf5:' + query + '^5 OR ' + \
+			'itf6:' + query + '^4 OR ' + \
+			'itf7:' + query + '^2 OR ' + \
+			'itf8:' + query + '^1)'
+
+
 def search_index(query, cuser=None):
-	
-	handle = get_index_handle()
-
-	fetch_fields=['docid', 'query_relevance_score']
-
-	res = handle.search(
-		query, 
-		length=200, 
-		scoring_function=0, 
-		fetch_fields=fetch_fields, 
-		match_any_field='true'
-		)['results']
 
 	search_results = {'data':[]}
-	if res:
-
-		res1 = {int(i['docid']):i['query_relevance_score'] for i in res}
-
-		clauses = or_( *[UserComplete.id==key for key in res1.keys()] )
-		users = UserComplete.query.filter(clauses).all()
-		search_results = sqlobj_to_dict(users, res1)
-	search_results['name'] = cuser['name']
-	# search_results['fb_uid'] = cuser['user_key']
-	search_results['latlong'] = cuser['latlong']
 	user = get_user(cuser['fb_uid'])
+
+	if query:	
+		handle = get_index_handle()
+		fetch_fields=['docid', 'query_relevance_score']
+		variables = add_variables(user)
+
+		if query=='DBaMlk3TGxHRW91SWhTYUlLVktZTk':
+			new_q = 'shauniqueid:DBaMlk3TGxHRW91SWhTYUlLVktZTk'
+		else:
+			# query = '(' + ' OR '.join(query.split()) + ')'
+			new_q =	map(get_field_boost, query.split())
+			new_q = ' AND '.join(new_q)
+			# print new_q			
+
+		res = handle.search(
+			new_q, 
+			length=200, 
+			scoring_function=3, 
+			fetch_fields=fetch_fields, 
+			# match_any_field='true',
+			variables = variables
+			)['results']
+		
+		if res:
+			res1 = {int(i['docid']):float(i['query_relevance_score']) for i in res}
+			clauses = or_( *[UserComplete.id==key for key in res1.keys()] )
+			users = UserComplete.query.filter(clauses).all()
+			search_results = sqlobj_to_dict(users, res1)
+
+	search_results['name'] = user.name
+	# search_results['fb_uid'] = cuser['user_key']
+	search_results['latlong'] = user.current_location_latlong	
 	search_results['userid'] = user.user_key
 	search_results['username'] = user.fb_uid
 

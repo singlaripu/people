@@ -198,7 +198,8 @@
              <div id="ulcontainer" class="span10">
 
                  <ul id="tiles">
-                     <li ng-repeat="image in subset | orderBy:'-17' | limitTo:page*incr" lastdirective ng-cloak class="ng-cloak">
+                     <li ng-repeat="image in subset | orderBy:'-scr' | limitTo:page*incr" lastdirective ng-cloak class="ng-cloak">
+                     <!--<li ng-repeat="image in subset | orderBy:'-scr' " lastdirective ng-cloak class="ng-cloak">-->
                          <div class="polaroid">
                              <div class="statusonline{{image.online_flag}}" ></div>
                              <!--<img src="/static/images/online.ico" width="15">-->
@@ -222,7 +223,7 @@
                                  <!--<img ng-src="{{image.profile_pic_url}}" width="200" height="{{image.height}}">-->
                                  <img ng-src="{{image.3}}" width="200" height="{{image.19}}">
                              </a>
-                             <p> {{image.0}}</p>
+                             <p> {{image.0}}  {{image.scr}}</p>
                          </div>
                      </li>
                  </ul>

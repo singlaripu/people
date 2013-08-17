@@ -142,6 +142,17 @@ def parse_birthday(birthday):
 	return res_str, res
 
 
+def get_interested_in_index(listobj):
+
+	if 'male' in listobj and 'female' in listobj:
+		return 3
+	elif 'male' in listobj:
+		return 1
+	elif 'female' in listobj:
+		return 0
+	else:
+		return 2
+
 
 def parse_interested_in(listobj):
 	# interested_in = me.get('interested_in')
@@ -155,14 +166,15 @@ def parse_interested_in(listobj):
 		interested_in = ''
 		print "FACEBOOK_DATAPULL: interested_in ::", interested_in, e 
 
-	if 'male' in listobj and 'female' in listobj:
-		interested_in_index = 3
-	elif 'male' in listobj:
-		interested_in_index = 2
-	elif 'female' in listobj:
-		interested_in_index = 1
-	else:
-		interested_in_index = 0
+	# if 'male' in listobj and 'female' in listobj:
+	# 	interested_in_index = 3
+	# elif 'male' in listobj:
+	# 	interested_in_index = 2
+	# elif 'female' in listobj:
+	# 	interested_in_index = 1
+	# else:
+	# 	interested_in_index = 0
+	interested_in_index = get_interested_in_index(listobj)
 
 	return interested_in, interested_in_index 
 	# return interested_in_index
@@ -328,6 +340,43 @@ def parse_name(n):
 	return slugify_unicode(n)
 
 
+def get_latlong_from_db(lobj):
+	if not lobj:
+		return -79.687184, 42.484131
+	lat, lng = lobj
+	if lat and lng:
+		return lat, lng
+	else:
+		return -79.687184, 42.484131
+
+
+def get_intersted_in_from_db(sobj):
+	if not sobj:
+		return 2
+	if sobj == 'Male':
+		return 1
+	elif sobj == 'Female':
+		return 0
+	else:
+		return 3
+
+def add_variables(u):
+	variables = {}
+
+	variables[0] = 1
+
+	try:
+		variables[1] = u.birthday_dformat.year
+	except Exception:
+		variables[1] = 1800
+
+	# latlong = u.current_location_latlong
+	variables[2], variables[3] = get_latlong_from_db(u.current_location_latlong)
+	variables[4], variables[5] = get_latlong_from_db(u.hometown_location_latlong)	
+	variables[6] = get_intersted_in_from_db(u.interested_in)
+	variables[7] = 0 if u.gender=='Female' else 1
+
+	return variables 
 
 
 
