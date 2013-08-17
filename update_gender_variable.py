@@ -1,6 +1,6 @@
 
 # from datetime import datetime as dt
-from models import UserComplete, db
+from models import UserComplete
 #from jabber_register_user import register_user
 from myfunctions import get_index_handle
 # from dateutil import parser
@@ -8,7 +8,7 @@ from myfunctions import get_index_handle
 # from get_image_size import getsizes
 import time
 
-h = get_index_handle()
+
 
 def get_latlong_from_db(lobj):
 	if not lobj:
@@ -31,11 +31,11 @@ def get_intersted_in_from_db(sobj):
 		return 3
 
 def get_gender_variable(g):
-
 	if g == 'Female':
 		return 0
 	else:
 		return 1
+
 
 def add_variables(u):
 	variables = {}
@@ -56,20 +56,12 @@ def add_variables(u):
 	return variables
 
 
-users = UserComplete.query.all()
+# h = get_index_handle()
+# users = UserComplete.query.all()
 
-for user in users:
-	time.sleep(1)
-	variables = add_variables(user)
-	print user.id, variables
-	h.update_variables(user.id, variables=variables)
+# for user in users:
+# 	time.sleep(1)
+# 	variables = add_variables(user)
+# 	print user.id, variables
+# 	h.update_variables(user.id, variables=variables)
 
-	# if not user.width:
-	# 	time.sleep(1)
-	# 	print user.profile_pic_url, user.name
-	#    	size = getsizes(user.profile_pic_url)
-	#    	if size and size[1]:
-	# 		user.width = size[1][0]
-	# 		user.height = size[1][1]
-	# 		db.session.add(user)
-	# 		db.session.commit()

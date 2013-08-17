@@ -370,6 +370,16 @@ def sqlobj_to_dict(users, maps):
 
 
 def get_field_boost(query):
+
+	# itf1 = name,
+	# itf2 = gender,
+	# itf3 = relationship_status,
+	# itf4 = education_index,
+	# itf5 = work_index,
+	# itf6 = c2,
+	# itf7 = h2,
+	# itf8 = likes_dummy,
+
 	return '(itf1:' + query + '^10 OR ' + \
 			'itf2:' + query + '^15 OR ' + \
 			'itf3:' + query + '^9 OR ' + \
