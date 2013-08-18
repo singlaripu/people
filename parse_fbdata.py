@@ -383,11 +383,11 @@ def add_variables(u):
 
 def get_relationship_wgt(rs):
 	if not rs:
-		return 0.5
+		return 1
 	elif rs in ('Single'):
 		return 2
 	elif rs in ('Widowed', 'Separated'):
-		return 1
+		return 0.8
 	elif rs in ('Divorced', "It'S Complicated", 'In An Open Relationship'):
 		return 0.5
 	else:
