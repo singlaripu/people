@@ -603,7 +603,7 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager,
 
     $scope.on_arrival_of_data = function (d) {
 
-//        console.log('on arrival of data');
+        console.log('on arrival of data, preparing views');
         $scope.users = d.data;
         $scope.presence_ids = [];
 
@@ -638,6 +638,7 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager,
 
         $scope.subset = $scope.users;
         $scope.newhtml();
+        console.log('finished loading');
 
     }
 
@@ -646,7 +647,7 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager,
     myService.async().then(function(d) {
 
 //        console.log('i am in my service then');
-
+        console.log('initial data has come');
         $scope.fb_uid = d.username;
         $scope.passwd = d.userid;
         $scope.name = d.name;
