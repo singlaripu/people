@@ -388,7 +388,7 @@ def get_field_boost(query):
 			'itf4:' + query + '^3 OR ' + \
 			'itf5:' + query + '^5 OR ' + \
 			'itf6:' + query + '^4 OR ' + \
-			'itf7:' + query + '^2 OR ' + \
+			'itf7:' + query + '^3 OR ' + \
 			'itf8:' + query + '^1)'
 
 
