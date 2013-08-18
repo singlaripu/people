@@ -352,7 +352,7 @@ def get_latlong_from_db(lobj):
 		return 9999, 9999
 
 
-def get_intersted_in_from_db(sobj):
+def get_interested_in_from_db(sobj):
 	if not sobj:
 		return 2
 	if sobj == 'Male':
@@ -375,10 +375,26 @@ def add_variables(u):
 	# latlong = u.current_location_latlong
 	variables[2], variables[3] = get_latlong_from_db(u.current_location_latlong)
 	variables[4], variables[5] = get_latlong_from_db(u.hometown_location_latlong)	
-	variables[6] = get_intersted_in_from_db(u.interested_in)
+	variables[6] = get_interested_in_from_db(u.interested_in)
 	variables[7] = 0 if u.gender=='Female' else 1
 
-	return variables 
+	return variables
+
+
+def get_relationship_wgt(rs):
+	if not rs:
+		return 0.5
+	elif rs in ('Single'):
+		return 2
+	elif rs in ('Widowed', 'Separated'):
+		return 1
+	elif rs in ('Divorced', "It'S Complicated", 'In An Open Relationship'):
+		return 0.5
+	else:
+		return -1
+
+
+
 
 
 

@@ -605,13 +605,15 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager,
 
     $scope.calculate_distance = function(lat1, lng1, lat2, lng2) {
 //        var distance = 2;
+
         if (lat1==9999) {
             return [0, 0];
         }
+//        console.log('calculating distance');
         var from = new google.maps.LatLng(lat1, lng1);
         var to   = new google.maps.LatLng(lat2, lng2);
         var dist = google.maps.geometry.spherical.computeDistanceBetween(from, to)/1000.0;
-        var score = (Math.log(1 + (10000.0/Math.max(10, dist))));
+        var score = (Math.log(1 + (1000.0/Math.max(10, dist))));
         return [dist, score];
 //        console.log(dist, score);
 //        return true;
@@ -627,6 +629,7 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager,
         $scope.users = d.data;
         $scope.presence_ids = [];
 
+
         for(var j=0; j<$scope.users.length; j++){
             $scope.users[j].namefilter = 1;
             $scope.users[j].genderfilter = 1;
@@ -640,16 +643,18 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager,
             $scope.presence_ids.push($scope.users[j][1]);
 
 
-
-            if (16 in $scope.users[j]) {
-                var distelt = $scope.calculate_distance($scope.latitude, $scope.longitude, $scope.users[j][16][0], $scope.users[j][16][1]);
-            }
-            else {
-                var distelt = [1000, 0];
-            }
+            if (!$scope.users.score_added_flag) {
+                if (16 in $scope.users[j]) {
+                    var distelt = $scope.calculate_distance($scope.latitude, $scope.longitude, $scope.users[j][16][0], $scope.users[j][16][1]);
+                }
+                else {
+                    var distelt = [1000.0, 0.0];
+                }
 //            console.log(distelt[0], distelt[1]);
-            $scope.users[j]['scr'] += distelt[1];
-            $scope.users[j].distance = distelt[0];
+                $scope.users[j]['scr'] += distelt[1];
+                $scope.users[j].distance = distelt[0];
+            }
+
 
 //            $scope.users[j].dummyurl = '/static/images/placeholder1.gif';
         }
@@ -667,10 +672,15 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager,
         $scope.refresh_online_status();
 //        makeCorsRequest();
 //        myStatusService.async(mydata1);
-
+//        $timeout(function() {
+//
+//        },3000);
         $scope.subset = $scope.users;
         $scope.newhtml();
         console.log('finished loading');
+        $scope.users.score_added_flag = true;
+
+
 
     }
 
@@ -714,7 +724,7 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager,
         myStatusService.async($scope.presence_ids, $scope.fb_uid, $scope.online_status).then(function(d) {
             console.log('Refreshing online status');
             for (var j=0; j<$scope.users.length; j++) {
-                $scope.users[j].online_flag = d.data[j]
+                $scope.users[j].online_flag = d.data[j];
             }
             $timeout(function() {
                 $scope.refresh_online_status();

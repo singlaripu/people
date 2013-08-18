@@ -7,6 +7,7 @@ from myfunctions import get_index_handle
 # import time
 # from get_image_size import getsizes
 import time
+from parse_fbdata import get_relationship_wgt
 
 
 
@@ -52,6 +53,7 @@ def add_variables(u):
 	variables[4], variables[5] = get_latlong_from_db(u.hometown_location_latlong)	
 	variables[6] = get_intersted_in_from_db(u.interested_in)
 	variables[7] = get_gender_variable(u.gender)
+	variables[8] = get_relationship_wgt(u.relationship_status)
 
 	return variables
 

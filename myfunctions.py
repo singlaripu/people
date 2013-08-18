@@ -85,7 +85,7 @@ def push_to_index(**kwargs):
 	g = 0 if kwargs['gender']=='Female' else 1
 		
 	
-	variables = {0:1, 1:birthyear, 2:c_lat, 3:c_lng, 4:h_lat, 5:h_lng, 6:kwargs['iii'], 7:g}
+	variables = {0:1, 1:birthyear, 2:c_lat, 3:c_lng, 4:h_lat, 5:h_lng, 6:kwargs['iii'], 7:g, 8:kwargs['rsw']}
 	handle.add_document(kwargs['docid'], doc, variables)
 
 
@@ -105,6 +105,7 @@ def push_data(access_token, only_data=False):
 	birthday, birthday_index = parse_birthday(me.get('birthday'))
 	interested_in, interested_in_index = parse_interested_in(me.get('interested_in'))
 	profile_pic_url = parse_picture(me.get('picture'))
+	relationship_status_wgt = get_relationship_wgt(relationship_status)
 
 
 	# profile_pic_url = fb_call('me/picture/?type=large&redirect=false',args={'access_token': access_token})
@@ -197,7 +198,8 @@ def push_data(access_token, only_data=False):
 		h3 = h3,
 		h4 = h4,
 		iii = interested_in_index,
-		gender = gender
+		gender = gender,
+		rsw = relationship_status_wgt
 		)
 
 
