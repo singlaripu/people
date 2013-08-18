@@ -12,12 +12,12 @@ import time
 
 def get_latlong_from_db(lobj):
 	if not lobj:
-		return 0, 0
+		return 9999, 9999
 	lat, lng = lobj
 	if lat and lng:
 		return lat, lng
 	else:
-		return 0, 0
+		return 9999, 9999
 
 
 def get_intersted_in_from_db(sobj):
@@ -45,7 +45,7 @@ def add_variables(u):
 	try:
 		variables[1] = u.birthday_dformat.year
 	except Exception:
-		variables[1] = 1900
+		variables[1] = 9999
 
 	# latlong = u.current_location_latlong
 	variables[2], variables[3] = get_latlong_from_db(u.current_location_latlong)
@@ -56,12 +56,12 @@ def add_variables(u):
 	return variables
 
 
-# h = get_index_handle()
-# users = UserComplete.query.all()
+h = get_index_handle()
+users = UserComplete.query.all()
 
-# for user in users:
-# 	time.sleep(1)
-# 	variables = add_variables(user)
-# 	print user.id, variables
-# 	h.update_variables(user.id, variables=variables)
+for user in users:
+	time.sleep(1)
+	variables = add_variables(user)
+	print user.id, variables
+	h.update_variables(user.id, variables=variables)
 

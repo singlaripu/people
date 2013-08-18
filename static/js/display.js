@@ -95,6 +95,8 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager,
     $scope.backupdata = undefined;
     $scope.passwd = undefined;
     $scope.flag_to_display_default = false;
+    $scope.latitude = undefined;
+    $scope.longitude = undefined;
 //    $scope.msg_send_promise = undefined;
 //    $scope.msg_array = [];
 
@@ -601,6 +603,24 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager,
     }
 
 
+    $scope.calculate_distance = function(lat1, lng1, lat2, lng2) {
+//        var distance = 2;
+        if (lat1==9999) {
+            return [0, 0];
+        }
+        var from = new google.maps.LatLng(lat1, lng1);
+        var to   = new google.maps.LatLng(lat2, lng2);
+        var dist = google.maps.geometry.spherical.computeDistanceBetween(from, to)/1000.0;
+        var score = (Math.log(1 + (10000.0/Math.max(10, dist))));
+        return [dist, score];
+//        console.log(dist, score);
+//        return true;
+    }
+
+//    console.log($scope.calculate_distance(29.166700, 75.716698, 20, 10));
+//    var a = $scope.calculate_distance(-79.687184, 42.484131, 0, 0);
+//    console.log(a[0], a[1]);
+
     $scope.on_arrival_of_data = function (d) {
 
         console.log('on arrival of data, preparing views');
@@ -617,7 +637,19 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager,
             $scope.users[j].likesfilter = 1;
             $scope.users[j].onlinefilter = 1;
             $scope.users[j].online_flag = 'None';
-            $scope.presence_ids.push($scope.users[j][1]) ;
+            $scope.presence_ids.push($scope.users[j][1]);
+
+
+
+            if (16 in $scope.users[j]) {
+                var distelt = $scope.calculate_distance($scope.latitude, $scope.longitude, $scope.users[j][16][0], $scope.users[j][16][1]);
+            }
+            else {
+                var distelt = [1000, 0];
+            }
+//            console.log(distelt[0], distelt[1]);
+            $scope.users[j]['scr'] += distelt[1];
+            $scope.users[j].distance = distelt[0];
 
 //            $scope.users[j].dummyurl = '/static/images/placeholder1.gif';
         }
@@ -651,6 +683,14 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager,
         $scope.fb_uid = d.username;
         $scope.passwd = d.userid;
         $scope.name = d.name;
+        if (d.latlong) {
+            $scope.latitude = d.latlong[0];
+            $scope.longitude = d.latlong[1];
+        }
+        else {
+            $scope.latitude = 9999;
+            $scope.longitude = 9999;
+        }
         $scope.backupdata = d;
         $scope.connect_to_chat_protocols();
         $scope.on_arrival_of_data(d);

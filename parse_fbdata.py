@@ -125,19 +125,21 @@ def parse_work(listobj):
 
 def parse_birthday(birthday):
 
+	dummy_date = parser.parse('01/01/9999')
+
 	if not birthday:
-		return '', dt.now()
+		return '', dummy_date
 
 	try:
 		res = parser.parse(birthday)
 		res_str = res.strftime('%B %d')
 	except Exception:
-		res = dt.now()
+		res = dummy_date
 		res_str = ''
 
 	birthday_comps = birthday.split('/')
 	if len(birthday_comps) != 3:
-		res = dt.now()
+		res = dummy_date
 
 	return res_str, res
 
@@ -342,12 +344,12 @@ def parse_name(n):
 
 def get_latlong_from_db(lobj):
 	if not lobj:
-		return -79.687184, 42.484131
+		return 9999, 9999
 	lat, lng = lobj
 	if lat and lng:
 		return lat, lng
 	else:
-		return -79.687184, 42.484131
+		return 9999, 9999
 
 
 def get_intersted_in_from_db(sobj):
@@ -368,7 +370,7 @@ def add_variables(u):
 	try:
 		variables[1] = u.birthday_dformat.year
 	except Exception:
-		variables[1] = 1800
+		variables[1] = 9999
 
 	# latlong = u.current_location_latlong
 	variables[2], variables[3] = get_latlong_from_db(u.current_location_latlong)

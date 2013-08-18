@@ -76,12 +76,12 @@ def push_to_index(**kwargs):
 	try:
 		birthyear = kwargs['birthday'].year
 	except Exception:
-		birthyear = 1900
+		birthyear = 9999
 
-	c_lat = kwargs['c3'] if kwargs['c3'] else 0
-	c_lng = kwargs['c4'] if kwargs['c4'] else 0
-	h_lat = kwargs['h3'] if kwargs['h3'] else 0
-	h_lng = kwargs['h4'] if kwargs['h4'] else 0
+	c_lat = kwargs['c3'] if kwargs['c3'] else 9999
+	c_lng = kwargs['c4'] if kwargs['c4'] else 9999
+	h_lat = kwargs['h3'] if kwargs['h3'] else 9999
+	h_lng = kwargs['h4'] if kwargs['h4'] else 9999
 	g = 0 if kwargs['gender']=='Female' else 1
 		
 	
