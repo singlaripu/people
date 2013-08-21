@@ -323,6 +323,8 @@ def get_age(b):
 # 		return ''
 
 def get_lv_likes(a1, a2):
+	if not (a1 and a2):
+		return set([]), 0
 	common = set.intersection(a1, a2)
 	return common, 20.0*len(common)/(max(len(a1), len(a2)))
 
