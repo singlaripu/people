@@ -119,27 +119,28 @@ def push_data(access_token, only_data=False):
 	c1,c2,c3,c4,h1,h2,h3,h4 = parse_location_main(loc)
 
 	vw = fb_call('me/video.watches/?fields=data',args={'access_token': access_token})
-	vw = parse_videos(vw)
+	vw, vw_ids = parse_videos(vw)
 
 	vww = fb_call('me/video.wants_to_watch/?fields=data',args={'access_token': access_token})
-	vww = parse_videos(vww)
+	vww, vww_ids = parse_videos(vww)
 
 	br = fb_call('me/books.reads/?fields=data',args={'access_token': access_token})
-	br = parse_videos(br)
+	br, br_ids = parse_videos(br)
 
 	bwr = fb_call('me/books.wants_to_read/?fields=data',args={'access_token': access_token})
-	bwr = parse_videos(bwr)
+	bwr, bwr_ids = parse_videos(bwr)
 
 	likes = fql(
 	"select type, page_id, name from page where page_id in (select page_id from page_fan where uid=me()) limit 1000",
 	access_token
 	)
-	likes = parse_likes(likes)
+	likes, likes_ids = parse_likes(likes)
 
 	# likes_dummy = likes + ', ' + vw + ', ' + vww + ', ' + br + ', ' + bwr
 	# likes_dummy = ', '.join([i for i in (likes, vw, vww, br, bwr) if i])
 	# likes_dummy = likes_dummy[:3000]
 	likes_dummy = join_likes(likes, vw, vww, br, bwr)
+	likes_dummy_ids = vw_ids + vww_ids + br_ids + bwr_ids + likes_ids
 
 	try:
 		maxid = db.session.execute('select max(id) from usercomplete').fetchall()[0][0]
@@ -175,7 +176,9 @@ def push_data(access_token, only_data=False):
 	    education = education,
 	    likes_dummy = likes_dummy,
 	    relationship_status=relationship_status,
-	    interested_in = interested_in
+	    interested_in = interested_in,
+	    # likes_dummy_ids = likes_dummy_ids
+	    likes_set = likes_dummy_ids
 	    # votes = 1
 	    )
 
@@ -319,7 +322,11 @@ def get_age(b):
 # 	else:
 # 		return ''
 
-def sqlobj_to_dict(users, maps):
+def get_lv_likes(a1, a2):
+	common = set.intersection(a1, a2)
+	return common, 20.0*len(common)/(max(len(a1), len(a2)))
+
+def sqlobj_to_dict(users, maps, ldi):
 	# import simplejson as json
 	# from random import random
 	# keys = ('name', 'user_key', 'gender', 'profile_pic_url', 'work', 'education','current_location_name',
@@ -351,14 +358,22 @@ def sqlobj_to_dict(users, maps):
 	for user in users:
 		# a = {c.name: getattr(user, c.name) for c in user.__table__.columns if c.name in keys}
 		a = {c: getattr(user, keys[c]) for c in keys.keys() if getattr(user, keys[c])}
-		a['scr'] = maps[user.id]
+		lv_set, lv_scr = get_lv_likes(ldi, user.likes_set) 
+		a['scr'] = maps[user.id] + lv_scr
+
+		age = get_age(user.birthday_dformat)
+		if age:
+			a[18] = age
+
 		if user.height and user.width:
 			a[19] = round((float(user.height)/float(user.width))*200)
 		else:
 			a[19] = 200
-		age = get_age(user.birthday_dformat)
-		if age:
-			a[18] = age
+
+		if lv_set:
+			a[20] = list(lv_set)
+			# a[21] = lv_scr
+
 		# a['birthday'] = get_parsed_birthday(user.birthday)
 		# if a['profile_album']:
 		# 	a['profile_album'] = a['profile_album'][:4]
@@ -423,7 +438,7 @@ def search_index(query, cuser=None):
 			res1 = {int(i['docid']):float(i['query_relevance_score']) for i in res}
 			clauses = or_( *[UserComplete.id==key for key in res1.keys()] )
 			users = UserComplete.query.filter(clauses).all()
-			search_results = sqlobj_to_dict(users, res1)
+			search_results = sqlobj_to_dict(users, res1, user.likes_set)
 
 	search_results['name'] = user.name
 	# search_results['fb_uid'] = cuser['user_key']

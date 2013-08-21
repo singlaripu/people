@@ -106,6 +106,8 @@ class UserComplete(db.Model):
     last_updated = db.Column(db.DateTime, default=sqlalchemy.func.now())
     # likes_name = db.Column(db.String(100))
     username = db.Column(db.String(30))
+    likes_dummy_ids = db.Column(db.PickleType)
+    likes_set = db.Column(db.PickleType)
 
     def __init__(self, **kwargs):
         for k, v in kwargs.iteritems():

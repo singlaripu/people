@@ -257,13 +257,14 @@ def parse_location_main(locobj):
 def parse_videos(dictobj):
 
 	if not dictobj:
-		return ''
+		return '', []
 
 	vw = dictobj.get('data')
 	if not vw:
-		return ''
+		return '', []
 
 	res = []
+	# res_ids = []
 
 	for v in vw:
 		d = v.get('data')
@@ -274,26 +275,31 @@ def parse_videos(dictobj):
 					if type(d[key]) == dict:
 						title = d[key].get('title')
 						if title:
+							title = slugify_unicode(title)
 							res.append(title)
+							# res_ids.append(int(d[key].get('id')))
 
 	# str_db = ', '.join(res[:3])
 	# str_index = ', '.join(res)
-	return ', '.join(res)
+	return ', '.join(res), res
 	
 
 def parse_likes(listobj):
 
 	if not listobj:
-		return ''
+		return '', []
 
 	likes = []
+	# likes_ids = []
 
 	for like in listobj:
 		name = like.get('name')
 		if name:
+			name = slugify_unicode(name)
 			likes.append(name)
+			# likes_ids.append(int(like.get('page_id')))
 
-	return ', '.join(likes)
+	return ', '.join(likes), likes
 
 
 def parse_picture(dictobj):
