@@ -28,7 +28,11 @@
     <script src="http://maps.google.com/maps/api/js?sensor=true&libraries=geometry"></script>
     <script src="/static/js/jquery.min.js"></script>
     <script type="text/javascript" src="/static/js/jquery-ui-1.8.2.custom.min.js"></script>
+
     <script type="text/javascript" src="/static/js/jquery.ui.chatbox.js"></script>
+    <script type="text/javascript" src="/static/jquery.indextank.ize.js"></script>
+    <script type="text/javascript" src="/static/jquery.indextank.autocomplete.js"></script>
+    <!--<script type="text/javascript" src="/static/jquery.indextank.renderer.js"></script>-->
     <script src="/static/js/html5.js"></script>
     <!--<script src="/static/js/bootstrap3.js"></script>-->
     <script src="/static/js/bootstrap.min.js"></script>
@@ -45,7 +49,21 @@
     <script src="/static/js/display.js"></script>
     <!--<script src="/static/js/cors_req.js"></script>-->
 
+    <script>
+        $(document).ready(function(){
+            $("#global_search_form").indextank_Ize('http://rabega.api.indexden.com', 'people');
 
+            $("#global_search_input").indextank_Autocomplete();
+//            $("#global_search_input").indextank_Autocomplete({fieldName: "itf2"});
+//            $("#name").indextank_Autocomplete({fieldName: "name"});
+//            $("#gender").indextank_Autocomplete({fieldName: "gender"});
+//            $("#current_location_dummy").indextank_Autocomplete({fieldName: "current_location_dummy"});
+//            $("#hometown_location_dummy").indextank_Autocomplete({fieldName: "hometown_location_dummy"});
+//            $("#work_dummy").indextank_Autocomplete({fieldName: "work_dummy"});
+//            $("#education_dummy").indextank_Autocomplete({fieldName: "education_dummy"});
+//            $("#likes_dummy").indextank_Autocomplete({fieldName: "likes_dummy"});
+        });
+    </script>
 
 
 
@@ -95,8 +113,8 @@
                           <!--</div>-->
                       <!--</div>-->
                       <!--<div class=>-->
-                      <form class="navbar-form pull-left form-search span9" style="margin-left: -5%">
-                          <input type="search" class="input-xxlarge" placeholder="Search anyone..."  searchenter style="width: 95%">
+                      <form id="global_search_form" class="navbar-form pull-left form-search span9" style="margin-left: -5%">
+                          <input id="global_search_input" type="search" class="input-xxlarge" placeholder="Search anyone..."  searchenter style="width: 95%">
                           <span class="fornav"><a href="#" ><i class="icon-search" searchenter></i></a> </span>
 
 

@@ -11,7 +11,10 @@
         // Access to jQuery and DOM versions of element
         base.$el = $(el);
         base.el = el;
-        
+//        console.log(base.el.style.width);
+//        base.el.style.width += 5;
+//        console.log(base.el.style.width);
+//
         // Add a reverse reference to the DOM object
         base.$el.data("Indextank.Autocomplete", base);
         
@@ -19,6 +22,7 @@
             base.options = $.extend({},$.Indextank.Autocomplete.defaultOptions, options);
             
             // Put your initialization code here
+//            console.log(base.el.form.style.width);
             var ize = $(base.el.form).data("Indextank.Ize");
 
             base.$el.autocomplete({
@@ -32,7 +36,7 @@
                                 url: ize.apiurl + "/v1/indexes/" + ize.indexName + "/autocomplete",
                                 dataType: "jsonp",
                                 data: { query: request.term, field: base.options.fieldName },
-                                success: function( data ) { responseCallback(data.suggestions); base.$el.trigger("Indextank.Autocomplete.success", [data.suggestions]); }
+                                success: function( data ) {responseCallback(data.suggestions.splice(0,4)); base.$el.trigger("Indextank.Autocomplete.success", [data.suggestions]); }
                             } );
                         },
                 minLength: base.options.minLength,
@@ -63,7 +67,7 @@
     
     $.Indextank.Autocomplete.defaultOptions = {
         fieldName: "text",
-        minLength: 2,
+        minLength: 1,
         delay: 100
     };
     
