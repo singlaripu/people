@@ -174,7 +174,7 @@ def push_data(access_token, only_data=False):
 	    birthday = birthday,
 	    birthday_dformat = birthday_index,
 	    education = education,
-	    likes_dummy = likes_dummy,
+	    # likes_dummy = likes_dummy,
 	    relationship_status=relationship_status,
 	    interested_in = interested_in,
 	    # likes_dummy_ids = likes_dummy_ids
@@ -324,9 +324,12 @@ def get_age(b):
 
 def get_lv_likes(a1, a2):
 	if not (a1 and a2):
-		return set([]), 0
+		return set([]), 0.0
 	common = set.intersection(a1, a2)
-	return common, 20.0*len(common)/(max(len(a1), len(a2)))
+	if common:
+		return common, 20.0*len(common)/(max(len(a1), len(a2)))
+	else:
+		return set([]), 0.0
 
 def sqlobj_to_dict(users, maps, ldi):
 	# import simplejson as json
@@ -347,7 +350,7 @@ def sqlobj_to_dict(users, maps, ldi):
 			7: 'hometown_location_name',
 			8: 'relationship_status',
 			9: 'interested_in',
-			10: 'likes_dummy',
+			# 10: 'likes_dummy',
 			11: 'profile_album',
 			12: 'username',
 			13: 'current_location_dummy',
@@ -360,6 +363,7 @@ def sqlobj_to_dict(users, maps, ldi):
 	for user in users:
 		# a = {c.name: getattr(user, c.name) for c in user.__table__.columns if c.name in keys}
 		a = {c: getattr(user, keys[c]) for c in keys.keys() if getattr(user, keys[c])}
+		a[10] = list(user.likes_set)
 		lv_set, lv_scr = get_lv_likes(ldi, user.likes_set) 
 		a['scr'] = maps[user.id] + lv_scr
 

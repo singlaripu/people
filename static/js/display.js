@@ -607,9 +607,10 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager,
 //        var distance = 2;
 
         if (lat1==9999) {
-            return [0, 0];
+            return [0.0, 0.0];
         }
 //        console.log('calculating distance');
+//        dist =
         var from = new google.maps.LatLng(lat1, lng1);
         var to   = new google.maps.LatLng(lat2, lng2);
         var dist = google.maps.geometry.spherical.computeDistanceBetween(from, to)/1000.0;
@@ -644,16 +645,18 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager,
 
 
             if (!$scope.users.score_added_flag) {
+//                console.log('defining distance');
+                var distelt = [1000.0, 0.0];
                 if (16 in $scope.users[j]) {
-                    var distelt = $scope.calculate_distance($scope.latitude, $scope.longitude, $scope.users[j][16][0], $scope.users[j][16][1]);
+//                    console.log($scope.latitude, $scope.longitude);
+                    distelt = $scope.calculate_distance($scope.latitude, $scope.longitude, $scope.users[j][16][0], $scope.users[j][16][1]);
                 }
-                else {
-                    var distelt = [1000.0, 0.0];
-                }
-//            console.log(distelt[0], distelt[1]);
+
+//                console.log($scope.users[j]['0'], distelt[0], distelt[1]);
                 $scope.users[j]['scr'] += distelt[1];
                 $scope.users[j].distance = distelt[0];
             }
+
 
 
 //            $scope.users[j].dummyurl = '/static/images/placeholder1.gif';
@@ -693,11 +696,14 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager,
         $scope.fb_uid = d.username;
         $scope.passwd = d.userid;
         $scope.name = d.name;
-        if (d.latlong) {
+//        console.log('before if condition.. setting up latlongs');
+        if (d.latlong.length > 0) {
+//            console.log('latlong found');
             $scope.latitude = d.latlong[0];
             $scope.longitude = d.latlong[1];
         }
         else {
+//            console.log('latlong not found.. setting up default values');
             $scope.latitude = 9999;
             $scope.longitude = 9999;
         }
@@ -1012,6 +1018,27 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager,
         $('#myModal').modal(options);
     }
 
+    $scope.likes_sub_match =  function (s, l) {
+        for (i in l) {
+            if (s == l[i]) {
+                return true;
+            }
+        }
+        if (i == l.length - 1) {
+            return false;
+        }
+    }
+
+    $scope.get_first_three = function(l) {
+        var d = [];
+        for (var i = 0; i < 3; i++) {
+           if (l[i]) {
+               d.push(l[i]);
+           }
+        }
+        return d;
+    }
+
     $scope.ShowLightBox = function(ind) {
 //        console.log('executing show light box');
         var user = ind;
@@ -1069,8 +1096,38 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager,
         else {
             $scope.light_interested_in = undefined;
         }
+//        console.log(user[10], user[20]);
         if (10 in user) {
-            $scope.light_likes_name = user[10].split(',').splice(0,3).join();
+//            var likes = user[20];
+            if (20 in user) {
+//                var likes = user[20].splice(0,3);
+//                for (var likes_i = 0; likes_i < 3; likes_i++) {
+//                    if (user[20][likes_i]) {
+//
+//                    }
+//                }
+                var likes = user[20];
+
+                if (likes.length < 3) {
+//                    console.log('length less than 3');
+//                var rem_len = 3 - likes.length;
+//                    var rem_likes =  user[10].split(',');
+//                    var rem_likes =  user[10];
+                    var lc = 0;
+                    while (likes.length < 3) {
+                        if (!($scope.likes_sub_match(user[10][lc], likes))) {
+                            likes.push(user[10][lc].trim());
+                        }
+                        ++lc;
+                    }
+                }
+//            $scope.light_likes_name = user[10].split(',').splice(0,3).join();
+                $scope.light_likes_name = $scope.get_first_three(likes).join(', ');
+            }
+            else {
+                $scope.light_likes_name = $scope.get_first_three(user[10]).join(', ');
+//                $scope.light_likes_name = user[10].split(',').splice(0,3).join();
+            }
         }
         else {
             $scope.light_likes_name = undefined;
