@@ -450,22 +450,50 @@ only screen and (min-device-pixel-ratio: 1.5) {
     vertical-align: middle;
 }
 
-.ui-widget {
+/*.ui-widget {*/
+    /*font-size: 14px;*/
+/*}*/
+
+/*.ui-corner-all {*/
+    /*-webkit-border-radius : 0px;*/
+    /*border-radius : 0px;*/
+/*}*/
+
+
+
+.ui-autocomplete {
+    padding-right: 10px;
+    -webkit-border-radius : 0px;
+    border-radius : 0px;
     font-size: 14px;
+
 }
 
-.ui-corner-all {
+.ui-autocomplete #ui-active-menuitem {
+    /*padding-left: 10px;*/
+    background-color: #F2F2F2;
+    /*background:#F2F2F2 repeat right top;*/
+    color: #000000;
+    font-weight: bold;
+    border: 1px solid #F2F2F2;
+    margin-right: -10px;
+    -webkit-border-radius : 0px;
+    border-radius : 0px;
+
+}
+
+.ui-autocomplete .ui-menu-item {
+    padding : 0;
+    /*padding-right: 10px;*/
+    zoom : 0;
     -webkit-border-radius : 0px;
     border-radius : 0px;
 }
 
-/*.ui-corner-all {*/
-    /*border: 0;*/
-/*}*/
 
-.ui-corner-all .ui-state-hover{
-    background-color: #F2F2F2;
-    color: #000000;
-    /*font-weight: bold;*/
-    border: 1px solid #F2F2F2;
-}
+
+
+/*.ui-autocomplete .ui-menu .ui-widget .ui-widget-content .ui-corner-all {*/
+    /*padding-right: 10px;*/
+    /*background-color: red;*/
+/*}*/

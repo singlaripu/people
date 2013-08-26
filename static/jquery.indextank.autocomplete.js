@@ -7,6 +7,8 @@
         // To avoid scope issues, use 'base' instead of 'this'
         // to reference this class from internal events and functions.
         var base = this;
+
+
         
         // Access to jQuery and DOM versions of element
         base.$el = $(el);
@@ -22,8 +24,11 @@
             base.options = $.extend({},$.Indextank.Autocomplete.defaultOptions, options);
             
             // Put your initialization code here
-//            console.log(base.el.form.style.width);
+//            console.log(base.el.style.width);
+//            base.el.form.style.width = '100%';
             var ize = $(base.el.form).data("Indextank.Ize");
+//            ize.$el[0][0].setWidth(500);
+//            console.log(ize.$el[0][0].clientWidth);
 
             base.$el.autocomplete({
                 select: function( event, ui ) {
@@ -43,10 +48,10 @@
                 delay: base.options.delay
             });
 
-            // make sure autocomplete closes when IndextankIzed form submits
-            //ize.$el.submit(function(e){
-            //    base.$el.data("autocomplete").close();
-            //});
+//            make sure autocomplete closes when IndextankIzed form submits
+            ize.$el.submit(function(e){
+                base.$el.data("autocomplete").close();
+            });
 
             // and also disable it when Indextank.AjaxSearch is searching .. 
             base.$el.bind("Indextank.AjaxSearch.searching", function(e) {
