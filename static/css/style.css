@@ -489,6 +489,15 @@ only screen and (min-device-pixel-ratio: 1.5) {
     -webkit-border-radius : 0px;
     border-radius : 0px;
 }
+/*
+.typeahead {
+    top : 20px;
+    right: 0px;
+}
+
+.dropdown-menu>.active>a, .dropdown-menu>.active>a:hover, .dropdown-menu>.active>a:focus{
+    background-color: #F2F2F2;
+}*/
 
 
 
@@ -497,3 +506,13 @@ only screen and (min-device-pixel-ratio: 1.5) {
     /*padding-right: 10px;*/
     /*background-color: red;*/
 /*}*/
+
+.collapse {
+    overflow: visible;
+    /*overflow-x: hidden;*/
+    /*overflow-x:  hidden;*/
+}
+
+.dropdown-menu>li>a {
+    white-space: pre-wrap;
+}

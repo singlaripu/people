@@ -1,6 +1,6 @@
 
 
-var app =  angular.module('myApp', ['ui.bootstrap']);
+var app =  angular.module('myApp', ['ui.bootstrap', 'ui.utils']);
 
 //app.config(function($httpProvider){
 //    delete $httpProvider.defaults.headers.common['X-Requested-With'];
@@ -97,6 +97,12 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager,
     $scope.flag_to_display_default = false;
     $scope.latitude = undefined;
     $scope.longitude = undefined;
+    $scope.ahead_name = undefined;
+    $scope.ahead_current_city = undefined;
+    $scope.ahead_work_place = undefined;
+    $scope.ahead_school = undefined;
+    $scope.ahead_hometown = undefined;
+    $scope.ahead_like = undefined;
 //    $scope.msg_send_promise = undefined;
 //    $scope.msg_array = [];
 
@@ -624,6 +630,59 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager,
 //    var a = $scope.calculate_distance(-79.687184, 42.484131, 0, 0);
 //    console.log(a[0], a[1]);
 
+    $scope.get_work_back = function(s) {
+        if (s) {
+            var a = s.split(" at ");
+            if (a.length > 1) s = a[1];
+            var a = s.split(" (");
+            if (a.length > 1) return a[0];
+            var a = s.split(", ");
+            if (a.length > 1) return a[0];
+            var a = s.split(" - ");
+            if (a.length > 1) return a[0];
+        }
+        return s;
+    }
+
+    $scope.get_desig_back = function(s) {
+        if (s) {
+            var a = s.split(" at ");
+            if (a.length > 1) return a[0];
+            else return undefined;
+        }
+        return s;
+    }
+
+    $scope.get_school_back = function(s) {
+        if (s) {
+            var a = s.split(" from ");
+            if (a.length > 1) s = a[1];
+            var a = s.split(" (");
+            if (a.length > 1) return a[0];
+            var a = s.split(", ");
+            if (a.length > 1) return a[0];
+        }
+        return s;
+    }
+
+    $scope.get_degree_back = function(s) {
+        if (s) {
+            var a = s.split(" in ");
+            if (a.length > 1) return a[0];
+            else return undefined;
+        }
+        return s;
+    }
+
+    $scope.get_e_back = function(s) {
+        if (s) {
+            var a = s.split(" in ");
+            if (a.length > 1) return a[0];
+            else return undefined;
+        }
+        return s;
+    }
+
     $scope.on_arrival_of_data = function (d) {
 
         console.log('on arrival of data, preparing views');
@@ -678,6 +737,55 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager,
 //        $timeout(function() {
 //
 //        },3000);
+
+//        $scope.names = [];
+//        $scope.current_cities = [];
+//        $scope.work_places = [];
+
+        $scope.names = _.pluck($scope.users, '0');
+        $scope.names = _.unique($scope.names) ;
+
+        $scope.current_cities = _.pluck($scope.users, '13');
+        $scope.current_cities = _.unique($scope.current_cities) ;
+
+        var work_places =  _.pluck($scope.users, '4');
+        work_places = _.flatten(work_places);
+
+        var desigs = _.map(work_places, $scope.get_desig_back);
+        desigs = _.unique(desigs);
+//        console.log(desigs);
+
+        work_places = _.map(work_places, $scope.get_work_back);
+        work_places = _.unique(work_places);
+
+//        var desigs = _.map($scope.work_places, $scope.get_desig_back);
+//        desigs = _.unique(desigs);
+//        console.log(work_places.length, desigs.length);
+        $scope.work_places = work_places.concat(desigs);
+//        console.log($scope.work_places);
+//        console.log($scope.work_places.length, desigs.length);
+
+
+        var schools =  _.pluck($scope.users, '5');
+        schools = _.flatten(schools);
+
+
+
+
+        $scope.schools = _.map($scope.schools, $scope.get_school_back);
+        $scope.schools = _.unique($scope.schools);
+
+        $scope.hometowns = _.pluck($scope.users, '15');
+        $scope.hometowns = _.unique($scope.hometowns) ;
+
+        console.log('starting likes sequence');
+        $scope.likes =  _.pluck($scope.users, '10');
+        $scope.likes = _.flatten($scope.likes);
+//        $scope.likes = _.unique($scope.likes);
+//        $scope.likes = [];
+        console.log('likes sequence complete');
+
+
         $scope.subset = $scope.users;
         $scope.newhtml();
         console.log('finished loading');

@@ -39,10 +39,14 @@
     <script src="/static/js/angular.min.js"></script>
 
     <script src="/static/js/ui-bootstrap-tpls-0.4.0.js"></script>
+    <script src="/static/js/ui-utils.min.js"></script>
+
     <!--<script src="/static/js/socketio/socket.io.min.js"></script>-->
     <script src="/static/js/peer.min.js"></script>
     <script src="/static/js/jquery.xmpp.js"></script>
     <script src="/static/js/Queue.compressed.js"></script>
+    <script src="/static/js/underscore-min.js"></script>
+
 
 
 
@@ -263,12 +267,18 @@
                       <hr>
 
                       <div collapse="isCollapsed">
-                          <input class=" form-horizontal " type="text" enter placeholder="Name" fieldname="name" dataname="0">
-                          <input class=" form-horizontal " type="text" enter placeholder="Current City" fieldname="location" dataname="13">
-                          <input class=" form-horizontal " type="text" enter placeholder="Employer" fieldname="work" dataname="4">
-                          <input class=" form-horizontal " type="text" enter placeholder="School" fieldname="education" dataname="5">
-                          <input class=" form-horizontal " type="text" enter placeholder="Hometown" fieldname="hometown" dataname="15">
-                          <input class=" form-horizontal " type="text" enter placeholder="Likes" fieldname="likes" dataname="10">
+                          <input class="form-horizontal" type="text" enter placeholder="Name" fieldname="name" dataname="0"
+                                 ng-model="ahead_name" typeahead="name for name in names  | filter:$viewValue | limitTo:4">
+                          <input class="form-horizontal" type="text" enter placeholder="Current City" fieldname="location" dataname="13"
+                                 ng-model="ahead_current_city" typeahead="place for place in current_cities | filter:$viewValue | limitTo:4">
+                          <input class="form-horizontal" type="text" enter placeholder="Work" fieldname="work" dataname="4"
+                                 ng-model="ahead_work_place" typeahead="comp for comp in work_places | filter:$viewValue | limitTo:4">
+                          <input class="form-horizontal" type="text" enter placeholder="Education" fieldname="education" dataname="5"
+                                 ng-model="ahead_school" typeahead="sc for sc in schools | filter:$viewValue | limitTo:4">
+                          <input class="form-horizontal" type="text" enter placeholder="Hometown" fieldname="hometown" dataname="15"
+                                 ng-model="ahead_hometown" typeahead="home for home in hometowns | filter:$viewValue | limitTo:4">
+                          <input class="form-horizontal" type="text" enter placeholder="Likes" fieldname="likes" dataname="10"
+                                 ng-model="ahead_like" typeahead="like for like in likes | filter:$viewValue  | limitTo:4 | unique">
 
                           <div class="form-inline">
                               <label class="checkbox"><input type=checkbox ng-model="checkModel.male" genderclick>Male</label>
