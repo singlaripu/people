@@ -629,59 +629,59 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager,
 //    console.log($scope.calculate_distance(29.166700, 75.716698, 20, 10));
 //    var a = $scope.calculate_distance(-79.687184, 42.484131, 0, 0);
 //    console.log(a[0], a[1]);
-
-    $scope.get_work_back = function(s) {
-        if (s) {
-            var a = s.split(" at ");
-            if (a.length > 1) s = a[1];
-            var a = s.split(" (");
-            if (a.length > 1) return a[0];
-            var a = s.split(", ");
-            if (a.length > 1) return a[0];
-            var a = s.split(" - ");
-            if (a.length > 1) return a[0];
-        }
-        return s;
-    }
-
-    $scope.get_desig_back = function(s) {
-        if (s) {
-            var a = s.split(" at ");
-            if (a.length > 1) return a[0];
-            else return undefined;
-        }
-        return s;
-    }
-
-    $scope.get_school_back = function(s) {
-        if (s) {
-            var a = s.split(" from ");
-            if (a.length > 1) s = a[1];
-            var a = s.split(" (");
-            if (a.length > 1) return a[0];
-            var a = s.split(", ");
-            if (a.length > 1) return a[0];
-        }
-        return s;
-    }
-
-    $scope.get_degree_back = function(s) {
-        if (s) {
-            var a = s.split(" in ");
-            if (a.length > 1) return a[0];
-            else return undefined;
-        }
-        return s;
-    }
-
-    $scope.get_e_back = function(s) {
-        if (s) {
-            var a = s.split(" in ");
-            if (a.length > 1) return a[0];
-            else return undefined;
-        }
-        return s;
-    }
+//
+//    $scope.get_work_back = function(s) {
+//        if (s) {
+//            var a = s.split(" at ");
+//            if (a.length > 1) s = a[1];
+//            var a = s.split(" (");
+//            if (a.length > 1) return a[0];
+//            var a = s.split(", ");
+//            if (a.length > 1) return a[0];
+//            var a = s.split(" - ");
+//            if (a.length > 1) return a[0];
+//        }
+//        return s;
+//    }
+//
+//    $scope.get_desig_back = function(s) {
+//        if (s) {
+//            var a = s.split(" at ");
+//            if (a.length > 1) return a[0];
+//            else return undefined;
+//        }
+//        return s;
+//    }
+//
+//    $scope.get_school_back = function(s) {
+//        if (s) {
+//            var a = s.split(" from ");
+//            if (a.length > 1) s = a[1];
+//            var a = s.split(" (");
+//            if (a.length > 1) return a[0];
+//            var a = s.split(", ");
+//            if (a.length > 1) return a[0];
+//        }
+//        return s;
+//    }
+//
+//    $scope.get_degree_back = function(s) {
+//        if (s) {
+//            var a = s.split(" in ");
+//            if (a.length > 1) return a[0];
+//            else return undefined;
+//        }
+//        return s;
+//    }
+//
+//    $scope.get_e_back = function(s) {
+//        if (s) {
+//            var a = s.split(" in ");
+//            if (a.length > 1) return a[0];
+//            else return undefined;
+//        }
+//        return s;
+//    }
 
     $scope.on_arrival_of_data = function (d) {
 
@@ -750,40 +750,67 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager,
 
         var work_places =  _.pluck($scope.users, '4');
         work_places = _.flatten(work_places);
+        work_places = _.reject(work_places, function(num){ return num == undefined; });
+        var positions = _.pluck(work_places, "position");
+        var employers = _.pluck(work_places, "employer");
+//        var descriptions = _.pluck(work_places, "description");
+//        positions = _.unique(positions) ;
+//        employers = _.unique(employers) ;
+//        descriptions = _.unique(descriptions) ;
+//        console.log(positions);
+//        console.log(employers);
+//        console.log(descriptions);
+//        $scope.work_places = positions.concat(employers).concat(descriptions);
+        $scope.work_places = positions.concat(employers);
+        $scope.work_places = _.unique($scope.work_places);
 
-        var desigs = _.map(work_places, $scope.get_desig_back);
-        desigs = _.unique(desigs);
+
+
+//        var desigs = _.map(work_places, $scope.get_desig_back);
+//        desigs = _.unique(desigs);
 //        console.log(desigs);
 
-        work_places = _.map(work_places, $scope.get_work_back);
-        work_places = _.unique(work_places);
+//        console.log(work_places[0]["position"]);
+
+//        work_places = _.map(work_places, $scope.get_work_back);
+//        work_places = _.unique(work_places);
 
 //        var desigs = _.map($scope.work_places, $scope.get_desig_back);
 //        desigs = _.unique(desigs);
 //        console.log(work_places.length, desigs.length);
-        $scope.work_places = work_places.concat(desigs);
+//        $scope.work_places = work_places.concat(desigs);
+//        $scope.work_places = [];
 //        console.log($scope.work_places);
 //        console.log($scope.work_places.length, desigs.length);
 
 
-        var schools =  _.pluck($scope.users, '5');
-        schools = _.flatten(schools);
+        var education =  _.pluck($scope.users, '5');
+        education = _.flatten(education);
+        education = _.reject(education, function(num){ return num == undefined; });
+        var schools = _.pluck(education, "school");
+        var degrees = _.pluck(education, "degree");
+        var concentrations = _.pluck(education, "concentration");
+        $scope.schools = schools.concat(degrees).concat(concentrations);
+//        $scope.schools = $scope.schools.concat(concentrations);
 
-
-
-
-        $scope.schools = _.map($scope.schools, $scope.get_school_back);
         $scope.schools = _.unique($scope.schools);
+
+//        console.log(schools, degrees, concentrations)  ;
+//        console.log($scope.schools);
+
+
+//        $scope.schools = _.map($scope.schools, $scope.get_school_back);
+//        $scope.schools = _.unique($scope.schools);
 
         $scope.hometowns = _.pluck($scope.users, '15');
         $scope.hometowns = _.unique($scope.hometowns) ;
 
-        console.log('starting likes sequence');
+//        console.log('starting likes sequence');
         $scope.likes =  _.pluck($scope.users, '10');
         $scope.likes = _.flatten($scope.likes);
 //        $scope.likes = _.unique($scope.likes);
 //        $scope.likes = [];
-        console.log('likes sequence complete');
+//        console.log('likes sequence complete');
 
 
         $scope.subset = $scope.users;
@@ -1147,7 +1174,82 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager,
         return d;
     }
 
+    $scope.parse_education = function(obj) {
+        var line = '';
+//        console.log('parse education function was called');
+        if (obj['degree']) {
+            line += obj['degree'];
+        }
+        if (obj['concentration']) {
+            if (line) {
+                line += ' in ';
+            }
+            line += obj['concentration'];
+        }
+        if (obj['school']) {
+            if (line) {
+                line += ' from ';
+            }
+            line += obj['school'];
+        }
+        if (obj['year']) {
+            if (line) {
+                line += ' (' + obj['year'] + ')';
+            }
+        }
+        if (obj['classes']) {
+            if (line) {
+                line += ', ' + obj['classes'];
+            }
+        }
+        return line ;
+    }
+
+    $scope.parse_work = function(obj) {
+        var line = '';
+//        console.log('parse education function was called');
+        if (obj['position']) {
+            line += obj['position'];
+        }
+        if (obj['employer']) {
+            if (line) {
+                line += ' at ';
+            }
+            line += obj['employer'];
+        }
+        if (obj['description']) {
+            if (line) {
+                line += '  (' + obj['description'] + ')';
+            }
+            else {
+                line += obj['description'];
+            }
+        }
+        if (obj['location']) {
+            if (line) {
+                line += ', ';
+            }
+            line += obj['location'];
+        }
+        if (obj['start_date']) {
+            if (obj['end_date']) {
+                line += ' - ';
+            }
+            else {
+                line += ' - Since ';
+            }
+            line += obj['start_date'] ;
+            if (obj['end_date']) {
+                line += ' to ' + obj['end_date'];
+            }
+        }
+        return line ;
+    }
+
+
+
     $scope.ShowLightBox = function(ind) {
+
 //        console.log('executing show light box');
         var user = ind;
         if (3 in user) {
@@ -1163,13 +1265,13 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager,
             $scope.light_caption = undefined;
         }
         if (4 in user) {
-            $scope.light_work_name = user[4][0];
+            $scope.light_work_name = $scope.parse_work(user[4][0]);
         }
         else {
             $scope.light_work_name = undefined;
         }
         if (5 in user) {
-            $scope.light_education_name = user[5][0];
+            $scope.light_education_name = $scope.parse_education(user[5][0]);
         }
         else {
             $scope.light_education_name = undefined;

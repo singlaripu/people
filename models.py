@@ -108,6 +108,8 @@ class UserComplete(db.Model):
     username = db.Column(db.String(30))
     likes_dummy_ids = db.Column(db.PickleType)
     likes_set = db.Column(db.PickleType)
+    work1 = db.Column(db.PickleType)
+    education1 = db.Column(db.PickleType)
 
     def __init__(self, **kwargs):
         for k, v in kwargs.iteritems():

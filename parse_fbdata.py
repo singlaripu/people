@@ -15,48 +15,164 @@ def slugify_unicode(str):
 	return str
 
 
+# def parse_education(listobj):
+
+	# if not listobj:
+	# 	return [], ''
+
+	# education = []
+	# edu_json = []
+
+	# for item in listobj:		
+		
+	# 	line = ''
+	# 	# keys = item.keys()
+
+	# 	if item.get('degree'):
+	# 		line += item['degree']['name']
+
+	# 	if item.get('concentration'):
+	# 		if line:
+	# 			line += ' in '
+	# 		line += item['concentration'][0]['name']
+
+	# 	if item.get('school'):
+	# 		if line:
+	# 			line += ' from '
+	# 		line += item['school']['name']
+
+	# 	edu_json.append(line.encode('ascii', 'ignore'))
+
+	# 	if item.get('year'):
+	# 		if line:
+	# 			line += ' (' + item['year']['name'] + ')'
+
+	# 	if item.get('classes'):
+	# 		if line:
+	# 			line += ', ' + item['classes'][0]['name']
+
+	# 	# if 'type' in keys:
+	# 	# 	school_type = item['type']
+
+	# 	education.append(line.encode('ascii', 'ignore'))
+
+	# return education, ', '.join(edu_json)
+
+
 def parse_education(listobj):
 
 	if not listobj:
 		return [], ''
 
-	education = []
+	# education = []
 	edu_json = []
+	edu_dict = []
 
 	for item in listobj:		
 		
 		line = ''
 		# keys = item.keys()
+		d = {}
 
 		if item.get('degree'):
 			line += item['degree']['name']
+			d['degree'] = item['degree']['name']
 
 		if item.get('concentration'):
 			if line:
 				line += ' in '
 			line += item['concentration'][0]['name']
+			d['concentration'] = item['concentration'][0]['name']
 
 		if item.get('school'):
 			if line:
 				line += ' from '
 			line += item['school']['name']
+			d['school'] = item['school']['name']
 
 		edu_json.append(line.encode('ascii', 'ignore'))
 
 		if item.get('year'):
 			if line:
 				line += ' (' + item['year']['name'] + ')'
+				d['year'] = item['year']['name']
 
 		if item.get('classes'):
 			if line:
 				line += ', ' + item['classes'][0]['name']
+				d['classes'] = item['classes'][0]['name']
 
 		# if 'type' in keys:
 		# 	school_type = item['type']
 
-		education.append(line.encode('ascii', 'ignore'))
+		# education.append(line.encode('ascii', 'ignore'))
+		edu_dict.append(d)
 
-	return education, ', '.join(edu_json)
+	return edu_dict, ', '.join(edu_json)
+
+
+# def parse_work(listobj):
+
+# 	if not listobj:
+# 		return [], ''
+
+# 	work = []
+# 	work_json = []
+
+# 	for item in listobj:		
+		
+# 		flag1 = False
+# 		flag2 = False
+# 		line = ''
+# 		# keys = item.keys()
+
+# 		if item.get('position'):
+# 			line += item['position']['name']
+
+# 		if item.get('employer'):
+# 			if line:
+# 				line += ' at '
+# 			line += item['employer']['name']
+
+# 		if item.get('description'):
+# 			if line:
+# 				line += ' ('
+# 				flag1 = True
+# 			line += item['description']
+# 			if flag1:
+# 				line += ')'
+
+# 		if item.get('location'):
+# 			if line:
+# 				line += ', ' 
+# 			line += item['location']['name']
+
+# 		work_json.append(line.encode('ascii', 'ignore'))
+
+# 		if item.get('start_date'):
+# 			try:
+# 				start_date = parser.parse(item['start_date']).strftime('%b %Y')
+# 			except Exception:
+# 				start_date = ''
+# 			if line and start_date:
+# 				if item.get('end_date'):
+# 					line += ' - '
+# 				else:
+# 					line += ' - Since '
+# 				line += parser.parse(item['start_date']).strftime('%b %Y')
+# 				flag2 = True
+
+# 		if item.get('end_date'):
+# 			if flag2:
+# 				try:
+# 					line += ' to ' + parser.parse(item['end_date']).strftime('%b %Y')
+# 				except Exception:
+# 					end_data_Error = 'error'
+
+# 		work.append(line.encode('ascii', 'ignore'))
+
+# 	return work, ', '.join(work_json)
+
 
 
 
@@ -65,23 +181,28 @@ def parse_work(listobj):
 	if not listobj:
 		return [], ''
 
-	work = []
+	# work = []
 	work_json = []
+	work_dict = []
 
 	for item in listobj:		
 		
 		flag1 = False
 		flag2 = False
 		line = ''
+		d = {}
 		# keys = item.keys()
 
 		if item.get('position'):
 			line += item['position']['name']
+			d['position'] = item['position']['name']
+
 
 		if item.get('employer'):
 			if line:
 				line += ' at '
 			line += item['employer']['name']
+			d['employer'] = item['employer']['name']
 
 		if item.get('description'):
 			if line:
@@ -90,11 +211,13 @@ def parse_work(listobj):
 			line += item['description']
 			if flag1:
 				line += ')'
+			d['description'] = item['description']
 
 		if item.get('location'):
 			if line:
 				line += ', ' 
 			line += item['location']['name']
+			d['location'] = item['location']['name']
 
 		work_json.append(line.encode('ascii', 'ignore'))
 
@@ -110,17 +233,22 @@ def parse_work(listobj):
 					line += ' - Since '
 				line += parser.parse(item['start_date']).strftime('%b %Y')
 				flag2 = True
+				d['start_date'] = parser.parse(item['start_date']).strftime('%b %Y')
 
 		if item.get('end_date'):
 			if flag2:
 				try:
 					line += ' to ' + parser.parse(item['end_date']).strftime('%b %Y')
+					d['end_date'] = parser.parse(item['end_date']).strftime('%b %Y')
 				except Exception:
 					end_data_Error = 'error'
 
-		work.append(line.encode('ascii', 'ignore'))
+		# work.append(line.encode('ascii', 'ignore'))
+		work_dict.append(d)
 
-	return work, ', '.join(work_json)
+	return work_dict, ', '.join(work_json)
+
+
 
 
 def parse_birthday(birthday):
