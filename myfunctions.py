@@ -356,7 +356,7 @@ def sqlobj_to_dict(users, maps, ldi):
 			13: 'current_location_dummy',
 			14: 'birthday',
 			15: 'hometown_location_dummy',
-			16: 'current_location_latlong'
+			16: 'hometown_location_latlong'
 			}
 
 	res = []
@@ -365,7 +365,7 @@ def sqlobj_to_dict(users, maps, ldi):
 		a = {c: getattr(user, keys[c]) for c in keys.keys() if getattr(user, keys[c])}
 		a[10] = list(user.likes_set)
 		lv_set, lv_scr = get_lv_likes(ldi, user.likes_set) 
-		a['scr'] = maps[user.id] + lv_scr
+		a['scr'] = 1*(maps[user.id] + lv_scr)
 
 		age = get_age(user.birthday_dformat)
 		if age:
@@ -413,12 +413,17 @@ def get_field_boost(query):
 			'itf8:' + query + '^1)'
 
 
-def search_index(query, cuser=None):
+def search_index(query, args1, cuser=None):
 
 	search_results = {'data':[]}
 	user = get_user(cuser['fb_uid'])
 
-	if query:	
+	if query:
+		# print args1
+		isShowAll = args1['isShowAll']
+		age_min = args1['age'][0]
+		age_max = args1['age'][1]
+		distance = args1['distance']	
 		handle = get_index_handle()
 		fetch_fields=['docid', 'query_relevance_score']
 		variables = add_variables(user)
@@ -431,13 +436,51 @@ def search_index(query, cuser=None):
 			new_q = ' AND '.join(new_q)
 			# print new_q			
 
+
+		function_filters = {}
+		if isShowAll == False:
+			# function_filters[10] = [[0,360000]]
+			variables[0] = 0
+		else:
+			variables[0] = 1
+
+		if distance == "5000":
+			# function_filters[7] = [[None, int(distance)]]
+			variables[8] = 99999999
+		elif distance == "0":
+			variables[8] = 1
+		else:
+			variables[8] = int(distance)
+			
+
+		# docvar_filters = {1:[[None, None]]}
+		# variables[11] = dt.now().year
+		if age_min == "18" and age_max == "70":
+			# docvar_filters[1][0][1] = dt.now().year-int(age_min)
+			variables[4] = 1
+			variables[5] = 999
+		else:
+			variables[4] = int(age_min)
+			variables[5] = int(age_max)
+
+
+		# if age_max == "70":
+		# 	# docvar_filters[1][0][0] = dt.now().year-int(age_max)
+		# 	variables[5] = 999
+		# else:
+		# 	variables[5] = int(age_max) 
+		function_filters[4] = [[1,None]]
+
+		# print new_q, variables, function_filters
 		res = handle.search(
 			new_q, 
 			length=200, 
-			scoring_function=3, 
+			scoring_function=0, 
 			fetch_fields=fetch_fields, 
 			# match_any_field='true',
-			variables = variables
+			variables = variables,
+			function_filters = function_filters
+			# docvar_filters=docvar_filters,
 			)['results']
 		
 		if res:
@@ -448,7 +491,7 @@ def search_index(query, cuser=None):
 
 	search_results['name'] = user.name
 	# search_results['fb_uid'] = cuser['user_key']
-	search_results['latlong'] = user.current_location_latlong	
+	search_results['latlong'] = user.hometown_location_latlong	
 	search_results['userid'] = user.user_key
 	search_results['username'] = user.fb_uid
 

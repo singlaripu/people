@@ -209,14 +209,16 @@ def close():
 #     else:
 #        return render_template('base.html', app_id=FB_APP_ID, token=access_token, name=FB_APP_NAME) 
 
-@app.route('/search/<query>', methods=['GET'])
-def search(query):
+@app.route('/search', methods=['POST'])
+def search():
     # if access_token:
-    if request.method == 'GET':
+    if request.method == 'POST':
         # print query
         # d = {'text':query}
         my_user = current_user()
-        search_results = search_index(query, my_user)
+        # print int(age_min), int(age_max), int(distance)
+        data = simplejson.loads(flask.request.data) 
+        search_results = search_index(data['query'], data, my_user)
         # print len(search_results)
         # json_results = to_json(search_results)
         # my_user = current_user()
@@ -273,14 +275,17 @@ def login():
         flask.session['jid'] = flask.request.form['user'] + '@jabber.fbpeople.com'
         flask.session['jidpass'] = flask.request.form['password']
         recipient = flask.request.form['to'] + '@jabber.fbpeople.com'
+        user = get_user(flask.request.form['password'])
+        # print user.id
         session["user"] = dict(
                 name=flask.request.form['user'],
                 fb_uid=flask.request.form['password'],
                 user_key=flask.request.form['password'],
-                latlong=[0,0]
-                # id=user.id,
+                latlong=[0,0],
+                id=user.id
                 # access_token=cookie["access_token"]
             )
+        # print session["user"]
         # return render_template('room.html', recipient=recipient)
         return redirect('/wookmark')
 
@@ -292,15 +297,17 @@ def login():
 
 
 
-@app.route('/getlist', methods=['GET'])
+@app.route('/getlist', methods=['POST'])
 def getlist():
-    if flask.request.method == 'GET':# and session.get('user'):
+    if flask.request.method == 'POST':# and session.get('user'):
         # users = UserComplete.query.all()
         # json_results = to_json(users)
         my_user = current_user()
         # json_results['fb_uid'] = my_user['fb_uid']
         # json_results['name'] = my_user['name']
-        search_results = search_index('DBaMlk3TGxHRW91SWhTYUlLVktZTk', my_user)
+        data = simplejson.loads(flask.request.data)
+        # print int(age_min), int(age_max), int(distance)
+        search_results = search_index('DBaMlk3TGxHRW91SWhTYUlLVktZTk', data, my_user)
         return jsonify(**search_results)
     return jsonify([])
 
@@ -322,7 +329,17 @@ def getstatus():
         data = simplejson.loads(flask.request.data)
         users = data['ids']
         status = data['status']
-        userid = data['fb_uid']
+        # print status
+        # userid = data['fb_uid']
+
+        # t = int(1000*time.time())
+        dbid = session["user"]["id"]
+        userid = session["user"]["fb_uid"]
+        # print userid, dbid, fbuid
+        # print dbid
+        h = get_index_handle()
+        h.update_variables(dbid, {9:int(1000*time.time())})
+
         pipe.set(userid, status).expire(userid, 360)
         if len(users) <= 500:
             for user in users:

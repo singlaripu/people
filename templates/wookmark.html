@@ -10,6 +10,10 @@
     <!--<link rel="stylesheet"href="/static/css/sidenav.css" >-->
     <link rel="stylesheet"href="/static/css/bootstrap-combined.min.css" >
     <link rel="stylesheet"href="/static/css/bootstrap-responsive.css" >
+    <link rel="stylesheet"href="/static/css/slider.css" >
+    <!--<link rel="stylesheet"href="/static/css/custom-theme/jquery-ui-1.10.0.custom.css" >-->
+
+
     <!--<link rel="stylesheet"href="/static/css/bootstrap-combined.no-icons.min.css" >-->
     <!--<link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.no-icons.min.css" rel="stylesheet">-->
     <!--<link href="//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css" rel="stylesheet">-->
@@ -36,6 +40,8 @@
     <script src="/static/js/html5.js"></script>
     <!--<script src="/static/js/bootstrap3.js"></script>-->
     <script src="/static/js/bootstrap.min.js"></script>
+
+
     <script src="/static/js/angular.min.js"></script>
 
     <script src="/static/js/ui-bootstrap-tpls-0.4.0.js"></script>
@@ -46,6 +52,7 @@
     <script src="/static/js/jquery.xmpp.js"></script>
     <script src="/static/js/Queue.compressed.js"></script>
     <script src="/static/js/underscore-min.js"></script>
+    <!--<script src="/static/js/bootstrap-slider.js"></script>-->
 
 
 
@@ -67,6 +74,7 @@
 //            $("#education_dummy").indextank_Autocomplete({fieldName: "education_dummy"});
 //            $("#likes_dummy").indextank_Autocomplete({fieldName: "likes_dummy"});
         });
+        $('.slider').slider()
 
     </script>
 
@@ -96,86 +104,164 @@
 
 
   <div id="container" >
+  <div class="navbar navbar-fixed-top" >
+      <div class="navbar-inner" >
+          <div class="container row-fluid">
+              <!--<div class="container">-->
 
+              <div class="span6 row-fluid">
+                  <a class="brand span3" href="#"><strong>People</strong><i class="icon-leaf"></i></a>
+                  <!--<a class="brand" href="#"><strong>People</strong><i class="icon-leaf"></i></a>-->
 
+                  <!--<div class="control-group span9">-->
+                  <!--<label class="control-label" for="inputIcon"></label>-->
+                  <!--<div class="controls">-->
+                  <!--<div class="input-prepend">-->
 
+                  <!--<input class="input-xxlarge" type="search" id="inputIcon" placeholder="Search anyone">-->
+                  <!--<span class="add-on"><i class="icon-search"  ></i></span>-->
+                  <!--</div>-->
+                  <!--</div>-->
+                  <!--</div>-->
+                  <!--<div class=>-->
+                  <!--<form id="global_search_form" class="navbar-form pull-left form-search" style="margin-left: -0%; ">-->
+                  <form id="global_search_form" class="navbar-form pull-left form-search span9" style="margin-left: -0%; ">
 
-      <div class="navbar navbar-fixed-top" >
-          <div class="navbar-inner" >
-              <div class="container row-fluid">
-
-                  <div class="span7 row-fluid">
-                      <a class="brand span3" href="#"><strong>People</strong><i class="icon-leaf"></i></a>
-
-                      <!--<div class="control-group span9">-->
-                          <!--<label class="control-label" for="inputIcon"></label>-->
-                          <!--<div class="controls">-->
-                              <!--<div class="input-prepend">-->
-
-                                  <!--<input class="input-xxlarge" type="search" id="inputIcon" placeholder="Search anyone">-->
-                                  <!--<span class="add-on"><i class="icon-search"  ></i></span>-->
-                              <!--</div>-->
-                          <!--</div>-->
+                      <!--<div class="input-prepend input-append" >-->
+                      <!--<div class="btn-group">-->
+                      <!--<button class="btn dropdown-toggle" data-toggle="dropdown">-->
+                      <!--Search: All-->
+                      <!--<span class="caret"></span>-->
+                      <!--</button>-->
+                      <!--<ul class="dropdown-menu">-->
+                      <!--&lt;!&ndash;<li><a href="#">All</a></li>&ndash;&gt;-->
+                      <!--<li><a href="#">Online</a></li>-->
+                      <!--</ul>-->
                       <!--</div>-->
-                      <!--<div class=>-->
-                      <form id="global_search_form" class="navbar-form pull-left form-search span9" style="margin-left: -5%">
-                          <input id="global_search_input" type="search" class="input-xxlarge" placeholder="Search anyone..."  searchenter style="width: 95%">
-                          <span class="fornav"><a href="#" ><i class="icon-search" searchenter></i></a> </span>
+                      <!--<button class="btn" searchenter type="button" ng-click="isShowAll = !isShowAll">Show:-->
+                      <!--<span ng-show="isShowAll">All</span>-->
+                      <!--<span ng-hide="isShowAll">Online</span>-->
+                      <!--&lt;!&ndash;<span>{{isShowAll}}</span>&ndash;&gt;-->
+                      <!--</button>-->
+                      <input id="global_search_input"  type="search" class="input-xlarge" placeholder="Search People..."  searchenter  style=" width:95%; z-index:0;">
+                      <span class="fornav"><a href="#" ><i class="icon-search" searchenter></i></a> </span>
+                      <!--<button class="btn" searchenter type="button">Go!</button>-->
 
-
-                          <!--<button type="submit" class="inline"><i class="icon icon-search" tabindex="-1"></i> </button>-->
-                           <!--<span class="search-icon" style="z-index: 3;">-->
-                                <!--<button type="submit" class="icon-search" tabindex="-1">-->
-                                    <!--&lt;!&ndash;<span class="visuallyhidden">&ndash;&gt;-->
-
-                                        <!--&lt;!&ndash;Search&ndash;&gt;-->
-                                    <!--&lt;!&ndash;</span>&ndash;&gt;-->
-                                <!--</button>-->
-                           <!--</span>-->
-                      </form>
-                          <!--<a href="#"><i class="icon-search inline" style="z-index: 120"></i></a>-->
                       <!--</div>-->
 
+
+                      <!--<button type="submit" class="inline"><i class="icon icon-search" tabindex="-1"></i> </button>-->
+                      <!--<span class="search-icon" style="z-index: 3;">-->
+                      <!--<button type="submit" class="icon-search" tabindex="-1">-->
+                      <!--&lt;!&ndash;<span class="visuallyhidden">&ndash;&gt;-->
+
+                      <!--&lt;!&ndash;Search&ndash;&gt;-->
+                      <!--&lt;!&ndash;</span>&ndash;&gt;-->
+                      <!--</button>-->
+                      <!--</span>-->
+                  </form>
+
+
+
+                  <!--<a href="#"><i class="icon-search inline" style="z-index: 120"></i></a>-->
+                  <!--</div>-->
+
+              </div>
+              <!--
+
+              <div class="span1" style="margin-top: 1.5%; margin-left: -1.5%;" >
+                  &lt;!&ndash;<div class="nav-collapse">&ndash;&gt;
+                  &lt;!&ndash;<li class="dropdown">&ndash;&gt;
+                  <a id="advaced_button">Advanced</a>
+                  <div id="advanced_dropdown" style="padding: 15px; padding-bottom: 0px;">
+                      <div>
+                          <label class="checkbox"><input type=checkbox ng-model="search_online_only" genderclick>Search online only</label>
+                          <div class="well">
+                              Age:
+                              18
+                              <input type="text" value="" data-slider-min="18" data-slider-max="50" data-slider-step="1" data-slider-value="[18,25]" id="sl2" >
+
+                              50
+                          </div>
+                          <div id="h_slider"></div>
+                      </div>
+                  </div>
+                  -->
+
+                  <div  class="dropdown span1" id="menu1" style="margin-top: 1.5%; margin-left: -1.5%">
+                      <a dropdownadvanced class="dropdown-toggle" data-toggle="dropdown" href="#menu1" >
+                          Advanced
+                      </a>
+                      <div class="dropdown-menu" style="width: 450%;">
+                          <form  style="padding: 10px; display: inline-block;">
+                              <label class="checkbox">Online only<input type=checkbox ng-model="isShowAll" ></label>
+                              <br>
+                              Age: <input  type="text" value="18,70" data-slider-min="18" data-slider-max="70" data-slider-step="1" data-slider-value="[18,70]" id="sl2" ageslider>
+                              <br><br>
+                              Distance: <input distslider type="text" value="5000" data-slider-min="0" data-slider-max="5000" data-slider-step="50" data-slider-value="[5000]" id="sl1">
+
+                              <!--
+                              Age: <input type="text" class="input-mini">  -  <input type="text" class="input-mini">  <br>
+-->
+                              <!--Distance <= <input type="text" class="input-mini">-->
+                          </form>
+                      </div>
                   </div>
 
+                  <!--</li>-->
+                  <!--</div>-->
+
+              <!--</div>-->
+              <!--<div class="form-inline">-->
+              <!--<label class="checkbox"><input type=checkbox ng-model="onlineonly" genderclick>Online Only</label>-->
+              <!--</div>-->
 
 
-                  <div class="collapse nav-collapse nav-collapse-scrollable span5">
+
+              <div class="collapse nav-collapse nav-collapse-scrollable span5 pull-right">
+                  <!--<div class="collapse nav-collapse nav-collapse-scrollable">-->
                   <!--<div class="nav-collapse collapse navbar-responsive-collapse">-->
-                      <div class="pull-right">
-                          <ul class="nav">
-                              <!--<li></li>-->
-                              <li class="active" ><a  href="#">Stream</a></li>
-                              <li><a href="#">Pin Board</a></li>
-                              <li><a href="#" class="ng-cloak">{{name}}</a></li>
-                              <li class="dropdown">
-                                  <a class="dropdown-toggle" id="drop1" role="button" data-toggle="dropdown" href="#">
-                                      <i class="icon-cog"></i>
-                                      <b class="caret"></b>
-                                  </a>
-                                  <ul class="dropdown-menu" role="menu" aria-labelledby="drop1" style="min-width: 80px;">
-                                      <li role="presentation">
-                                          <a role="menuitem" tabindex="-1" href="#">Log Out</a>
-                                      </li>
-                                  </ul>
-                              </li>
-                          </ul>
-                          <!--<p class="navbar-text pull-right">Signed in as Ripu Singla</p>-->
-                          <!--<p class="navbar-text pull-right">Signed in as <a href="#" class="navbar-link">Mark Otto</a></p>-->
-                          <!--<div class="dropdown">-->
+                  <div class="pull-right">
+                      <ul class="nav">
+                          <!--<li></li>-->
+                          <li class="active" ><a  href="#">Stream</a></li>
+                          <li><a href="#">Pin Board</a></li>
+                          <li><a href="#" class="ng-cloak">{{name}}</a></li>
+                          <li class="dropdown">
+                              <a class="dropdown-toggle" id="drop1" role="button" data-toggle="dropdown" href="#">
+                                  <i class="icon-cog"></i>
+                                  <b class="caret"></b>
+                              </a>
+                              <ul class="dropdown-menu" role="menu" aria-labelledby="drop1">
+                                  <li role="presentation" >
+                                      <a role="menuitem" tabindex="-1" href="#">Log Out</a>
+                                  </li>
+                              </ul>
+                          </li>
 
-                          <!--</div>-->
 
-                      </div>
+                      </ul>
+                      <!--<p class="navbar-text pull-right">Signed in as Ripu Singla</p>-->
+                      <!--<p class="navbar-text pull-right">Signed in as <a href="#" class="navbar-link">Mark Otto</a></p>-->
+                      <!--<div class="dropdown">-->
+
+                      <!--</div>-->
 
                   </div>
 
               </div>
+
           </div>
       </div>
+  </div>
 
 
       <div id="main" role="main"   style="padding-top: 75px;">
+
+
+
+
+
 
 
           <div id="myModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" >
@@ -261,32 +347,42 @@
 
                   <div class="nav nav-list affix" style="float: right; height: 500px; overflow: auto">
                       <div class="righticonclass" ng-click="isCollapsed = !isCollapsed">
-                          <span class="muted">Refine Results</span>
+                          <span class="muted"><strong>Refine Results</strong></span>
                           <i class="icon-chevron-right"></i>
                       </div>
-                      <hr>
 
-                      <div collapse="isCollapsed">
-                          <input class="form-horizontal" type="text" enter placeholder="Name" fieldname="name" dataname="0"
-                                 ng-model="ahead_name" typeahead="name for name in names  | filter:$viewValue | limitTo:4">
-                          <input class="form-horizontal" type="text" enter placeholder="Current City" fieldname="location" dataname="13"
-                                 ng-model="ahead_current_city" typeahead="place for place in current_cities | filter:$viewValue | limitTo:4">
-                          <input class="form-horizontal" type="text" enter placeholder="Work" fieldname="work" dataname="4"
-                                 ng-model="ahead_work_place" typeahead="comp for comp in work_places | filter:$viewValue | limitTo:4">
-                          <input class="form-horizontal" type="text" enter placeholder="Education" fieldname="education" dataname="5"
-                                 ng-model="ahead_school" typeahead="sc for sc in schools | filter:$viewValue | limitTo:4">
-                          <input class="form-horizontal" type="text" enter placeholder="Hometown" fieldname="hometown" dataname="15"
-                                 ng-model="ahead_hometown" typeahead="home for home in hometowns | filter:$viewValue | limitTo:4">
-                          <input class="form-horizontal" type="text" enter placeholder="Likes" fieldname="likes" dataname="10"
-                                 ng-model="ahead_like" typeahead="like for like in likes | filter:$viewValue  | limitTo:4 | unique">
+                      <!--<div>-->
+                          <!--<button class="btn" ng-click="isCollapsed = !isCollapsed">Refine Results</button>-->
+                          <hr>
 
-                          <div class="form-inline">
-                              <label class="checkbox"><input type=checkbox ng-model="checkModel.male" genderclick>Male</label>
-                              <label class="checkbox"><input type=checkbox ng-model="checkModel.female" genderclick>Female</label>
-                              <label class="checkbox"><input type=checkbox ng-model="checkModel.online" genderclick>Online</label>
+                          <div collapse="isCollapsed">
+                              <input class="form-horizontal" type="text" enter placeholder="Name" fieldname="name" dataname="0"
+                                     ng-model="ahead_name" typeahead="name for name in names  | filter:$viewValue | limitTo:4">
+                              <input class="form-horizontal" type="text" enter placeholder="Current City" fieldname="location" dataname="13"
+                                     ng-model="ahead_current_city" typeahead="place for place in current_cities | filter:$viewValue | limitTo:4">
+                              <input class="form-horizontal" type="text" enter placeholder="Work" fieldname="work" dataname="4"
+                                     ng-model="ahead_work_place" typeahead="comp for comp in work_places | filter:$viewValue | limitTo:4">
+                              <input class="form-horizontal" type="text" enter placeholder="Education" fieldname="education" dataname="5"
+                                     ng-model="ahead_school" typeahead="sc for sc in schools | filter:$viewValue | limitTo:4">
+                              <input class="form-horizontal" type="text" enter placeholder="Hometown" fieldname="hometown" dataname="15"
+                                     ng-model="ahead_hometown" typeahead="home for home in hometowns | filter:$viewValue | limitTo:4">
+                              <input class="form-horizontal" type="text" enter placeholder="Likes" fieldname="likes" dataname="10"
+                                     ng-model="ahead_like" typeahead="like for like in likes | filter:$viewValue  | limitTo:4 | unique">
+
+                              <div class="form-inline">
+                                  <label class="checkbox"><input type=checkbox ng-model="checkModel.male" genderclick>Male</label>
+                                  <label class="checkbox"><input type=checkbox ng-model="checkModel.female" genderclick>Female</label>
+                                  <label class="checkbox"><input type=checkbox ng-model="checkModel.online" genderclick>Online</label>
+                              </div>
+                              <!--<hr>-->
                           </div>
-                          <!--<hr>-->
-                      </div>
+                      <!--</div>-->
+
+                      <!--<hr>-->
+
+
+
+
 
 
 
@@ -328,34 +424,31 @@
   </div>
 
   <script src="/static/js/jquery.wookmark.js"></script>
-    <!--<script>-->
-        <!--function getByClass (className, parent) {-->
-            <!--parent || (parent=document);-->
-            <!--var descendants=parent.getElementsByTagName('*'), i=-1, e, result=[];-->
-            <!--while (e=descendants[++i]) {-->
-                <!--((' '+(e['class']||e.className)+' ').indexOf(' '+className+' ') > -1) && result.push(e);-->
-            <!--}-->
-            <!--return result;-->
-        <!--}-->
+  <script src="/static/js/prettify.js"></script>
+  <script src="/static/js/modernizr.js"></script>
+  <!--<script src="js/jquery.js"></script>-->
+  <script src="/static/js/bootstrap-slider.js"></script>
+  <script>
+//      if (top.location != location) {
+//          top.location.href = document.location.href ;
+//      }  ;
 
-        <!--function replaceInClass (className, content) {-->
-            <!--var nodes = getByClass(className), i=-1, node;-->
-            <!--console.log(nodes.length);-->
-            <!--while (node=nodes[++i]) console.log(node);-->
-        <!--}-->
-
-        <!--replaceInClass("ui-widget-content", "aabrakadabra")-->
+          $('#sl2').slider();
+$('#sl1').slider();
 
 
+/*$('#h_slider').slider({
+    range: true,
+    values: [17, 67]
+});*/
 
-<!--//        var cusid_ele = document.getElementsByClassName("ui-widget-content") ;-->
-<!--//        console.log(cusid_ele);-->
-<!--//        for (var i = 0; i < cusid_ele.length; ++i) {-->
-<!--//            var item = cusid_ele[i];-->
-<!--////            item.innerHTML = 'this is value';-->
-<!--//            console.log('ripu', item);-->
-<!--//        }-->
-    <!--</script>-->
+$('.dropdown-toggle').dropdown();
+$('.dropdown-menu').find('form').click(function (e) {
+    e.stopPropagation();
+});
+
+  </script>
+
 
 </body>
 </html>

@@ -286,6 +286,7 @@ class IndexClient(object):
                 
                 params['filter_function' + str(key)] = total_value
 
+        # print params
         if match_any_field:
             params['match_any_field']=match_any_field
 

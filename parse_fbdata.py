@@ -2,7 +2,7 @@
 from dateutil import parser
 import simplejson as sjson
 from datetime import datetime as dt
-
+import time
 
 import re
 import unidecode
@@ -511,6 +511,7 @@ def add_variables(u):
 	variables[4], variables[5] = get_latlong_from_db(u.hometown_location_latlong)	
 	variables[6] = get_interested_in_from_db(u.interested_in)
 	variables[7] = 0 if u.gender=='Female' else 1
+	variables[9] = int(1000*time.time())
 
 	return variables
 

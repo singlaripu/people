@@ -9,8 +9,15 @@ var app =  angular.module('myApp', ['ui.bootstrap', 'ui.utils']);
 
 app.factory('myService', function($http) {
     var myService = {
-        async: function() {
-            var promise = $http.get('/getlist').then(function (response) {
+        async: function(isShowAll, age, distance) {
+            var sampledata = {};
+            sampledata['isShowAll'] = isShowAll;
+            sampledata['age'] = age;
+            sampledata['distance'] = distance;
+            var jsonobj = angular.toJson(sampledata);
+//            console.log(jsonobj);
+            var promise = $http.post('/getlist', jsonobj).then(function (response) {
+//            var promise = $http.get('/getlist/' + isShowAll + '/' + age[0] + '/' + age[1] + '/' + distance).then(function (response) {
                 return response.data;
             });
             return promise;
@@ -21,8 +28,16 @@ app.factory('myService', function($http) {
 
 app.factory('mySearchService', function($http) {
     var myService = {
-        async: function(q) {
-            var promise = $http.get('/search/'+q).then(function (response) {
+        async: function(q, isShowAll, age, distance) {
+            var sampledata = {};
+            sampledata['query'] = q;
+            sampledata['isShowAll'] = isShowAll;
+            sampledata['age'] = age;
+            sampledata['distance'] = distance;
+            var jsonobj = angular.toJson(sampledata);
+//            console.log(jsonobj);
+            var promise = $http.post('/search', jsonobj).then(function (response) {
+//            var promise = $http.get('/search/' + q + '/' + isShowAll + '/' + age[0] + '/' + age[1] + '/' + distance).then(function (response) {
                 return response.data;
             });
             return promise;
@@ -39,7 +54,7 @@ app.factory('myStatusService', function($http) {
         async: function(ids, fb_uid, status) {
             var sampledata = {};
             sampledata['ids'] = ids;
-            sampledata['fb_uid'] = fb_uid;
+//            sampledata['fb_uid'] = fb_uid;
             sampledata['status'] = status;
             var jsonobj = angular.toJson(sampledata);
 //            console.log(jsonobj);
@@ -54,7 +69,7 @@ app.factory('myStatusService', function($http) {
 
 
 
-function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager, myStatusService) {
+function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager, myStatusService, mySearchService) {
 
     $scope.users = [];
     $scope.page = 0;
@@ -90,8 +105,8 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager,
     $scope.browser_status = undefined;
     $scope.presence_ids = [];
     $scope.presence_json = undefined;
-    $scope.online_status = 1;
-    $scope.searchvalue = undefined;
+    $scope.online_status = new Date().getTime();
+//    $scope.searchvalue = undefined;
     $scope.backupdata = undefined;
     $scope.passwd = undefined;
     $scope.flag_to_display_default = false;
@@ -103,6 +118,16 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager,
     $scope.ahead_school = undefined;
     $scope.ahead_hometown = undefined;
     $scope.ahead_like = undefined;
+    $scope.end_refresh_loop = 0;
+    $scope.isShowAll = false;
+    $scope.search_distance = "5000";
+    $scope.search_age = ["18","70"];
+    $scope.dropdown_menu1_open = false;
+    $scope.isShowAll_minus1 = false;
+    $scope.search_distance_minus1 = "5000";
+    $scope.search_age_minus1 = ["18","70"];
+
+//    $scope.showall = "All";
 //    $scope.msg_send_promise = undefined;
 //    $scope.msg_array = [];
 
@@ -620,7 +645,7 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager,
         var from = new google.maps.LatLng(lat1, lng1);
         var to   = new google.maps.LatLng(lat2, lng2);
         var dist = google.maps.geometry.spherical.computeDistanceBetween(from, to)/1000.0;
-        var score = (Math.log(1 + (1000.0/Math.max(10, dist))));
+        var score = (Math.log(1 + (100.0/Math.max(10, dist))));
         return [dist, score];
 //        console.log(dist, score);
 //        return true;
@@ -731,7 +756,9 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager,
 
 //        var mydata1 = ['101', '102'];
 
+        $scope.timediff  = new Date().getTime() - 300000;
         $scope.refresh_online_status();
+//        console.log('blah blah blah blah blah');
 //        makeCorsRequest();
 //        myStatusService.async(mydata1);
 //        $timeout(function() {
@@ -824,7 +851,7 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager,
 
 
 
-    myService.async().then(function(d) {
+    myService.async(!$scope.isShowAll, $scope.search_age, $scope.search_distance).then(function(d) {
 
 //        console.log('i am in my service then');
         console.log('initial data has come');
@@ -845,7 +872,7 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager,
         $scope.backupdata = d;
         $scope.connect_to_chat_protocols();
         $scope.on_arrival_of_data(d);
-        $scope.change_status_to_idle();
+//        $scope.change_status_to_idle();
 
     });
 
@@ -861,17 +888,39 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager,
         });
     }
 
-    $scope.refresh_online_status = function (){
-        myStatusService.async($scope.presence_ids, $scope.fb_uid, $scope.online_status).then(function(d) {
-            console.log('Refreshing online status');
-            for (var j=0; j<$scope.users.length; j++) {
-                $scope.users[j].online_flag = d.data[j];
-            }
-            $timeout(function() {
-                $scope.refresh_online_status();
+//    $scope.timediff1 = new Date().getTime();
 
-            },300000);
-        });
+    $scope.refresh_online_status = function (){
+
+        if (new Date().getTime() - $scope.timediff > 250000)  {
+            $scope.timediff = new Date().getTime();
+
+
+            myStatusService.async($scope.presence_ids, $scope.fb_uid, $scope.online_status).then(function(d) {
+            console.log('Refreshing online status');
+//            console.log(d.data);
+                for (var j=0; j < $scope.users.length; j++) {
+                    if (new Date().getTime() - d.data[j] < 400000){
+                        $scope.users[j].online_flag = 1;
+                    }
+                    else if (d.data[j] > 0) {
+                        $scope.users[j].online_flag = 0;
+                    }
+//                    if (d.data[j] > 0) {
+//                        console.log("statustime", (new Date().getTime() - parseInt(d.data[j]))/1000);
+//                    }
+                }
+//                if ($scope.end_refresh_loop == 0) {
+                $timeout(function() {
+//                        $scope.timediff = new Date().getTime();
+//                    console.log("calltime", (new Date().getTime() - $scope.timediff1)/1000);
+                    $scope.refresh_online_status();
+
+                },300000);
+//                }
+            });
+        }
+
 
     }
 
@@ -1976,6 +2025,51 @@ function DispCtrl($scope, myService, $http, $compile, $timeout, $chatboxManager,
 
     }
 
+    $scope.update_default_results = function() {
+        var changed = false;
+//        console.log($scope.isShowAll, $scope.isShowAll_minus1, $scope.search_age, $scope.search_age_minus1,  $scope.search_distance, $scope.search_distance_minus1);
+        if ($scope.isShowAll != $scope.isShowAll_minus1) {
+            changed = true;
+            $scope.isShowAll_minus1 = $scope.isShowAll;
+//            console.log('due to checkbox');
+        }
+        else if($scope.search_age[0] != $scope.search_age_minus1[0] || $scope.search_age[1] != $scope.search_age_minus1[1]) {
+            changed = true;
+            $scope.search_age_minus1 = $scope.search_age;
+//            console.log('due to age');
+        }
+        else if ($scope.search_distance != $scope.search_distance_minus1) {
+            changed = true;
+            $scope.search_distance_minus1 = $scope.search_distance;
+//            console.log('due to distance');
+        }
+
+        if (changed) {
+            $scope.subset = [];
+            $scope.$apply();
+            $('#loaderCircle').show();
+            var searchterm = document.getElementById("global_search_input").value;
+            if (searchterm) {
+                mySearchService.async(searchterm, !$scope.isShowAll, $scope.search_age, $scope.search_distance).then(function(d) {
+                    $scope.on_arrival_of_data(d);
+                });
+                myService.async(!$scope.isShowAll, $scope.search_age, $scope.search_distance).then(function(d) {
+                    $scope.backupdata = d;
+                });
+            }
+            else {
+                myService.async(!$scope.isShowAll, $scope.search_age, $scope.search_distance).then(function(d) {
+                    $scope.on_arrival_of_data(d);
+                    $scope.backupdata = d;
+                });
+            }
+//            console.log('send the fresh request');
+        }
+//        else {
+//            console.log('do not send fresh request, nothing happened');
+//        }
+    }
+
 }
 
 
@@ -2103,12 +2197,18 @@ app.directive("searchenter", function($timeout, mySearchService, myService){
     return function (scope, element, attrs) {
 
         var search_fn = function() {
+            $("#global_search_input").data("autocomplete").close();
             scope.subset = [];
             scope.$apply();
             $('#loaderCircle').show();
-            mySearchService.async(scope.searchvalue).then(function(d) {
+            var searchterm = document.getElementById("global_search_input").value;
+            console.log('search term: ', searchterm, scope.isShowAll);
+
+
+            mySearchService.async(searchterm, !scope.isShowAll, scope.search_age, scope.search_distance).then(function(d) {
 //            console.log('i am in my service then');
-            scope.on_arrival_of_data(d);
+
+                scope.on_arrival_of_data(d);
             });
         }
 
@@ -2120,16 +2220,27 @@ app.directive("searchenter", function($timeout, mySearchService, myService){
 //            console.log('i am in my service then');
                 scope.on_arrival_of_data(scope.backupdata);
 //            });
+
+
         }
 
         element.bind("keyup", function(evt) {
-            scope.searchvalue = evt.target.value;
-            scope.$apply();
+//            scope.searchvalue = evt.target.value;
+//            scope.$apply();
 
             if (evt.target.value) {
                 if (evt.which == 13){
-
-                    console.log('search term: ', evt.target.value);
+//                    $('.dropdown-menu').click(function(event){
+//                        evt.stopPropagation();
+//                    });
+//                    $("#global_search_input").data("autocomplete").close();
+//                    $('.dropdown.open .dropdown-toggle').dropdown('toggle');
+//                    $('[data-toggle="dropdown"]').parent().removeClass('open');
+//                    console.log('bydocid', document.getElementById("global_search_input").value);
+//                    scope.searchvalue = document.getElementById("global_search_input");
+//                    scope.$apply();
+//                    console.log('search term: ', evt.target.value);
+//                    console.log('search term: ', scope.searchvalue);
                     search_fn();
                     scope.flag_to_display_default = true;
 
@@ -2155,13 +2266,16 @@ app.directive("searchenter", function($timeout, mySearchService, myService){
         element.on("click", function(evt) {
 //            console.log(evt.target.className) ;
             if (evt.target.className == "icon-search") {
-                if (scope.searchvalue) {
-                    console.log('search term: ', scope.searchvalue)   ;
+//                scope.searchvalue = document.getElementById("global_search_input").value;
+//                scope.$apply();
+//                console.log('bydocid', document.getElementById("global_search_input").value);
+                if (document.getElementById("global_search_input").value) {
+//                    console.log('search term: ', scope.searchvalue)   ;
                     search_fn();
                 }
-                else {
-                    search_default();
-                }
+//                else {
+//                    search_default();
+//                }
 
             }
         });
@@ -2192,16 +2306,78 @@ app.directive('onlinestatus', function(){
     return function (scope, element, attrs) {
 
         element.bind("keydown keypress keyup mousedown mouseup mouseover mousemove mouseenter mouseleave", function(evt) {
-            if (scope.online_status == 0) {
-//                console.log('global directive activated');
-                scope.online_status = 1;
+//            if (scope.online_status == 0) {
+////                console.log('global directive activated');
+//                scope.online_status = 1;
+//                scope.$apply();
+//            }
+            scope.online_status = new Date().getTime();
+            scope.$apply();
+        });
+
+        element.on('click', function(evt) {
+            if(scope.dropdown_menu1_open) {
+                scope.dropdown_menu1_open = false;
                 scope.$apply();
+                console.log('dropdown closed');
+                scope.update_default_results();
             }
         });
 
 
     }
 }) ;
+
+
+app.directive('ageslider', function($timeout){
+    return function (scope, element, attrs) {
+        element.on("slide", function(evt){
+//            console.log("i entered the directive");
+            var age = $('#sl2').slider('getValue');
+            age = age[0].value;
+            scope.search_age = age.split(",");
+//            var age_min = parseInt(age[0]);
+//            var age_max = parseInt(age[1]);
+//            console.log(age_min, age_max);
+//            scope.search_age = [age_min, age_max];
+            scope.$apply();
+//            console.log(scope.search_age_minus1, scope.search_age);
+        });
+    }
+}) ;
+
+app.directive('distslider', function(){
+    return function (scope, element, attrs) {
+        element.on('slide', function(evt){
+            var distance = $('#sl1').slider('getValue');
+            scope.search_distance = distance[0].value;
+//            distance = parseInt(distance[0].value);
+//            console.log(distance);
+            scope.$apply();
+        });
+    }
+}) ;
+
+
+app.directive('dropdownadvanced', function(){
+    return function (scope, element, attrs) {
+        element.on('click', function(evt){
+            if (scope.dropdown_menu1_open) {
+                scope.dropdown_menu1_open = false;
+                scope.$apply();
+                console.log('dropdown closed');
+                scope.update_default_results();
+            }
+            else {
+                scope.dropdown_menu1_open = true;
+                scope.$apply();
+                console.log('dropdown opened');
+            }
+        });
+    }
+}) ;
+
+
 
 
 //app.directive('messageenter', function($socketio){
