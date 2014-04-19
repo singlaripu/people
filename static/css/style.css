@@ -516,3 +516,7 @@ only screen and (min-device-pixel-ratio: 1.5) {
 .dropdown-menu>li>a {
     white-space: pre-wrap;
 }
+
+.image_placeholder{
+    background: white url('/static/images/placeholder.gif') no-repeat center center;
+}

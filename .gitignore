@@ -1,7 +1,8 @@
 *~
 *.pyc
-venv/*
+venv
 .DS_Store
 .env
-garbage/*
-.idea/*
+garbage
+.idea
+db_dump

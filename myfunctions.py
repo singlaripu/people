@@ -365,7 +365,7 @@ def sqlobj_to_dict(users, maps, ldi):
 		a = {c: getattr(user, keys[c]) for c in keys.keys() if getattr(user, keys[c])}
 		a[10] = list(user.likes_set)
 		lv_set, lv_scr = get_lv_likes(ldi, user.likes_set) 
-		a['scr'] = 1*(maps[user.id] + lv_scr)
+		a['scr'] = -1*(maps[user.id] + lv_scr)
 
 		age = get_age(user.birthday_dformat)
 		if age:
