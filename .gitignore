@@ -6,3 +6,6 @@ venv
 garbage
 .idea
 db_dump
+jabber_register_user.py
+slugify.py
+redis_xmpp_cron.py
