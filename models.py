@@ -2,7 +2,6 @@
 from dbconnection import db
 import sqlalchemy
 
-
 # class User(db.Model):
 
 #     __tablename__ = 'user'
